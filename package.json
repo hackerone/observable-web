@@ -1,0 +1,10 @@
+{
+  "name": "reveal.js boilerplate",
+  "version": "0.0.1",
+  "dependencies": {
+    "underscore": "~1.5.1",
+    "express": "~2.5.9",
+    "mustache": "~0.7.2",
+    "socket.io": "~0.9.13"
+  }
+}
