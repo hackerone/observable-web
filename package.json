@@ -2,6 +2,7 @@
   "name": "reveal.js-boilerplate",
   "version": "0.0.1",
   "dependencies": {
+    "jquery": "~2.1.1",
     "underscore": "~1.5.1",
     "express": "~2.5.9",
     "mustache": "~0.7.2",
@@ -13,6 +14,8 @@
     "webpack": "latest",
     "webpack-dev-server": "latest",
     "script-loader": "latest",
+    "html-loader": "latest",
+    "jade-loader": "latest",
     "jade-html-loader": "latest",
     "style-loader": "latest",
     "css-loader": "latest",

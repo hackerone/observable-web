@@ -9,6 +9,12 @@ require('script!./lib/js/head.min.js');
 require('script!./lib/js/classList.js');
 require('script!./js/reveal.js');
 
+var $ = require('jquery');
+
+var slides = require('./presentations/webpack/slides.jade');
+
+$('.slides').append(slides);
+
 window.Reveal.initialize({
     controls: true,
     progress: true,

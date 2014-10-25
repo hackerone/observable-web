@@ -1,0 +1,61 @@
+section
+    h1 Webpack
+    h3 The cool kids' Javascript bundler
+
+section
+    h2 Agenda
+    ul
+        li Why do we need bundlers and what should they be capable of?
+        li Review of the main competitors of Webpack
+        li What can Webpack do what the other bundlers cannot?
+        li Live Demo
+
+section
+    h2 About me
+
+    h5 Name
+    p Reto Schläpfer
+
+    h5 Work
+    p React.js/Flux & Finance related backend stuff in Python at #[i Bluevalor AG]
+
+    h5 Blog
+    p www.code-experience.com
+
+    h5 Twitter
+    p: i @Retolements
+
+    h5 GitHub
+    p: i Retozi
+
+
+section
+    h3 Why do we need a bundler?
+
+    div.fragment
+        p Because modules should be small, and loading many modules through HTTP-Requests is slow.
+
+        p Bundling modules reduces the amount of necessary HTTP-Requests to load our app.
+
+
+
+section
+    h2 Requirements for a good bundler
+
+
+section
+    h3 For production
+
+    p Enable you the choose a bundling strategy so that your app loads quickly:
+
+    p Deliver modules that are needed at the same time in one HTTP-Request.
+
+    p Deliver independent modules seperately.
+
+    p optimize size of bundles.
+
+
+section
+    h3 For Development
+
+    p Deliver changes to modules instantly

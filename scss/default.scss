@@ -21,6 +21,28 @@
 
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
 
+$headingMargin: 10px 0 5px 0;
+$headingTextTransform: none;
+
 // Theme template ------------------------------
 @import "theme";
 // ---------------------------------------------
+
+.indented-block {
+    display: table-cell;
+}
+
+.reveal .slides {
+    text-align: left;
+    letter-spacing: 0;
+    h2, h3 {
+        margin: 0 0 100px 0;
+    }
+
+    li, p {
+        padding-bottom: 40px;
+    }
+
+}
+
+
