@@ -43,7 +43,7 @@ $mainFontSize: 34px;
         margin: 0 0 130px 0;
     }
 
-    li, p {
+    li, p, blockquote {
         padding-bottom: 40px;
     }
 
@@ -51,8 +51,8 @@ $mainFontSize: 34px;
         margin-top: 50px;
         margin-bottom: 50px;
         max-height: 650px;
-        font-size: 20px;
-        line-height: 26px;
+        font-size: 24px;
+        line-height: 30px;
     }
     [data-state="white-background"] {
         h2, h3, h4, p {

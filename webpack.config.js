@@ -10,7 +10,7 @@ module.exports = {
     output: {
         path: __dirname + '/js',
         filename: 'slides-loader.js',
-        publicPath: "/js/"
+        publicPath: '/js/'
     },
     plugins: [new webpack.HotModuleReplacementPlugin()],
     module: {
