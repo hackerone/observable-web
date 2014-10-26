@@ -30,7 +30,7 @@ section
 
 
 section
-    h3 Why do we need a bundler?
+    h2 Why do we need a bundler?
 
     div.fragment
         p Because modules should be small, and loading many modules through HTTP-Requests is slow.
@@ -40,11 +40,11 @@ section
 
 
 section
-    h2 Requirements for a good bundler
+    h2 Requirements of a good bundler
 
 
 section
-    h3 For production
+    h2 For production
 
     p Enable you the choose a bundling strategy so that your app loads quickly:
 
@@ -56,6 +56,166 @@ section
 
 
 section
-    h3 For Development
+    h2 For Development
 
     p Deliver changes to modules instantly
+
+
+section
+    h2 RequireJS vs Browserify
+
+
+section
+    h2 RequireJS
+
+    p AMD style modules
+
+    pre
+        code.hljs.javascript.
+            define([
+              'jquery',
+              'underscore',
+              'backbone',
+              'router',
+            ], function($, _, Backbone, Router){
+              var initialize = function(){
+                Router.initialize();
+              }
+
+              return {
+                initialize: initialize
+              };
+            });
+
+section
+    h2 RequireJS: The Good
+
+    p Battle proven
+
+    p Allows for flexible asynchronous loading if needed
+
+section
+    h2 RequireJS: The Bad
+
+    p AMD is out, CommonJS is in (npm EVERYTHING)
+
+    p A lot is possible, but everything requires massive configuration
+
+
+section
+    h2 Browserify
+
+    p CommonJS module style
+
+    pre
+        code.hjs.javascript.
+
+            var $ = require('jquery');
+            var _ = require('lodash');
+            var backbone = require('backbone');
+            var router = require('Router');
+
+              var initialize = function(){
+                Router.initialize();
+              }
+
+            module.exports = initialize;
+
+section
+
+    h2 Browserify: The Good
+
+    p Use npm / node.js libraries
+
+    p.
+        Integrates seamlessly with Gulp/Grunt.
+        This allows for powerful processing strategies.
+
+    p CommonJS syntax is better
+
+
+
+section
+    h2 Browserify: The Bad
+
+    p you need Gulp/Grunt and plugins for instant dev rebuilds.
+
+    p.
+        Default is bundling into a single file. Async loading & multiple bundles
+        possible, but it must be done manually.
+
+
+section
+
+    h2 Conclusion
+
+    p Internet Consensus: Browserify > RequireJS for most of the cases
+
+
+section
+
+    h2 Webpack
+
+    p Instagram/Facebook hypes it, Yahoo uses it as well.
+
+
+section
+
+    h2 Everything is a module
+
+    p Why do other bundlers only care about Javascript modules?
+
+    p There are other assets that need bundling!
+
+
+section(data-state="white-background")
+
+    p Take the full dependency graph of all assets, and bundle them to your liking
+
+    img(src="/presentations/webpack/what-is-webpack.png")
+
+
+section
+
+    h2 Bundling everything into one file is often not enough
+
+    p.
+        If our app is big, we would like to split our assets into multiple chunks:
+
+    ul
+        li single out vendor libs ("common chunk")
+        li provide only modules needed for given entrypoint
+        li load rarely used libs on demand
+
+
+section
+
+    h3 Why do I have to refresh my browser in development?
+
+    p.
+        Weback ships awesome devtools that provide instant rebuilds with
+        hot reload (without browser plugins)
+
+
+section
+
+    h3 How the hell do I bundle pngs and css?
+
+
+    pre
+        code.hjs.javascript.
+
+            require('./mySassForThisModule.scss'); //yes, we require sass!
+
+            var _ = require('lodash');
+            var FooComponent = require('./FooComponent.jsx');
+
+            var imageLink = require('../../img/myImage.png'); //yes, we require png!
+
+            // do something with imageLink, FooComponent and lodash
+
+            module.exports = ThisModule;
+
+    p.
+        If you bundle this with webpack, all the assets will be automagically
+        available when you include your bundle into your html document.

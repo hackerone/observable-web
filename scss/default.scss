@@ -19,30 +19,49 @@
 	font-style: normal;
 }
 
-@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
+@import url(https://fonts.googleapis.com/css?family=Lato:300,700,300italic,700italic);
+@import url(http://fonts.googleapis.com/css?family=Ubuntu:300,700,300italic,700italic);
+@import url(https://fonts.googleapis.com/css?family=Abril+Fatface);
 
+
+$headingFont: 'Abril Fatface', serif;
 $headingMargin: 10px 0 5px 0;
 $headingTextTransform: none;
+
+$mainFont: 'Ubuntu', sans-serif;
+$mainFontSize: 34px;
 
 // Theme template ------------------------------
 @import "theme";
 // ---------------------------------------------
 
-.indented-block {
-    display: table-cell;
-}
 
 .reveal .slides {
     text-align: left;
     letter-spacing: 0;
     h2, h3 {
-        margin: 0 0 100px 0;
+        margin: 0 0 130px 0;
     }
 
     li, p {
         padding-bottom: 40px;
     }
 
+    pre code {
+        margin-top: 50px;
+        margin-bottom: 50px;
+        max-height: 650px;
+        font-size: 20px;
+        line-height: 26px;
+    }
+    [data-state="white-background"] {
+        h2, h3, h4, p {
+            color: #3B3B3B;
+        }
+    }
 }
 
+.white-background .state-background {
+    background-color: #EDEDED;
+}
 
