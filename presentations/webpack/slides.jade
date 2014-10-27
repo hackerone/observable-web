@@ -404,3 +404,24 @@ section
             });
 
             server.listen(8081, "localhost", function() {});
+
+section
+
+    h2 dev-server setup (2)
+
+    pre
+        code.hljs.javascript.
+            // ------------------
+            // webpack.config.js
+            // ------------------
+            entry: [
+                './slides-loader.js',
+                'webpack/hot/dev-server',
+                'webpack-dev-server/client?http://localhost:8081'
+            ],
+            plugins: [new webpack.HotModuleReplacementPlugin()],
+
+
+section
+
+    h2
