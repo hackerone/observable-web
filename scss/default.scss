@@ -39,6 +39,9 @@ $mainFontSize: 34px;
 .reveal .slides {
     text-align: left;
     letter-spacing: 0;
+    h1 {
+        margin-bottom: 40px;
+    }
     h2, h3 {
         margin: 0 0 130px 0;
     }
