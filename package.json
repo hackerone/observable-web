@@ -6,14 +6,14 @@
     "underscore": "~1.5.1",
     "express": "~2.5.9",
     "mustache": "~0.7.2",
-    "socket.io": "~0.9.13",
-    "markdown-js": "latest"
+    "socket.io": "~0.9.13"
   },
   "devDependencies": {
     "express": "latest",
     "proxy-middleware": "latest",
     "webpack": "latest",
     "webpack-dev-server": "latest",
+    "file-loader": "latest",
     "script-loader": "latest",
     "html-loader": "latest",
     "jade-loader": "latest",

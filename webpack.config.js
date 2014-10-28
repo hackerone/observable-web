@@ -8,11 +8,14 @@ module.exports = {
         'webpack-dev-server/client?http://localhost:8081'
     ],
     output: {
-        path: __dirname + '/js',
+        path: __dirname + '/build',
         filename: 'slides-loader.js',
-        publicPath: '/js/'
+        publicPath: 'build/'
     },
-    plugins: [new webpack.HotModuleReplacementPlugin()],
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({PRESENTATION: JSON.stringify("webpack")})
+    ],
     module: {
         loaders: [
             { test: /\.jade$/, loader: "html!jade-html"},

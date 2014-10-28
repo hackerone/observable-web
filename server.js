@@ -9,7 +9,7 @@ var server = new WebpackDevServer(webpack(config), {
     contentBase: __dirname,
     quiet: false,
     noInfo: false,
-    publicPath: '/js/',
+    publicPath: '/build/',
     stats: { colors: true }
 });
 

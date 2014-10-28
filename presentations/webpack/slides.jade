@@ -7,7 +7,8 @@ section
     ul
         li Why do we need bundlers and what should they be capable of?
         li Review of the main competitors of Webpack
-        li What can Webpack do what the other bundlers cannot?
+        li Why Webpack and how do you use it?
+        li Live Demo
 
 section
     h2 About me
@@ -39,27 +40,29 @@ section
 
 
 section
-    h2 Requirements of a good bundler
+    h2 Requirements for a good bundler
 
 
 section
     h2 For production
 
-    p
-        i.
-            A bundling strategy so that makes your app loads quickly:
+    p: i A bundling strategy that makes your app load quickly:
 
     p -> Deliver modules that are needed at the same time in one HTTP-Request.
 
     p -> Deliver independent modules seperately.
 
-    p -> optimize size of bundles.
+    p -> Optimize size of bundles and their caching.
 
 
 section
     h2 For Development
 
-    p Deliver changes to modules instantly
+    p Deliver changes to modules instantly.
+
+    p Importing dependencies into your modules should be easy.
+
+    p Minimal configuration / processing scripts.
 
 
 section
@@ -91,16 +94,18 @@ section
 section
     h2 RequireJS: The Good
 
-    p Battle proven
+    ul
+        li Battle proven
 
-    p Allows for flexible asynchronous loading if needed
+        li Asynchronous loading in the core (default in dev-mode)
 
 section
     h2 RequireJS: The Bad
 
-    p AMD is out, CommonJS is in (npm EVERYTHING)
+    ul
+     li AMD is out, CommonJS is in (npm EVERYTHING)
 
-    p A lot is possible, but everything requires massive configuration
+     li A lot is possible, but everything requires massive configuration
 
 
 section
@@ -126,24 +131,23 @@ section
 
     h2 Browserify: The Good
 
-    p Use npm / node.js libraries
+    li Use npm / node.js libraries
 
-    p.
-        Integrates seamlessly with Gulp/Grunt.
-        This allows for powerful processing strategies.
+    li.
+        Plays well with Gulp/Grunt. => powerful processing strategies.
 
-    p CommonJS syntax is better
+    li CommonJS syntax is better
 
 
 
 section
     h2 Browserify: The Bad
 
-    p you need Gulp/Grunt and plugins for instant dev rebuilds.
+    li you need Gulp/Grunt and plugins for instant dev rebuilds.
 
-    p.
-        Default is bundling into a single file. Async loading & multiple bundles
-        possible, but it must be done manually.
+    li.
+        Default: into a single file. Async loading & multiple bundles
+        possible, but must be done manually.
 
 
 section
@@ -151,6 +155,10 @@ section
     h2 Conclusion
 
     p Internet Consensus: Browserify > RequireJS for most of the cases
+
+    p.
+        Both solutions get the job done well, but there are rough edges here
+        and there.
 
 
 section
@@ -166,35 +174,33 @@ section
 
     p Why do other bundlers only care about Javascript modules?
 
-    p There are other assets that need bundling!
+    p There are other assets that need bundling! Wepack enables you to do that.
 
 
 section(data-state="white-background")
 
     p Take the full dependency graph of all assets, and bundle them to your liking
 
-    img(src="/presentations/webpack/what-is-webpack.png")
+    img#what-is-webpack
 
 
 section
 
-    h2 Bundling everything into one file is often not enough
+    h2 Bundling into one file is not enough
 
     p.
-        If our app is big, you would like to split the assets into multiple chunks:
+        If our app is big, you would like to split the assets into multiple files:
 
-    ul
-        li single out vendor libs ("common chunk")
-        li provide only modules needed for given entrypoint
-        li load rarely used libs on demand
+    p Webpack will give you powerful advanced bundling strategies with minimal configuration
+
 
 
 section
 
-    h2 Why do I have to refresh my browser in development?
+    h2 Dev experience is great
 
     p.
-        Weback ships awesome devtools that provide instant rebuilds with
+        Weback ships awesome dev-tools that provide instant rebuilds with
         hot reload.
 
 
@@ -215,6 +221,10 @@ section
                     publicPath: '/js/'
                 }
             };
+
+    pre
+        code.bash.
+            bash:~$ webpack
 
 section
 
@@ -388,6 +398,9 @@ section
 
     pre
         code.hljs.javascript.
+            // ------------------
+            // server.js
+            // ------------------
             "use strict";
             var webpack = require('webpack');
             var WebpackDevServer = require('webpack-dev-server');
@@ -421,7 +434,30 @@ section
             ],
             plugins: [new webpack.HotModuleReplacementPlugin()],
 
+section
+
+    h2 Live Demo!
 
 section
 
-    h2
+    h2 Further Reading
+
+    li
+        a(href="http://webpack.github.io/docs/") http://webpack.github.io/docs/
+
+        span  (especially list of tutorials)
+
+    li
+        a(href="https://github.com/petehunt/webpack-howto").
+            https://github.com/petehunt/webpack-howto
+section
+
+    h2 Wrap-Up
+
+    li Good bundling is important (and easier than server-side rendering)
+
+    li Webpack combines the strengths of RequireJS and Browserify
+
+    li Webpack is a bundler for everbody
+
+    li Webpack is well supported (because of the cool kids)
