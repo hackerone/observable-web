@@ -110,11 +110,13 @@ section
 
      li A lot is possible, but everything requires massive configuration
 
+     li Dev-mode doesn't scale
+
 
 section
     h2 Browserify
 
-    p CommonJS module style
+    p CommonJS style modules
 
     pre
         code.hjs.javascript.
@@ -149,7 +151,7 @@ section
     li you need Gulp/Grunt and plugins for instant dev rebuilds.
 
     li.
-        Default: into a single file. Async loading & multiple bundles
+        Default: bundling into a single file. Async loading & multiple bundles
         possible, but must be done manually.
 
 
@@ -173,11 +175,18 @@ section
 
 section
 
+    h2 Definition style agnostic
+
+    p Supports AMD, CommonJS and even ES6 modules
+
+
+section
+
     h2 Everything is a module
 
     p Why do other bundlers only care about Javascript modules?
 
-    p There are other assets that need bundling! Wepack enables you to do that.
+    p There are other assets that need bundling! Webpack enables you to do that.
 
 
 section(data-state="white-background")
@@ -191,10 +200,9 @@ section
 
     h2 Bundling into one file is not enough
 
-    p.
-        If our app is big, you would like to split the assets into multiple files:
+    p If our app is big, you would like to split the assets into multiple files:
 
-    p Webpack will give you powerful advanced bundling strategies with minimal configuration
+    p Webpack will offer you powerful bundling strategies with minimal configuration
 
 
 
@@ -462,5 +470,7 @@ section
     li Webpack combines the strengths of RequireJS and Browserify
 
     li Webpack is a bundler for everbody
+
+    li It is easy to migrate
 
     li Webpack is well supported (because of the cool kids)
