@@ -1,0 +1,10 @@
+@import "../../scss/default.scss";
+
+#mousemove-counter {
+    width: 100%;
+    height: 300px;
+    background: white;
+    line-height: 300px;
+    text-align: center;
+    color: $backgroundColor;
+}
