@@ -28,3 +28,16 @@ $('.slides').append(slides);
 })();
 
 
+function makeThrottler(frameRate) {
+    var _fun = null;
+    function execution() {
+        if (_fun) {
+            _fun();
+            _fun = null;
+            window.setTimeout(execution, frameRate)
+        }
+    }
+    return function(f) {
+        _fun = f;
+    }
+}
