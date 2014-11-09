@@ -14,8 +14,9 @@ $('.slides').append(slides);
     var _start = new Date();
     $('#mousemove-counter').mousemove(function() {
         _counter += 1;
-        var secs = (new Date() - _start) / 1000;
-        if (_counter % 100 === 0) {
+        var secs = 0;
+        if (_counter % 200 === 0) {
+            secs = (new Date() - _start) / 1000;
             var eps = _counter / secs;
             $('#mousemove-counter').text("Events per Second: " + Math.round(eps));
         }
@@ -28,16 +29,18 @@ $('.slides').append(slides);
 })();
 
 
-function makeThrottler(frameRate) {
-    var _fun = null;
-    function execution() {
-        if (_fun) {
-            _fun();
-            _fun = null;
-            window.setTimeout(execution, frameRate)
+function throttle(func, frameRate) {
+    var _wait = false;
+    return function() {
+        if (_wait) {
+            return;
         }
-    }
-    return function(f) {
-        _fun = f;
-    }
+
+        _wait = true;
+        setTimeout(function() {
+            _wait = false;
+            func();
+        }, frameRate);
+    };
 }
+

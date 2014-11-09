@@ -38,9 +38,58 @@ section
 
 section
 
-    h2 You might have done this
+    h2 Throttling via underscore
 
     pre
-        code
+        code.hljs.javascript.
+            var throtteled = _.throttle(onMouseClick, 1000 / 60);
+
+            $(".foo").mousemove(throtteledFun);
+
+section
+
+    h2 Under the hood
+
+    pre
+        code.hljs.javascript.
+            function throttle(func, frameRate) {
+                var _wait = false;
+                return function() {
+                    if (_wait) {
+                        return;
+                    }
+
+                    _wait = true;
+                    setTimeout(function() {
+                        _wait = false;
+                        func();
+                    }, frameRate);
+                };
+            }
+
+section
+
+    h2 Problems
+
+    li static call rate
+
+    li multiple throttlers are not bundled
+
+    li call cycle is not synchronized with the browser reflow repaint cycle
+
+    li runs even if animation is actually not visible
 
 
+section
+
+    h2 Solution:
+
+    p: strong requestAnimationFrame
+
+    li calls function every new frame
+
+    li batches calls
+
+    li aligns with browser reflow repaint cycle
+
+    li does not run in tabs that are not visible
