@@ -1,10 +1,11 @@
 "use strict";
 
-require('./main.scss');
 
 var $ = require('jquery');
 
 var slides = require('./slides.jade');
+
+require('./main.scss');
 
 $('.slides').append(slides);
 
@@ -31,7 +32,7 @@ $('.slides').append(slides);
 
 function throttle(func, frameRate) {
     var _wait = false;
-    return function() {
+    return function(e) {
         if (_wait) {
             return;
         }
@@ -39,8 +40,31 @@ function throttle(func, frameRate) {
         _wait = true;
         setTimeout(function() {
             _wait = false;
-            func();
+            func(e);
         }, frameRate);
     };
 }
 
+
+function naiveThrottle(func) {
+    var _lastFun = func;
+    return function(e) {
+        _lastFun = func;
+        window.requestAnimationFrame(function() {
+            if (_lastFun) {
+                _lastFun(e);
+                _lastFun = null;
+            }
+        });
+    };
+}
+
+
+var throtteled = naiveThrottle(function(e) {
+        console.log(e);
+        $('#setTimeout .green').css('left', e.clientX - $("#setTimeout").offset().left);
+}, 10);
+
+(function() {
+    $('#setTimeout').mousemove(throtteled);
+})();

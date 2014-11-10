@@ -7,7 +7,7 @@ section
     ul
         li How you might throttle
         li How you should throttle
-        li A couple of throttle patterns
+        li Live demo
 
 section
     h2 About me
@@ -33,7 +33,7 @@ section
     div
         p Because some events fire very often! (mousemove, scroll, resize)
 
-        div#mousemove-counter
+        div.demo-box#mousemove-counter
 
 
 section
@@ -42,7 +42,7 @@ section
 
     pre
         code.hljs.javascript.
-            var throtteled = _.throttle(onMouseClick, 1000 / 60);
+            var throtteledFun = _.throttle(onMouseClick, 1000 / 60);
 
             $(".foo").mousemove(throtteledFun);
 
@@ -84,12 +84,72 @@ section
 
     h2 Solution:
 
-    p: strong requestAnimationFrame
+    p: strong: i requestAnimationFrame
 
-    li calls function every new frame
+    li calls function every frame
 
     li batches calls
 
     li aligns with browser reflow repaint cycle
 
     li does not run in tabs that are not visible
+
+
+section
+
+    h2 A working throttler
+
+    pre
+        code.hljs.javascript.
+            function throttle(func) {
+                var _lastFun = func;
+                return function() {
+                    _lastFun = fun;
+                    requestAnimationFrame(function() {
+                        if (_lastFun) {
+                            _lastFun();
+                            _lastFun = null;
+                        }
+                    });
+                };
+            }
+
+
+
+section
+
+    h2 A (slightly) better throttler
+
+    pre
+        code.hljs.javascript.
+            function throttle(func, frameRate) {
+                var _wait = false;
+                return function() {
+                    if (_wait) {
+                        return;
+                    }
+                    _wait = true;
+                    requestAnimationFrame(function() {
+                        _wait = false;
+                        func();
+                    }, frameRate);
+                };
+            }
+
+
+section
+
+    h2 Comparison
+
+
+    div.demo-box#setTimeout
+        div.green
+        div.blue
+
+    div.demo-box#naive
+        div.green
+        div.blue
+
+    div.demo-box#normal
+        div.green
+        div.blue
