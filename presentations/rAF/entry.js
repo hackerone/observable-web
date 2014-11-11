@@ -58,6 +58,19 @@ function naiveThrottle(func) {
     };
 }
 
+function throttlest(func) {
+    var _wait = false;
+    return function() {
+        if (_wait) {
+            return;
+        }
+        _wait = true;
+        setTimeout(function() {
+            _wait = false;
+            func();
+        }, 1000 / 60);
+    };
+}
 
 function modifyFactory(selector) {
     var _count = 0;

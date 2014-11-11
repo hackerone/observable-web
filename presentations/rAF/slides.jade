@@ -118,7 +118,7 @@ section
 
     pre
         code.hljs.javascript.
-            function throttle(func, frameRate) {
+            function throttle(func) {
                 var _wait = false;
                 return function() {
                     if (_wait) {
@@ -128,7 +128,7 @@ section
                     requestAnimationFrame(function() {
                         _wait = false;
                         func();
-                    }, frameRate);
+                    });
                 };
             }
 
