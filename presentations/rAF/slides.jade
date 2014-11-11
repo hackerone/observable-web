@@ -144,7 +144,10 @@ section
 
     div.demo-box#setTimeout
         div.green
-        div.blue
+        - var val = 0
+        while val < 50
+            div(class='blue' style="left: " + 15 * val + "px;")
+            - val++
 
     div.demo-box#naive
         div.green

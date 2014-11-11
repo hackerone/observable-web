@@ -59,12 +59,26 @@ function naiveThrottle(func) {
     };
 }
 
+function modifyFactory(selector) {
+    return function(e) {
+        var offset = $(selector).offset();
+        var x = e.clientX - offset.left;
+        var y = e.clientY - offset.top;
+        var r = Math.sqrt(x);
+        $(selector + ' .green')
+            .css('left', x)
+            .css('top', y)
+            .css('width', r)
+            .css('height', r);
 
-var throtteled = naiveThrottle(function(e) {
-        console.log(e);
-        $('#setTimeout .green').css('left', e.clientX - $("#setTimeout").offset().left);
-}, 10);
+        $(selector + ' .blue').each(function(i) {
+            $(this).css('height', r * (3 + Math.sin(i / 3) * 2))
+        })
+
+    }
+}
+
 
 (function() {
-    $('#setTimeout').mousemove(throtteled);
+    $('#setTimeout').mousemove(throttle(modifyFactory("#setTimeout")));
 })();
