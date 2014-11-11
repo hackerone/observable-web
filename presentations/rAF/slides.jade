@@ -25,9 +25,11 @@ section
     h2 Why throttling
 
     div
-        p Because some events fire very often! (mousemove, scroll, resize)
+        li Some events fire often! (mousemove, scroll, resize)
 
-        div.demo-box#mousemove-counter
+        li functions can be called very very often
+
+        li Everything above 60 fps is not visually noticable
 
 
 section
@@ -78,7 +80,7 @@ section
 
     h2 Solution:
 
-    p: strong: i requestAnimationFrame
+    p: strong: i window.requestAnimationFrame()
 
     li calls function every frame
 
