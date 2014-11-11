@@ -30,7 +30,7 @@ $('.slides').append(slides);
 })();
 
 
-function throttle(func, frameRate) {
+function throttle(func) {
     var _wait = false;
     return function(e) {
         if (_wait) {
