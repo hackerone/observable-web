@@ -36,12 +36,11 @@ function throttle(func, frameRate) {
         if (_wait) {
             return;
         }
-
         _wait = true;
-        setTimeout(function() {
+        window.requestAnimationFrame(function() {
             _wait = false;
             func(e);
-        }, frameRate);
+        });
     };
 }
 
@@ -59,26 +58,30 @@ function naiveThrottle(func) {
     };
 }
 
+
 function modifyFactory(selector) {
+    var _count = 0;
+    var _time = new Date();
     return function(e) {
         var offset = $(selector).offset();
         var x = e.clientX - offset.left;
         var y = e.clientY - offset.top;
-        var r = Math.sqrt(x);
+        var time = new Date();
+        _count += 1;
         $(selector + ' .green')
-            .css('left', x)
             .css('top', y)
-            .css('width', r)
-            .css('height', r);
+            .css('left', x)
+            .text(Math.round(_count / ((time - _time) / 1000)));
 
-        $(selector + ' .blue').each(function(i) {
-            $(this).css('height', r * (3 + Math.sin(i / 3) * 2))
-        })
-
-    }
+        if (time - _time > 2000) {
+            _count = 0;
+            _time = new Date();
+        }
+    };
 }
 
 
 (function() {
-    $('#setTimeout').mousemove(throttle(modifyFactory("#setTimeout")));
+    $('#naive').mousemove(naiveThrottle(modifyFactory("#naive")));
+    $('#normal').mousemove(throttle(modifyFactory("#normal")));
 })();

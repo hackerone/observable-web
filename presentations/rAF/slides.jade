@@ -139,20 +139,51 @@ section
 
 section
 
-    h2 Comparison
-
-
-    div.demo-box#setTimeout
-        div.green
-        - var val = 0
-        while val < 50
-            div(class='blue' style="left: " + 15 * val + "px;")
-            - val++
+    h2 Proof
 
     div.demo-box#naive
+        p naive
         div.green
-        div.blue
 
     div.demo-box#normal
+        p normal
         div.green
-        div.blue
+
+section
+
+    h2 rAF is like setTimeout
+
+    pre
+        code.hljs.javascript.
+
+            var frameId = null;
+            // recursive call
+            function loop() {
+                frameId = requestAnimationFrame(loop)
+
+                // abort loop
+                if (someCondition) {
+                    cancelAnimationFrame(frameId)
+                }
+
+
+
+section
+
+    h2 Implications of rAF
+
+    li gracefully handles bottlenecks
+
+    li call it as often as you want
+
+    li you can do custom animations with similar performance to css transitions
+
+
+section
+
+    h2 Some other Remarks
+
+    li you need a polyfill for older browsers
+
+    li check out Velocity.js for performant jquery animations
+
