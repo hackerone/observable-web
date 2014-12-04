@@ -14,7 +14,7 @@ module.exports = {
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.DefinePlugin({PRESENTATION: JSON.stringify("rAF")})
+        new webpack.DefinePlugin({PRESENTATION: JSON.stringify("webpack")})
     ],
     module: {
         loaders: [
