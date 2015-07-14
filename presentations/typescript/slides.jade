@@ -1,6 +1,6 @@
 section
     h1 Typescript
-    h3 Statically Typed Javascript
+    h3.subhead Statically Typed Javascript
 
 section
     h2 Agenda
@@ -10,7 +10,7 @@ section
         li What you need to know if you want to use Typescript
         li Q & A
 
-section
+section.cv
     h2 About me
 
     h5 Name
@@ -31,17 +31,19 @@ section
 section
     h2 Typescript...? Stati-what?
 
-section
-    h3 Typescript is a language for application scale Javascript development
 
 section
-    h3 Typescript is a superset of Javascript that compiles to plainJavascript
+    p Application-scale Javascript development.
+
+section
+    p Superset of Javascript.
+    p Compiles to plain Javascript.
 
 section
     ul
         li All Javascript code is Typescript code.
-        li Typescript adds optional static types, modules and some ES6 sugar.
-        li Compiles back to (readable) Javascript.
+        li Optional static types, modules and some ES6 sugar.
+        li Compiles back to readable Javascript.
 
 // 6 mins
 
@@ -51,21 +53,23 @@ section
 //16 mins
 
 section
-    h2 Without static typing, the Type of every Object
+    p Without static typing, the type of every object...
     ul
-        li has to be remembered by the Dev
-        li should be tested manually by the Dev
+        li has to be remembered
+        li should be tested
 
 section
-    h3 But it's verbose!
+    p But it's verbose!?
 
 section
-    h3.
-     verbosity = the amount of code and docs you have to read
-        to understand it, and the tests you have to write to assert correctness
+    p(style="font-weight: bold; padding-bottom: 160px;") verbosity =
+
+    p Code and docs to read
+    p +
+    p Rests to write
 
 section
-    h2 Static Typing
+    p Static Typing
     ul
         li adds a lot of information that you would need look up or remember
         li asserts a lot of correctness of your code as you type
@@ -76,50 +80,68 @@ section
     h2 The Effect of Typescript in Practice
 
 section
-    h2 Deleted half of our unittests
+    p Deleted half of our unittests.
 
 section
-    h2 Wrote whole modules (300-400 LOC) ran them, no runtime error.
+    p Wrote whole modules (300-400 LOC)...
+    p ... ran them ...
+    p ... no runtime error.
 
 section
-    h2 Refactor with confidence, up to three times faster
+    p Refactor with confidence ...
+    p ... up to three times faster
 
 section
-    h2 Static Typing discourages implicit, fancy patterns
+    p Static Typing discourages implicit, fancy patterns
+
+    pre
+        code.
+            ...
+            return Object.assign(this, y, {foo: 'bar'})
+    pre
+        code.
+            foo('hello');
+            foo(['hello', 'world']);
+
 
 //26 mins
 
 section
-    h2 Some things you should know about Typescript
+    h2 Things you should know
 
 section
-    h2 It works! Mature, well thought out Type System, no Quirks
+    p It works!
+    p Mature, well thought out type system.
+    p no quirks.
 
 section
-    h2 It is used heavily in production.
+    p Used heavily in production.
 
 section
-    h2 You can keep all your Javascript dependencies.
+    p Keep all your Javascript dependencies.
 
 section
-    h2 You can switch gradually.
+    p Switch gradually.
 
 section
-    h2 The dev-tooling is awesome (VSCode, tslint).
+    p Dev-tooling is awesome.
 
 section
-    h2 plugins for build-tools exist (tsify, webpack-typescript-loader).
+    p Plugins for the major build-tools.
 
 section
-    h2 providing a dependency can be a little quirky
+    p Providing a dependency can be quirky.
 
 section
-    h2 Small Community.
+    p Small community.
 
 section
-    h2 Devs need to be willing to warm up to static typing
+    p Devs need to be willing to warm up to static typing.
 
 section
-    h2 Summary
+    p Flow
+
+section
+    h3 Summary
 
 //30 mins

@@ -1,0 +1,21 @@
+@import "../../scss/default.scss";
+
+.reveal {
+    ol, ul {
+        display: block;
+        padding-top: 48px;
+    }
+    p {
+        font-size: 48px
+    }
+    .subhead {
+        padding-top: 36px;
+        font-family: $mainFont;
+    }
+    .cv {
+        p {
+            font-size: 36px;
+        }
+    }
+}
+

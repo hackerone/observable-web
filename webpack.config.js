@@ -14,7 +14,7 @@ module.exports = {
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.DefinePlugin({PRESENTATION: JSON.stringify("webpack")})
+        new webpack.DefinePlugin({PRESENTATION: JSON.stringify("typescript")})
     ],
     module: {
         loaders: [
