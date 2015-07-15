@@ -6,7 +6,7 @@
     "typescript": "1.5.0-beta"
   },
   "scripts": {
-    "start": "node node_modules/typescript/bin/tsc.js --project ./"
+    "ts": "node node_modules/typescript/bin/tsc.js demo.ts && node ./demo.js"
   },
   "author": "Parkingcard AG"
 }
