@@ -6,7 +6,7 @@
     "typescript": "1.5.0-beta"
   },
   "scripts": {
-    "ts": "node node_modules/typescript/bin/tsc.js demo.ts && node ./demo.js"
+    "calc-duration": "node node_modules/typescript/bin/tsc.js demo.ts && node ./demo.js"
   },
   "author": "Parkingcard AG"
 }

@@ -10,15 +10,21 @@ function calcDuration(startStr, endStr) {
     return end.diff(start, 'seconds');
 }
 
-function addDurations(transactions) {
+function addDurations(runs) {
     var total = 0;
-    transactions.forEach(function(t) {
-        if (!t.deleted) {
+    runs.forEach(function(t) {
+        if (!t.isIntervallTraining) {
             total = total + calcDuration(t.start, t.end);
         }
     });
-    return "sum of all durations: " + total;
+    return total;
 }
 
 
-console.log(addDurations(http.getTransactions()));
+function main() {
+    var runs = http.getRuns();
+    var totalDuration = addDurations(runs);
+    console.log("total running time: " + totalDuration + " seconds")
+}
+
+main();
