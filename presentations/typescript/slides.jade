@@ -2,14 +2,6 @@ section
     h1 Typescript
     h3.subhead Statically Typed Javascript
 
-section
-    h2 Agenda
-    ul
-        li What is Typescript?
-        li Why has Typescript been a win for us?
-        li What you need to know if you want to use Typescript
-        li Q & A
-
 section.cv
     h2 About me
 
@@ -28,6 +20,16 @@ section.cv
     h5 GitHub
     p: i Retozi
 
+
+section
+    h2 Agenda
+    ul
+        li.fragment What is Typescript?
+        li.fragment Why has Typescript been a win for us?
+        li.fragment What you need to know if you want to use Typescript
+        li.fragment Q & A
+
+
 section
     h2 Typescript...? Stati-what?
 
@@ -37,13 +39,18 @@ section
 
 section
     p Superset of Javascript.
-    p Compiles to plain Javascript.
 
 section
+    p Typescript adds:
     ul
-        li All Javascript code is Typescript code.
-        li Optional static types, modules and some ES6 sugar.
-        li Compiles back to readable Javascript.
+        li.fragment Modules
+        li.fragment ES6 sugar
+        li.fragment Optional static types
+
+
+section
+    p Compiles back to readable Javascript
+
 
 // 6 mins
 
@@ -53,10 +60,10 @@ section
 //16 mins
 
 section
-    p Without static typing, the type of every object...
+    p Without static typing, the type of every variable in your app...
     ul
-        li has to be remembered
-        li should be tested
+        li.fragment should be tested
+        li.fragment has to be remembered
 
 section
     p But it's verbose!?
@@ -64,15 +71,10 @@ section
 section
     p(style="font-weight: bold; padding-bottom: 160px;") verbosity =
 
-    p Code and docs to read
-    p +
-    p Rests to write
+    p.fragment Code and docs to read
+    p.fragment +
+    p.fragment Tests to write & refactor
 
-section
-    p Static Typing
-    ul
-        li adds a lot of information that you would need look up or remember
-        li asserts a lot of correctness of your code as you type
 
 //21 mins
 
@@ -92,7 +94,7 @@ section
     p ... up to three times faster
 
 section
-    p Static Typing discourages implicit, fancy patterns
+    p Static typing discourages implicit, fancy patterns
 
     pre
         code.
@@ -110,9 +112,9 @@ section
     h2 Things you should know
 
 section
-    p It works!
-    p Mature, well thought out type system.
-    p no quirks.
+    p.framgent It works!
+    p.fragment Mature, well thought out type system.
+    p.fragment No quirks.
 
 section
     p Used heavily in production.
@@ -125,12 +127,13 @@ section
 
 section
     p Dev-tooling is awesome.
+    img#vscode
 
 section
     p Plugins for the major build-tools.
 
 section
-    p Providing a dependency can be quirky.
+    p No JSX and other language extentions.
 
 section
     p Small community.

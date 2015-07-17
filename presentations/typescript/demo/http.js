@@ -1,4 +1,5 @@
 //simulate ajax request
+/// <reference path="./node.d.ts" />
 function getData() {
     return [
         {
@@ -29,7 +30,6 @@ function getData() {
         },
     ];
 }
-
 module.exports = {
-    getTransactions: getData
+    getData: getData
 };
