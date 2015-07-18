@@ -4,17 +4,17 @@
 var moment = require('moment');
 var http = require('./http');
 
-function calcDuration(startStr, endStr) {
+function calculateDuration(startStr, endStr) {
     var start = moment(startStr);
     var end = moment(endStr);
     return end.diff(start, 'seconds');
 }
 
-function addDurations(runs) {
+function addUpDurations(runs) {
     var total = 0;
     runs.forEach(function(t) {
         if (!t.isIntervallTraining) {
-            total = total + calcDuration(t.start, t.end);
+            total = total + calculateDuration(t.start, t.end);
         }
     });
     return total;
@@ -23,7 +23,7 @@ function addDurations(runs) {
 
 function main() {
     var runs = http.getRuns();
-    var totalDuration = addDurations(runs);
+    var totalDuration = addUpDurations(runs);
     console.log("total running time: " + totalDuration + " seconds")
 }
 
