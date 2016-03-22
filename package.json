@@ -2,10 +2,12 @@
   "name": "reveal.js-boilerplate",
   "version": "0.0.1",
   "dependencies": {
+    "jade": "^1.11.0",
     "jquery": "~2.1.1",
-    "underscore": "~1.5.1",
     "mustache": "~0.7.2",
-    "socket.io": "~0.9.13"
+    "node-sass": "^3.4.2",
+    "socket.io": "~0.9.13",
+    "underscore": "~1.5.1"
   },
   "devDependencies": {
     "express": "latest",
