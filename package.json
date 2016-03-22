@@ -10,17 +10,17 @@
     "underscore": "~1.5.1"
   },
   "devDependencies": {
-    "express": "latest",
-    "proxy-middleware": "latest",
-    "webpack": "latest",
-    "webpack-dev-server": "latest",
-    "file-loader": "latest",
-    "script-loader": "latest",
-    "html-loader": "latest",
-    "jade-loader": "latest",
-    "jade-html-loader": "latest",
-    "style-loader": "latest",
     "css-loader": "latest",
-    "sass-loader": "latest"
+    "express": "latest",
+    "file-loader": "^0.8.5",
+    "html-loader": "latest",
+    "jade-html-loader": "latest",
+    "jade-loader": "latest",
+    "proxy-middleware": "latest",
+    "sass-loader": "latest",
+    "script-loader": "latest",
+    "style-loader": "latest",
+    "webpack": "latest",
+    "webpack-dev-server": "latest"
   }
 }
