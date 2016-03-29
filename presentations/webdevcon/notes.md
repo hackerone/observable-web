@@ -4,64 +4,92 @@
 Hi, I'm Ganesh.
 I'm a Web Development Engineer with the Bookdepository team in UK.
 
-Bookdepository is an amazon subsidiary. We an an online book seller based in the UK. 
-We sell through our own website and through amazon marketplace. And we deliver worldwide for free, which makes us unique.
+Bookdepository is an amazon subsidiary. We an an online book seller based in London, UK. 
+We sell through our own website and through amazon marketplace. And we deliver worldwide for free, which sets us apart from Amazon.
 
 Without further ado, let's get into the talk.
 
-## intro to the talk
+## time vs async
+
+Normal humans think in terms of time, we have a meeting at 4, finish work at 5:30, go for dinner at 7 etc. 
+Every activity in our brain will have a timestamp associated with it.
+
+However, Javascript engineers think in terms of async. async everywhere.
+
+## a problem
 In this talk, i'd like to discuss one major problem i've been or we've been dealing with in our day to day webdev life,
 and the solutions we've come up with over the course of the internet.
 
-When i get asked to build a feature, i usually to think of it in steps, i guess most of us do that.
+## building a feature
+When i get asked to build a feature on the website, i usually to think of it in a series of steps, i guess most of us do that.
 Let's look at how my thought process works for a simple feature.
 
 I usually start with my customer, 
-- as a user I go to the website 
+- as a user I open the website on the browser 
 - when i type something in the search box
-- i'd want to see the search suggestions appear below it.
-- the search suggestion should update with more relevant suggestions, as i type more
+- i want to see the search suggestions appear under the search box.
+- the search suggestions should update with more relevant suggestions, as i type further
 
 the feature is a trivial search suggestion or search auto-complete that you find in most websites today,
 
-however, when i go about implementing it, I get to deal with keyboard events, network requests etc. which are asyncronous in nature. this complicates the code.
+## pseudo code
+a pseudo code for the user stories would look like this
+- get input from user
+- query server and get suggestions
+- display result
+
+repeat till the user has found his result
+
+quite simple ey.
+
+however, when i go about implementing it, I get to deal with keyboard events, network requests etc. which are asynchronous in nature. this complicates the code.
 
 ## handling async behaviour
 so, how have been handling the async events.
 
-traditionally using callbacks
+traditionally the protocol for dealing with such events is via callbacks.
 
 let's try implementing this the callbacks way.
 when i type something, get what he's typing, attach an event listerner to the input field, listen to the keyup event and get what the user has typed so far. 
 simple right.
 
-### Get what the user is typing
+### Step 1 [get what the user is typing]
 ``` javascript
 const searchBox = document.getElementById('searchbox');
 searchBox.addEventListener('keyup', (e) => {
     let text = e.target.value;
-    // do something...
 });
 ```
 
-### make an xhr request
+### Step 2 [make an xhr request]
 now that we got the text, let's perform search via xhr, for simplicity let's assume performSearch does that for us.
 ``` javascript
 const searchBox = document.getElementById('searchbox');
 searchBox.addEventListener('keyup', (e) => {
     let term = e.target.value;
     performSearch(term, (result) => {
-        // do something...
+        
     });
 });
 ```
 
-we've got the result now. let's display it to the user and consider our website as done..
+we've got the result now. let's display it to the user.
 
+### Step 3 [display result]
+again for simplicity sake, let's assume we have a function displayResult which displays result to the user.
+``` javascript
+const searchBox = document.getElementById('searchbox');
+searchBox.addEventListener('keyup', (e) => {
+    let term = e.target.value;
+    performSearch(term, (result) => {
+        displayResult(result);
+    });
+});
+```
+and consider our website as done.
 
 ### Website is never done!
 But! a website is never done!
-
 
 there's always something more that your customers want or the business want or c'mon you always want to improve customer experience.
 
@@ -77,7 +105,7 @@ searchBox.addEventListener('keyup', (e) => {
     clearTimeout(requestTimer);
     requestTimer = setTimeout(() => {
         performSearch(term, (result) => {
-            // do something...
+            displayResult(result);
         );
     }, 100);
 });
