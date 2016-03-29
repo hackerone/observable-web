@@ -86,17 +86,29 @@ searchBox.addEventListener('keyup', (e) => {
     });
 });
 ```
-and consider our website as done.
+and that would complete our feature and the website is done.
 
 ### Website is never done!
 But! a website is never done!
 
-there's always something more that your customers want or the business want or c'mon you always want to improve customer experience.
+there's always something that would improve your user experience or something the business wants.
 
-in this case, let's say you don't want to query the server till the user stops typing for about 100 milliseconds, to save some bandwidth. 
-your customers especially the ones on mobile devices with slower internet speeds would thank you for this.
+in this case, let's consider a user who is in a tube as the londoners call it or a metro as the rest of the world call it. he's on his way to work, 
+he's on mobile network connection, 
+- network might be slow
+- network might be unstable, some requests might fail
+- network cost
+- device might be slow
 
-so, how do we implement it,
+We would want to cater for that user as well, so let's improve our feature
+
+how could we improve?
+- add some debounce logic [100ms]
+in this case, let's say we query the server only when the user stops typing for about 100 milliseconds, to save some bandwidth.
+- avoid race conditions, make sure we show the results for the latest value in the search box.
+
+let's deal with the improvements one at a time.
+so, how do we implement debounce logic, let's use the age old method of adding a setTimeout, and cancel the timeout if we detect another keyup event within 100 milli seconds.
 ```javascript
 const searchBox = document.getElementById('searchbox');
 var requestTimer = null;
@@ -110,22 +122,33 @@ searchBox.addEventListener('keyup', (e) => {
     }, 100);
 });
 ```
+hmm, now we have 3 problems
+- we've introduced a state which makes it harder to test
+- we've gotten into the callback hell!
 
-so, we're building a simple feature and now we got into a callback hell already, and we want to get it to production and maintain it.
 also, can someone spot anything wrong in the code? 
 
 ### it's missing curly brace!
 
-I can see some people say, c'mon we've got promises. promises make our life easier.. most modern browsers support promises, except for internet explorer and there are polyfills for the older ones.
+- the code gets harder to maintain as we make more changes.
+- it'll be a hard time for the future maintainers of your code
 
-### let's see if promises can help us here.
+### Always code as if the person who ends up maintaining your code is a violent psychopath who knows where you live.
+
+### Promises
+
+I can see some people say, c'mon we've got promises. promises are the new cool stuff.
+promises make our life easier.. most modern browsers support promises, except for internet explorer and there are polyfills for the older ones.
+
+### can promises save us from the violent psychopath
+
+let's see what promises can do
 
 - a promise must only resolve once. so, keyboard or any of the dom event can't be promised. in our case, the keyup event cannot be promised.
-- a promise can't be cancelled. when you create a promise it's on it's way to be resolved or rejected. so, settimeout cannot be promised either, as we want to be able to clear timeout.
+- when you create a promise it's on it's way to be resolved or rejected, it can't be cancelled. so, settimeout cannot be promised either, as we want to be able to clear timeout.
 - AJAX request! yay, that's a perfect candidate for promise. infact, there is the fetch api, which returns a promise.
 
 So, in our simple example only 1 of the 3 can be promised.
-
 
 ### solution with promise
 ```javascript
@@ -138,17 +161,18 @@ searchBox.addEventListener('keyup', (e) => {
         fetch('/search?term='+term)
             .then((resp) => {
                 return resp.json();
-            }).then((json) => {
-                // do something...
+            }).then((result) => {
+                displayResult(result);
             })
     }, 300);
 });
 ```
 
-so, when we re-wrote using promise, the ajax bit looks a bit cleaner and followable but the rest remains the same. that's still unmaintainable code..
+so, when we re-wrote using promise, the ajax bit looks a bit cleaner and followable but the rest remains the same. 
+that's still unmaintainable code and the psychopath is not going to be happy.
 
-so, can we do better than this? can we make it more maintainable and make dev life easier.
-
+we started out with a simple 3 step pseudo code, and we ended up in this mess.
+can we do better than this? can we make it more maintainable and make dev life easier.
 
 ## Observables
 
