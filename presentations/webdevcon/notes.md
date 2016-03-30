@@ -9,7 +9,7 @@ We sell through our own website and through amazon marketplace. And we deliver w
 
 Without further ado, let's get into the talk.
 
-## time vs async
+## time vs async
 
 Normal humans think in terms of time, we have a meeting at 4, finish work at 5:30, go for dinner at 7 etc. 
 Every activity in our brain will have a timestamp associated with it.
@@ -20,7 +20,7 @@ However, Javascript engineers think in terms of async. async everywhere.
 In this talk, i'd like to discuss one major problem i've been or we've been dealing with in our day to day webdev life,
 and the solutions we've come up with over the course of the internet.
 
-## building a feature
+## building a feature
 When i get asked to build a feature on the website, i usually to think of it in a series of steps, i guess most of us do that.
 Let's look at how my thought process works for a simple feature.
 
@@ -32,7 +32,7 @@ I usually start with my customer,
 
 the feature is a trivial search suggestion or search auto-complete that you find in most websites today,
 
-## pseudo code
+## pseudo code
 a pseudo code for the user stories would look like this
 - get input from user
 - query server and get suggestions
@@ -75,7 +75,7 @@ searchBox.addEventListener('keyup', (e) => {
 
 we've got the result now. let's display it to the user.
 
-### Step 3 [display result]
+### Step 3 [display result]
 again for simplicity sake, let's assume we have a function displayResult which displays result to the user.
 ``` javascript
 const searchBox = document.getElementById('searchbox');
@@ -93,6 +93,7 @@ But! a website is never done!
 
 there's always something that would improve your user experience or something the business wants.
 
+### user on mobile
 in this case, let's consider a user who is in a tube as the londoners call it or a metro as the rest of the world call it. he's on his way to work, 
 he's on mobile network connection, 
 - network might be slow
@@ -102,11 +103,13 @@ he's on mobile network connection,
 
 We would want to cater for that user as well, so let's improve our feature
 
+### make it better
 how could we improve?
 - add some debounce logic [100ms]
 in this case, let's say we query the server only when the user stops typing for about 100 milliseconds, to save some bandwidth.
 - avoid race conditions, make sure we show the results for the latest value in the search box.
 
+### one at a time
 let's deal with the improvements one at a time.
 so, how do we implement debounce logic, let's use the age old method of adding a setTimeout, and cancel the timeout if we detect another keyup event within 100 milli seconds.
 ```javascript
@@ -122,6 +125,7 @@ searchBox.addEventListener('keyup', (e) => {
     }, 100);
 });
 ```
+### we have 3 problems now
 hmm, now we have 3 problems
 - we've introduced a state which makes it harder to test
 - we've gotten into the callback hell!
@@ -189,7 +193,7 @@ If it's synchronous operation and returns multiple values, it can be an iterable
 If it's asynchronous and emits a ONLY a single value, it can be represented by a promise
 And finally, this is where there is some hollow space, if it's asynchronous and emits 0 - N values, it can be represented as an observable.
 
-### syntax similar to promise
+### similar syntax as Promise
 So, let's see how to use an observable,
 
 The syntax is similar to promise, so if you've used promises before, you'll be comfortable using observable.
@@ -227,27 +231,26 @@ So, what about observables? what can be observables.
 - websocket events where data is pushed for every message, they're good candidates for observables.
 - so, nearly all the events that we fiddle with to build apps can be observables. 
 
-### hot / cold observable
+### cold observable
 
 If you look at these events, they can be classified into 2 types, 
+
 
 ones that are passive event, they only start producing notiifcations on request or on subscription. for example an ajax request doesn't happen till you want to make it happen. 
 And when you subscribe to such events, you get all the values emitted right from the beginning. Such observables are considered cold.
 
 for cold observables, the operation happens when you subscribe to the observable, for example, the AJAX request is made when you subscribe to the observable. 
 
+### hot observable
 on the other hand, events like mouse clicks, keyboard events etc, keep happening no matter if you subscribe to them or not. so, you start listening in the middle and you only get the values that are emitted after you subscribe to them. those observables are considered hot. in case of hot observables, we're not interested in the past values, we're only interested in current and future values.
 
-
-
-## what's special?
+### what's so special?
 
 so, what's so special about observable? Their syntax is similar to promise, but allows for multiple value to be emitted, that's more like an event emitter in node.js. right?
-i had 
+i had the similar thoughts when i read the specs.
 
 ### observables are composable
-can use map, reduce, forEach on the observable
-
+can use map, reduce, forEach on the observable like you do on any arrays
 
 ### browser support?
 It's in stage 1 of tc39 proposal. Hopefully will be included in tc39
