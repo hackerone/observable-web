@@ -249,8 +249,19 @@ on the other hand, events like mouse clicks, keyboard events etc, keep happening
 so, what's so special about observable? Their syntax is similar to promise, but allows for multiple value to be emitted, that's more like an event emitter in node.js. right?
 i had the similar thoughts when i read the specs.
 
-### observables are composable
+### observables are composable and transformable
 can use map, reduce, forEach on the observable like you do on any arrays
+
+```javascript
+[1,2,3].map(x => x*x);
+```
+
+```javascript
+newObservable = mouseUpObservable.map(x => (x.offsetX,x.offsetY));
+```
+
+the new observable will be emitting the co-ordinates rather than the events
+
 
 ### browser support?
 It's in stage 1 of tc39 proposal. Hopefully will be included in tc39
