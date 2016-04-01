@@ -1,7 +1,16 @@
 @import "./settings.scss";
 @import "../../scss/default.scss";
 
-img{
-    border: none;
-    margin: 0 auto;
+.reveal section, .reveal .slides {
+    img{
+        border: none;
+        margin: 0 auto;
+        outline: none;
+        background: transparent;
+        box-shadow: none;
+    }
+    p {
+        padding-bottom: 20px;
+        margin-bottom: 0;
+    }
 }

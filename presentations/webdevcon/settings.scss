@@ -2,21 +2,21 @@
 // overridden by the super-theme
 
 // Background of the presentation
-$backgroundColor: #2b2b2b;
+$backgroundColor: #efefef;
 
 // Primary/body text
 $mainFont: 'Lato', sans-serif;
-$mainFontSize: 36px;
-$mainColor: #eee;
+$mainFontSize: 28px;
+$mainColor: #226;
 
 // Headings
-$headingMargin: 0 0 20px 0;
+$headingMargin: 0 0 10px 0;
 $headingFont: Lato, sans-serif;
-$headingColor: #eee;
+$headingColor: #246;
 $headingLineHeight: 0.9em;
 $headingLetterSpacing: 0.02em;
 $headingTextTransform: uppercase;
-$headingTextShadow: 0px 0px 6px rgba(0,0,0,0.2);
+$headingTextShadow: none;
 $heading1TextShadow: $headingTextShadow;
 
 // Links and actions
