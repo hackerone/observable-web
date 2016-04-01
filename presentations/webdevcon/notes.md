@@ -1,20 +1,23 @@
-# Observables
+# Observable Web
+Welcome to Observable web
 
 ## introduction
-Hi, I'm Ganesh.
-I'm a Web Development Engineer with the Bookdepository team in UK.
+Hello all, I'm Ganesh Shanmugasundaram.
 
-Bookdepository is an amazon subsidiary. We an an online book seller based in London, UK. 
-We sell through our own website and through Amazon Marketplace. And we deliver worldwide for free, a service not offerered by other retailers.
+I'm a Web Development Engineer at the Bookdepository, an Amazon subsidiary based in London UK.
+
+We an an online book seller. We sell through our own website and through Amazon Marketplace. 
+
+And we deliver worldwide for free, a service not offered by many retailers.
 
 Without further ado, let's get started.
 
 ## time vs async
 
-Normal humans think in terms of time, we have a meeting at 4, finish work at 5:30, go for dinner at 7 etc. 
-Every activity in our brain will have a timestamp associated with it.
+Normal humans think in terms of time, Our brain attaches a timestamp to all our daily activities. We wake up at 6:30, we get to work at 8:30, we have meetings at 10:30 etc etc,
+So, everything relates to a time.
 
-However, Javascript engineers think in terms of async. async everywhere.
+However, Javascript Engineers think in terms of async. async everywhere. Asyncs 
 
 ## a problem
 In this talk, i'd like to discuss one major problem i've been or we've been dealing with in our day to day webdev life,
