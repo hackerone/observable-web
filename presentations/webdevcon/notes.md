@@ -275,10 +275,13 @@ can use map, reduce, forEach on the observable like you do on any arrays
 
 ```javascript
 [1,2,3].map(x => x*x);
+// [1, 4, 9]
 ```
 
+for example, here we are mapping the 
+
 ```javascript
-newObservable = mouseUpObservable.map(x => (x.offsetX,x.offsetY));
+newObservable = mouseUpObservable.map(e => {x: e.offsetX, y: e.offsetY});
 ```
 
 the new observable will be emitting the co-ordinates rather than the events
