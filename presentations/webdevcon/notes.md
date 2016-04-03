@@ -28,8 +28,8 @@ When i get asked to build a feature on the website, i usually try to think about
 Let's look at how my thought process works for a simple feature.
 
 I usually start with a user story, 
-- when i type something in the search box
-- i want to see the search suggestions appear under the search box.
+- when a user types something in the search box
+- display a list of search suggestions under search box
 - the search suggestions should update with more relevant suggestions, as i type further
 
 the feature is a trivial search suggestion or search auto-complete that you can find in most websites today,
@@ -42,7 +42,7 @@ a pseudo code for the feature would look something like this
 
 repeat till the user has found his result
 
-quite simple eh?
+quite simple eh? That's how i feel when i start building a new feature.
 
 however, when i go about implementing it, I get to deal with keyboard events, network requests etc. which are asynchronous in nature. this complicates the code.
 
@@ -77,7 +77,7 @@ searchBox.addEventListener('keyup', (e) => {
 we've got the result now. let's display it to the user.
 
 ### Step 3 [display result]
-again for simplicity sake, let's assume we have a function displayResult which displays result to the user.
+again for simplicity sake, let's assume we have a function displayResult which renders the result under the search box.
 ``` javascript
 const searchBox = document.getElementById('searchbox');
 searchBox.addEventListener('keyup', (e) => {
@@ -87,25 +87,51 @@ searchBox.addEventListener('keyup', (e) => {
     });
 });
 ```
-and that would complete our feature and the website is done.
+and that would complete our feature.
+
+### We're done
+let's get our code peer reviewed, do some refactoring, write some unit test, some functional test 
+and ship it to production! 
+and that feature is done!
+
+we'll never ever have to go back to that code again forever.
+I wish things were like that!
 
 ### Website is never done!
-But! a website is never done!
+But Wait! a website is never done!
 
-there's always going to be an extension to the feature. it could be an improvement to the user experience, or a business requirement change etc. so we have to go back to the code again.
+So, we launch this feature. A Simple one, but very useful to the users.
+
+The next i receive an email from one of my colleagues, it read,  "Love the new auto suggest feature you guys have launched.
+But it acts a bit wierd sometimes. Could you please fix it?"
+
+It's great that he likes the feature, but it acts a bit weird some times. hmm, that wasn't very informative.
+
+So, I thought before i get back to him asking for more information, 
+let me check it manually once, just to make sure there's isn't anything obvious that we missed or the automated tests missed.
+i opened up my shiny new mac, tested across different browser it worked on all the browsers, even the old ones using VMs, 
+but it was working fine
+
+So i emailed him back saying, i tested it on most browsers and couldn't find any issue, 
+could you give me some more information on the issue? like what was happening, the browser version, some screenshots may be.
+
+That's enough information for us to get started.
 
 ### user on mobile
-in this case, let's consider a user who is on the tube as the Londoners call it or a Metro as the rest of the world call it. 
-he's on his way to work, 
+we have an extended use case
+a user who is on the tube as the Londoners call it or a Metro as the rest of the world call it. 
 he's on mobile network connection,
+he's on his way to work, 
 
-what does the environment look like for such a user,
+
+What should we consider for this use case?
+
 - network might be slow
 - network might be unstable, some network requests might fail
 - network cost
-- device might be slow
+- mobile phone  might be slow or low on memory
 
-We would want to cater for that user as well as they buy books, so let's improve our feature to accomodate this specific use case
+We would want to cater for that user as well, so let's improve our feature to accomodate this specific use case
 
 ### make it better
 how could we improve?

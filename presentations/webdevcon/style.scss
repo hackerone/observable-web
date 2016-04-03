@@ -1,7 +1,37 @@
 @import "./settings.scss";
 @import "../../scss/default.scss";
 
-.reveal section, .reveal .slides {
+
+html {
+    font-size: $mainFontSize;
+}
+
+.reveal, .reveal section, .reveal .slides {
+    text-align: center;
+    
+    h1 {
+        font-size: 3rem;
+    }
+    
+    h2 {
+        font-size: 2.4rem;
+    }
+    
+    h3 {
+        font-size: 2rem;
+    }
+    
+    li, p {
+        font-size: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    ul, ol {
+        display: inline-block;
+        margin-left: 0;
+        padding-left: 0;
+    }
+    
     img{
         border: none;
         margin: 0 auto;
@@ -12,5 +42,10 @@
     p {
         padding-bottom: 20px;
         margin-bottom: 0;
+    }
+    
+    img.center {
+        margin: 2rem auto;
+        display: block;
     }
 }

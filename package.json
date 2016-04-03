@@ -22,7 +22,7 @@
     "sass-loader": "latest",
     "script-loader": "latest",
     "style-loader": "latest",
-    "webpack": "latest",
-    "webpack-dev-server": "latest"
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1"
   }
 }

@@ -1,15 +1,111 @@
 section
     h1 Observable web
     h3 Untangling async 
-        span.fragment completely
+        div.fragment completely
 
     p.author-name Ganesh Shanmugasundaram
     p.author-handle @hackerone
 
 section
-   img.logo(src=require('./img/logo.png'))
+   img.center.logo(src=require('./img/logo.png'))
     
-   img.london(src=require('./img/london.png'))
+   img.fragment.center.london(src=require('./img/london.png'))
    
 section
+    h1 Time 
+        div.fragment async
+        
+section
+    h1 Webdev Problem
+
+section
+    h1 Building a feature
+    ul
+        li.fragment Thought process
+        li.fragment Series of steps
+
+section
+    h1 User story
+    ul
+        li.fragment Type something in search box
+        li.fragment Show search suggestions
+        li.fragment Update suggestions
+
+section
+    h1 Pseudocode
+    ul.pseudocode
+        li.fragment Get input from the user
+        li.fragment Get Suggestions
+        li.fragment Display result
+        li.fragment Repeat
+        
+section
+    h1 Handling async
+        img.fragment.center(src=require('./img/callbacks-everywhere.jpg'))
+
+section
+    h1 Step 1: Input
+    pre
+        code.javascript searchBox.addEventListener('keyup', (e) => {
+            |     let text = e.target.value;
+            | });
+        
+section
+    h1 Step 2: Suggestions
+    pre
+        code.javascript  searchBox.addEventListener('keyup', (e) => {
+            |    let term = e.target.value;
+            |    performSearch(term, (result) => {
+            |        
+            |    });
+            | });
+            
+section
+    h1 Step 3: Render
+    pre
+        code.javascript const searchBox = document.getElementById('searchbox');
+            | searchBox.addEventListener('keyup', (e) => {
+            |     let term = e.target.value;
+            |     performSearch(term, (result) => {
+            |         displayResult(result);
+            |     });
+            | }); 
+            
+section
+    h1 Done!
+    img.center(src=require('./img/peter-happy.jpg'))
+
+section
+    h1 Wait!
+    img.center(src=require('./img/website-never-done.jpg'))
+
+section
+    p Love the new auto suggest feature you guys have launched. 
+        | But it acts a bit weird sometimes. Could you please fix it?
     
+    p
+    
+    p.fragment I was on the tube this morning, i was trying to search for a book, 
+        | i typed 5 letters and it showed me the exact book i wanted, but when i tried to click on it, 
+        | it showed to a different book, which wasn't that relevent. 
+        | I had to press backspace and the same letter again to get to the book, but it worked the second time. 
+        | The same issue happened a few times during my journey 
+        | I'm on iphone 5S, not sure how to check the browser version. 
+        | I can't seem to reproduce the issue now though, seemed to have fixed itself!
+
+section
+    h1 Extended scenario
+    ul
+        li.fragment Mobile internet 
+        li.fragment On Tube 
+            span.fragment or Metro
+        li.fragment Trying to search
+
+section
+    h1 Things to consider
+    ul
+        li Slower network
+        li Unstable network
+        li Network cost
+        li Device constraints
+
