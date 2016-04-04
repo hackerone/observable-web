@@ -19,7 +19,7 @@ section
     h1 Webdev Problem
 
 section
-    h1 Building a feature
+    h1 Build <br> a feature
     ul
         li.fragment Thought process
         li.fragment Series of steps
@@ -81,7 +81,7 @@ section
 
 section
     p Love the new auto suggest feature you guys have launched. 
-        | But it acts a bit weird sometimes. Could you please fix it?
+        | But it acts a bit weird sometimes.
     
     p
     
@@ -104,8 +104,174 @@ section
 section
     h1 Things to consider
     ul
-        li Slower network
-        li Unstable network
-        li Network cost
-        li Device constraints
+        li.fragment Slower network
+        li.fragment Unstable network
+        li.fragment Network cost
+        li.fragment Device constraints
 
+section
+    h1 Improvements
+    ul
+        li.fragment Reduce network requests
+        li.fragment Remove duplicate requests
+        li.fragment Handle race condition
+        
+section
+    h1 Debounce
+    pre
+        code.js const searchBox = document.getElementById('searchbox');
+            | var requestTimer = null;
+            | searchBox.addEventListener('keyup', (e) => {
+            |     let term = e.target.value;
+            |     clearTimeout(requestTimer);
+            |     requestTimer = setTimeout(() => {
+            |         performSearch(term, (result) => {
+            |             displayResult(result);
+            |         );
+            |     }, 100);
+            | });
+
+section
+    h1 More problems
+    ul
+        li.fragment state
+        li.fragment callback hell
+        li.fragment one more problem...
+        
+section
+    img(src=require('./img/brace.jpg'))
+    
+section
+    h1 Promises may be?
+    ul
+        li.fragment cool
+        li.fragment readable and comprehendable
+        li.fragment supported in most modern browsers
+
+section
+    h1 Promises in action!
+    div.wrap
+        div.half
+            ul
+                li.fragment one value
+                li.fragment no modify
+                li.fragment no cancel
+        div.half.fragment
+            pre
+                code.javascript const searchBox = document.getElementById('searchbox');
+                    | var requestTimer = null;
+                    | searchBox.addEventListener('keyup', (e) => {
+                    |     let term = e.target.value;
+                    |     clearTimeout(requestTimer);
+                    |     requestTimer = setTimeout(() => {
+                    |         fetch('/search?term='+term)
+                    |             .then((resp) => {
+                    |                 return resp.json();
+                    |             }).then((result) => {
+                    |                 displayResult(result);
+                    |             })
+                    |     }, 300);
+                    | });
+
+section
+    h1 Simple feature?
+    img(src=require('./img/grind-gear.jpg'))
+
+section
+    h1 Observable
+    ul
+        li.fragment Modelling async data
+        li.fragment Emits 0 -> n values
+
+section
+    h1 Where does it fit?
+    ul
+        li.fragment Primitive: sync + single value
+        li.fragment Iterator: sync + multiple value
+        li.fragment Promise: async + single value
+        li.fragment
+            span.fragment Observable: 
+            span   async + multiple value 
+
+section
+    h1 Syntax ~ Promise
+    pre.fragment
+        code.javascript const p = new Promise();
+            | p.then(onResolve, onReject);
+            
+section
+    h1 Subscribe vs then
+    pre
+        code.javascript const ob = new Observable();
+            | ob.subscribe(onNext, onError);
+
+section
+    h1 onComplete
+    pre
+        code.javascript const ob = new Observable();
+            | const subscription = ob.subscribe(onNext, 
+            |                                    onComplete,
+            |                                    onError);
+ 
+ section 
+    h1 Unsubscribe
+    pre
+        code.javascript const ob = new Observable();
+            | const subscription = ob.subscribe(onNext, 
+            |                                    onComplete,
+            |                                    onError);
+            | subscription.unsubscribe();
+            
+
+ section
+    h1 What can be Observables?
+    ul
+        li.fragment Keyboard events
+        li.fragment Mouse events
+        li.fragment Animation
+        li.fragment Lifecycle events
+        li.fragment XHR requests
+        li.fragment WebSocket requests and messages
+        li.fragment everything else...
+        
+section
+    h1 Event emitter?
+    ul
+        li.fragment Both emit 0 - n values
+        li.fragment  Can be subscribed on
+        li.fragment Lazy ( or cold by default)
+        li.fragment Operation happens on subscription 
+        li.fragment Each subscriber will get different values
+
+section
+    h1 What if i want to share values?
+    ul
+        li.fragment Make it hot
+        li.fragment Operation happens on first subscription
+        li.fragment Other subscribers just listen
+        li.fragment Not all the subscribers get all the values
+
+section
+    h1 What's so special?
+    ul
+        li.fragment Unified protocol
+        li.fragment Transformable
+        li.fragment Composable
+        li.fragment using Array#Operators like map, forEach, reduce.
+        
+section
+    h1 Treat them like iterators
+    pre
+        code.javascript [1,2,3].map(x => x*x)
+            | .reduce((x, sum) => sum+x, 0);
+            | // 14
+    pre.fragment
+        code.javascript $clickObs.map(x => 1)
+            | .reduce((x, sum) => sum+x, 0);
+            | // 1
+            | // 2
+            | // 3
+    
+section
+    h1 Click counter
+    

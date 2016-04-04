@@ -140,7 +140,8 @@ in this case, let's say we query the server only when the user stops typing for 
 - avoid race conditions, make sure we show the results for the latest value in the search box.
 
 ### one at a time
-let's deal with the improvements one at a time.
+let's deal with the improvements one at a time. 
+Reduce the number of request. 
 so, how do we implement debounce logic, let's use the age old method of adding a setTimeout, and cancel the timeout if we detect another keyup event within 100 milli seconds.
 ```javascript
 const searchBox = document.getElementById('searchbox');
@@ -160,7 +161,7 @@ hmm, now we have 3 problems
 - we've introduced a state and timer which makes it harder to test
 - we've gotten into the callback hell!
 
-also, can someone spot anything wrong in the code? 
+also, did anyone spot anything else that was wrong with the code? 
 
 ### it's missing curly brace!
 this is one of the symptoms of callback hell
@@ -181,11 +182,12 @@ Promises make our life easier.. most modern browsers support promises, except fo
 
 let's see what promises can do
 
-- a promise must only resolve once. so, keyboard or any of the dom event can't be promised. in our case, the keyup event cannot be promised.
+- a promise must only resolve once. so, keyboard or any of the dom event can't be promised.
 - when you create a promise it's on it's way to be resolved or rejected, it can't be cancelled. so, settimeout cannot be promised either, as we want to be able to clear timeout.
 - AJAX request! yay, that's a perfect candidate for promise. infact, there is the fetch api, which returns a promise.
 
-So, even in our simple example only 1 of the 3 can be promised.
+hmm, promise doesn't look that promising.
+let's see how our code looks like if we rewrite it using promise.
 
 ### solution with promise
 ```javascript
@@ -204,18 +206,24 @@ searchBox.addEventListener('keyup', (e) => {
     }, 300);
 });
 ```
+since a promise can resolve only once and the keyup event cannot be promised, but it'll emit multiple values
 
-so, when we re-wrote using promise, the ajax bit looks a bit cleaner and followable but the rest remains the same. 
+the setTimeout can't be promised either, as we'll need a way to cancel timer. and promises can't be cancelled.
+
+the ajax call can be a perfect candidate for promises, 
+in fact there is a fetch API which provides a clean interface for making ajax request.
+
+so, when we re-wrote our code using promise, the ajax bit looks a bit cleaner and followable but the rest remains the same. 
 that's still unmaintainable code and the maintainers is not going to be happy.
 
 we started out with a simple 3 step pseudo code, and we ended up in this mess and we haven't even completed our feature yet.
+
 
 can we do better than this? can we make it more maintainable and make dev life easier.
 
 may be.. let me introduce you to a new object type called Observables.
 
-everytime i tell that there's a new feature or library in javascript to nonJS devs i work with, i get this.
- 
+everytime i tell that there's a new feature or library in javascript to nonJavascript devs i work with, i get this look. 
 
 ## Observables
 
@@ -227,12 +235,13 @@ It pushes or emits zero to n values over a period of time.
 
 To explain it clearly,
 
-If it's a syncronous operation and returns a single value, it can be represented by a normal function.
-If it's synchronous operation and returns multiple values, it can be an iterator like array
+If it's a synchronous operation and returns a single value, it can be represented by a normal function.
+If it's synchronous operation and returns multiple values, it can be  iterators
 If it's asynchronous operation and emits a ONLY a single value, it can be represented by a promise.
 And finally, this is where there is some hollow space, if it's asynchronous and emits 0 - N values, it can be modelled as an observable.
 
-## So do i have to learn new things?
+
+Now that brings us to another question, so do i have to learn another API? new syntax?
 
 ### similar syntax as Promise
 So, let's see how to use an observable,
@@ -248,15 +257,18 @@ somePromise.then(onResolve, onReject);
 In Observable, we use subscribe instead of then.
 
 We pass onNext and onError functions
-Since it can emit multiple values, we need a way to see when it's complete, so we pass a onComplete function as well.
 
-The onNext gets called every time the observable emits a value and onComplete will call when all the values are emitted.
+The onNext gets called every time the observable emits a value.
+
+Since it can emit multiple values, we need a way to see when it's complete, so we pass a onComplete function as well.
+ onComplete will call when all the values are emitted.
 
 ```javascript
 subscription = observable.subscribe(onNext, onComplete, onError);
 ```
 
 ### unsubscribe observables
+
 Since observables can emit multiple values, we'll need a way to unsubscribe.
 we just call unsubscribe on the subscription
 
@@ -280,34 +292,66 @@ So, what about observables? what can be modelled into observables. if you take a
 - websocket events where data is pushed for every message, they're good candidates for observables.
 - so, nearly all the events that we fiddle with to build apps can be observables. 
 
-### cold observable
+### Event emitter
+When i first learnt about observables, i thought this looks similar to event emitters. 
+Event emitters are quite popular in nodeJS. 
+I even thought are they event emitters for the browser?
+They are similar in the way that the observable emit 0 or more values like event emitters.
+And can be subscribed on.
 
-If you look at these events, they can be classified into 2 types, 
-
-ones that are passive event, they only start producing notiifcations on request or on subscription. for example an ajax request doesn't happen till you want to make it happen. 
-And when you subscribe to such events, you get all the values emitted right from the beginning. Such observables are considered cold.
-
-so, for cold observables, the operation happens when you subscribe to the observable. The operation happens everytime you subscribe to the observable. 
-
+Observables are lazy in nature, nothing happens when you instantiate the observable
+Actual operation like the ajax request happens only on subscription.
+An observable will have one subscriber by default. 
+subscribing on observable multiple times will cause it to perform multiple operations and each subscriber will get different values.
+ 
 ### hot observable
-on the other hand, events like mouse clicks, keyboard events etc, keep happening no matter if you subscribe to them or not. so, you start listening in the middle and you only get the values that are emitted after you subscribe to them. those observables are considered hot. in case of hot observables, we're not interested in the past values, we're only interested in current and future values.
+Sometimes you want to share values between multiple subscribers, 
+This is called making the observable hot. there are tools which can do this.
+The operation happens only on first subscription. 
+On subsequent subscriptions, the subscribers just listen to what's getting emitted.
+The observable acts more like an event emitter. 
+
+And not all the subscribers get all the values. So, not really preferred unless you have to use it.
 
 ### what's so special?
 
 so, what's so special about observable? Their syntax is similar to promise, but allows for multiple value to be emitted, 
-that sounds more like an event emitter in node.js. right?
-well it is similar. they both are different implementations of observer pattern.
-i had the similar thoughts when i read the specs.
+that sounds more like an event emitter in node.js. 
+ they both are different implementations of observer pattern.
 
 ### observables are composable and transformable
-can use map, reduce, forEach on the observable like you do on any arrays
+
+So, what makes it special?
+
+A couple of things, it could act as a unified protocol for all the async events. 
+So, you want to represent something that emits just one value, you can use an observable
+you want to represent something that emits a zillion values, you can use observables for that too. 
+
+They're transformable, you can transform each value into different values 
+
+Composable, you can combine 2 or more observable to make a third one.
+
+And all this using extended array operators like map, reduce, forEach. 
+That in my opinion is the best bit about Observables. They can be treated like iterators.
+ 
+ 
+# treat them like iterators
 
 ```javascript
-[1,2,3].map(x => x*x);
-// [1, 4, 9]
+[1,2,3].map(x => x*x).reduce((x, sum) => sum+x, 0)
 ```
+So, we can treat the observables as iterators. 
 
-for example, here we are mapping the mouse move events to a set of co-ordinates 
+Let's take the following example,
+we're transforming an array [1,2,3]
+what we're doing here is mapping each value of the array to it's square, 
+so we get a new array with [1,4,9]
+then the reduce operation returns the sum of the squares.
+
+As for Observables, we can treat each event like a value of the array.
+In our example we map each mouse click to a value of 1
+and the reduce operation, gets the sum. 
+ 
 
 ```javascript
 newObservable = mouseMoveObservable.map(e => {x: e.offsetX, y: e.offsetY});
