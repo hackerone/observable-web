@@ -240,7 +240,6 @@ If it's synchronous operation and returns multiple values, it can be  iterators
 If it's asynchronous operation and emits a ONLY a single value, it can be represented by a promise.
 And finally, this is where there is some hollow space, if it's asynchronous and emits 0 - N values, it can be modelled as an observable.
 
-
 Now that brings us to another question, so do i have to learn another API? new syntax?
 
 ### similar syntax as Promise
@@ -277,6 +276,33 @@ subscription.unsubscribe();
 ```
 
 So, the learning curve is quite small for Observables. if you're used to promises already then it's so easy to get started with Observables.
+
+### Create an observable
+So, we saw how to subscribe to an observale, but first how do we create an observable. 
+Let's take a button click event and create an observable out of it.
+
+But before that, How many of you have used promises?
+How many of you actually created a promise from scratch?
+
+```javascript
+$clickObs = new Observable(observer => {
+    const element = docuement.getElementById('btn');
+    let handler =  (evt) => {
+        observer.next(evt);
+    };
+    
+    element.addEventListener('click', handler, true);
+    
+    return _ =>  {
+        element.removeEventListener('click', handler, true);
+    }
+}); 
+```
+So, the Observable takes in a function which receives an observer. 
+we attach an click event listener on a button, and every time the button is clicked observer.next is called.
+And we return a clean up function which will remove the listener from the button.
+When a subscriber subscribes to the observable, the onNext function will be called with the eventInfo
+subscriber.unsubscribe() will call the clean up function which will remove the event listener.
 
 
 ### what can be observables?
@@ -354,23 +380,39 @@ and the reduce operation, gets the sum.
  
 
 ```javascript
-newObservable = mouseMoveObservable.map(e => {x: e.offsetX, y: e.offsetY});
+newObservable = clickObs.map(x=>1).scan((x,y) => x+y);
 ```
 
 the new observable will be emitting the co-ordinates rather than the events
 
 
 ### browser support?
-It's in stage 1 of tc39 proposal. Hopefully will be included in tc39
+Well, that's the tricky part. It's not part of the standards yet.
+It's at stage 1 for the tc39 process, which means it's proposed.
+It didn't make it into ES 2016
 
+But that said, it shouldn't stop us from using observable
 
 ### what do i do today?
 luckily there are a few projects which let you use observables today
 - rxJS
 - baconJS
 - angular 2 implements this 
+ 
+RxJS is one of the mature ones, it provides tools or APIs for creating observables from events, 
+promises, event streams, callbacks, virtually anything. It also provides over 200 operators to 
+compose and transform observable. It has a huge community, and well documented. 
+They're trying to make their implementation of Observable to align with the Observable standard.
+baconJS, a light weight library. Not as extensive as rxJS, but supports most of the use cases.
+How many angular users do we have here?
+So, Angular 1, used promise extensively, especially for the http provider.
+Angular 2.0 will be using Observable, currently supported by rxJS.
+So, there is a huge community behind this and this is a worthy contender.
+
 
 ### Autocomplete example using observable
+Oh, coming to our auto-suggest box. Let's see how to implement that using Observable.
+
 
 ```javascript
 const searchBox = document.getElementById('searchbox');

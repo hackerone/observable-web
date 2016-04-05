@@ -17,59 +17,68 @@
 /******/ 		if(parentJsonpFunction) parentJsonpFunction(chunkIds, moreModules);
 /******/ 		while(callbacks.length)
 /******/ 			callbacks.shift().call(null, __webpack_require__);
-/******/
+
 /******/ 	};
 /******/ 	var parentHotUpdateCallback = this["webpackHotUpdate"];
 /******/ 	this["webpackHotUpdate"] = 
-/******/ 			function webpackHotUpdateCallback(chunkId, moreModules) {
-/******/ 				hotAddUpdateChunk(chunkId, moreModules);
-/******/ 				if(parentHotUpdateCallback) parentHotUpdateCallback(chunkId, moreModules);
-/******/ 			}
+/******/ 	function webpackHotUpdateCallback(chunkId, moreModules) { // eslint-disable-line no-unused-vars
+/******/ 		hotAddUpdateChunk(chunkId, moreModules);
+/******/ 		if(parentHotUpdateCallback) parentHotUpdateCallback(chunkId, moreModules);
+/******/ 	}
 /******/ 	
-/******/ 			function hotDownloadUpdateChunk(chunkId) {
-/******/ 				var head = document.getElementsByTagName('head')[0];
-/******/ 				var script = document.createElement('script');
-/******/ 				script.type = 'text/javascript';
-/******/ 				script.charset = 'utf-8';
-/******/ 				script.src = __webpack_require__.p + "" + chunkId + "." + hotCurrentHash + ".hot-update.js";
-/******/ 				head.appendChild(script);
-/******/ 			}
+/******/ 	function hotDownloadUpdateChunk(chunkId) { // eslint-disable-line no-unused-vars
+/******/ 		var head = document.getElementsByTagName("head")[0];
+/******/ 		var script = document.createElement("script");
+/******/ 		script.type = "text/javascript";
+/******/ 		script.charset = "utf-8";
+/******/ 		script.src = __webpack_require__.p + "" + chunkId + "." + hotCurrentHash + ".hot-update.js";
+/******/ 		head.appendChild(script);
+/******/ 	}
 /******/ 	
-/******/ 			function hotDownloadManifest(callback) {
-/******/ 				if(typeof XMLHttpRequest === "undefined")
-/******/ 					return callback(new Error("No browser support"));
+/******/ 	function hotDownloadManifest(callback) { // eslint-disable-line no-unused-vars
+/******/ 		if(typeof XMLHttpRequest === "undefined")
+/******/ 			return callback(new Error("No browser support"));
+/******/ 		try {
+/******/ 			var request = new XMLHttpRequest();
+/******/ 			var requestPath = __webpack_require__.p + "" + hotCurrentHash + ".hot-update.json";
+/******/ 			request.open("GET", requestPath, true);
+/******/ 			request.timeout = 10000;
+/******/ 			request.send(null);
+/******/ 		} catch(err) {
+/******/ 			return callback(err);
+/******/ 		}
+/******/ 		request.onreadystatechange = function() {
+/******/ 			if(request.readyState !== 4) return;
+/******/ 			if(request.status === 0) {
+/******/ 				// timeout
+/******/ 				callback(new Error("Manifest request to " + requestPath + " timed out."));
+/******/ 			} else if(request.status === 404) {
+/******/ 				// no update available
+/******/ 				callback();
+/******/ 			} else if(request.status !== 200 && request.status !== 304) {
+/******/ 				// other failure
+/******/ 				callback(new Error("Manifest request to " + requestPath + " failed."));
+/******/ 			} else {
+/******/ 				// success
 /******/ 				try {
-/******/ 					var request = new XMLHttpRequest();
-/******/ 					request.open("GET", __webpack_require__.p + "" + hotCurrentHash + ".hot-update.json", true);
-/******/ 					request.send(null);
-/******/ 				} catch(err) {
-/******/ 					return callback(err);
+/******/ 					var update = JSON.parse(request.responseText);
+/******/ 				} catch(e) {
+/******/ 					callback(e);
+/******/ 					return;
 /******/ 				}
-/******/ 				request.onreadystatechange = function() {
-/******/ 					if(request.readyState !== 4) return;
-/******/ 					if(request.status !== 200 && request.status !== 304) {
-/******/ 						callback();
-/******/ 					} else {
-/******/ 						try {
-/******/ 							var update = JSON.parse(request.responseText);
-/******/ 						} catch(e) {
-/******/ 							callback();
-/******/ 							return;
-/******/ 						}
-/******/ 						callback(null, update);
-/******/ 					}
-/******/ 				};
+/******/ 				callback(null, update);
 /******/ 			}
-/******/ 		
-/******/
+/******/ 		};
+/******/ 	}
+
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "0ab42daf818ef2e36b87";
+/******/ 	var hotCurrentHash = "c9eef6f936c694d6b473"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
-/******/ 	var hotCurrentParents = [];
+/******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
-/******/ 	function hotCreateRequire(moduleId) {
+/******/ 	function hotCreateRequire(moduleId) { // eslint-disable-line no-unused-vars
 /******/ 		var me = installedModules[moduleId];
 /******/ 		if(!me) return __webpack_require__;
 /******/ 		var fn = function(request) {
@@ -88,10 +97,26 @@
 /******/ 		};
 /******/ 		for(var name in __webpack_require__) {
 /******/ 			if(Object.prototype.hasOwnProperty.call(__webpack_require__, name)) {
-/******/ 				fn[name] = __webpack_require__[name];
+/******/ 				if(Object.defineProperty) {
+/******/ 					Object.defineProperty(fn, name, (function(name) {
+/******/ 						return {
+/******/ 							configurable: true,
+/******/ 							enumerable: true,
+/******/ 							get: function() {
+/******/ 								return __webpack_require__[name];
+/******/ 							},
+/******/ 							set: function(value) {
+/******/ 								__webpack_require__[name] = value;
+/******/ 							}
+/******/ 						};
+/******/ 					}(name)));
+/******/ 				} else {
+/******/ 					fn[name] = __webpack_require__[name];
+/******/ 				}
 /******/ 			}
 /******/ 		}
-/******/ 		fn.e = function(chunkId, callback) {
+/******/ 	
+/******/ 		function ensure(chunkId, callback) {
 /******/ 			if(hotStatus === "ready")
 /******/ 				hotSetStatus("prepare");
 /******/ 			hotChunksLoading++;
@@ -101,6 +126,7 @@
 /******/ 				} finally {
 /******/ 					finishChunkLoading();
 /******/ 				}
+/******/ 	
 /******/ 				function finishChunkLoading() {
 /******/ 					hotChunksLoading--;
 /******/ 					if(hotStatus === "prepare") {
@@ -114,10 +140,18 @@
 /******/ 				}
 /******/ 			});
 /******/ 		}
+/******/ 		if(Object.defineProperty) {
+/******/ 			Object.defineProperty(fn, "e", {
+/******/ 				enumerable: true,
+/******/ 				value: ensure
+/******/ 			});
+/******/ 		} else {
+/******/ 			fn.e = ensure;
+/******/ 		}
 /******/ 		return fn;
 /******/ 	}
 /******/ 	
-/******/ 	function hotCreateModule(moduleId) {
+/******/ 	function hotCreateModule(moduleId) { // eslint-disable-line no-unused-vars
 /******/ 		var hot = {
 /******/ 			// private stuff
 /******/ 			_acceptedDependencies: {},
@@ -133,18 +167,20 @@
 /******/ 					hot._selfAccepted = true;
 /******/ 				else if(typeof dep === "function")
 /******/ 					hot._selfAccepted = dep;
-/******/ 				else if(typeof dep === "number")
+/******/ 				else if(typeof dep === "object")
+/******/ 					for(var i = 0; i < dep.length; i++)
+/******/ 						hot._acceptedDependencies[dep[i]] = callback;
+/******/ 				else
 /******/ 					hot._acceptedDependencies[dep] = callback;
-/******/ 				else for(var i = 0; i < dep.length; i++)
-/******/ 					hot._acceptedDependencies[dep[i]] = callback;
 /******/ 			},
 /******/ 			decline: function(dep) {
 /******/ 				if(typeof dep === "undefined")
 /******/ 					hot._selfDeclined = true;
 /******/ 				else if(typeof dep === "number")
 /******/ 					hot._declinedDependencies[dep] = true;
-/******/ 				else for(var i = 0; i < dep.length; i++)
-/******/ 					hot._declinedDependencies[dep[i]] = true;
+/******/ 				else
+/******/ 					for(var i = 0; i < dep.length; i++)
+/******/ 						hot._declinedDependencies[dep[i]] = true;
 /******/ 			},
 /******/ 			dispose: function(callback) {
 /******/ 				hot._disposeHandlers.push(callback);
@@ -182,7 +218,6 @@
 /******/ 	var hotStatus = "idle";
 /******/ 	
 /******/ 	function hotSetStatus(newStatus) {
-/******/ 		var oldStatus = hotStatus;
 /******/ 		hotStatus = newStatus;
 /******/ 		for(var i = 0; i < hotStatusHandlers.length; i++)
 /******/ 			hotStatusHandlers[i].call(null, newStatus);
@@ -199,6 +234,11 @@
 /******/ 	// The update info
 /******/ 	var hotUpdate, hotUpdateNewHash;
 /******/ 	
+/******/ 	function toModuleId(id) {
+/******/ 		var isNumber = (+id) + "" === id;
+/******/ 		return isNumber ? +id : id;
+/******/ 	}
+/******/ 	
 /******/ 	function hotCheck(apply, callback) {
 /******/ 		if(hotStatus !== "idle") throw new Error("check() is only allowed in idle status");
 /******/ 		if(typeof apply === "function") {
@@ -206,7 +246,9 @@
 /******/ 			callback = apply;
 /******/ 		} else {
 /******/ 			hotApplyOnUpdate = apply;
-/******/ 			callback = callback || function(err) { if(err) throw err };
+/******/ 			callback = callback || function(err) {
+/******/ 				if(err) throw err;
+/******/ 			};
 /******/ 		}
 /******/ 		hotSetStatus("check");
 /******/ 		hotDownloadManifest(function(err, update) {
@@ -227,16 +269,18 @@
 /******/ 			hotSetStatus("prepare");
 /******/ 			hotCallback = callback;
 /******/ 			hotUpdate = {};
-/******/ 			for(var chunkId in installedChunks) {
+/******/ 			for(var chunkId in installedChunks)
+/******/ 			{ // eslint-disable-line no-lone-blocks
+/******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
 /******/ 			}
-/******/ 			if(hotChunksLoading === 0 && hotWaitingFiles === 0) {
+/******/ 			if(hotStatus === "prepare" && hotChunksLoading === 0 && hotWaitingFiles === 0) {
 /******/ 				hotUpdateDownloaded();
 /******/ 			}
 /******/ 		});
 /******/ 	}
 /******/ 	
-/******/ 	function hotAddUpdateChunk(chunkId, moreModules) {
+/******/ 	function hotAddUpdateChunk(chunkId, moreModules) { // eslint-disable-line no-unused-vars
 /******/ 		if(!hotAvailibleFilesMap[chunkId] || !hotRequestedFilesMap[chunkId])
 /******/ 			return;
 /******/ 		hotRequestedFilesMap[chunkId] = false;
@@ -271,7 +315,7 @@
 /******/ 			var outdatedModules = [];
 /******/ 			for(var id in hotUpdate) {
 /******/ 				if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 					outdatedModules.push(+id);
+/******/ 					outdatedModules.push(toModuleId(id));
 /******/ 				}
 /******/ 			}
 /******/ 			callback(null, outdatedModules);
@@ -284,16 +328,20 @@
 /******/ 			callback = options;
 /******/ 			options = {};
 /******/ 		} else if(options && typeof options === "object") {
-/******/ 			callback = callback || function(err) { if(err) throw err };
+/******/ 			callback = callback || function(err) {
+/******/ 				if(err) throw err;
+/******/ 			};
 /******/ 		} else {
 /******/ 			options = {};
-/******/ 			callback = callback || function(err) { if(err) throw err };
+/******/ 			callback = callback || function(err) {
+/******/ 				if(err) throw err;
+/******/ 			};
 /******/ 		}
-/******/ 		
+/******/ 	
 /******/ 		function getAffectedStuff(module) {
 /******/ 			var outdatedModules = [module];
-/******/ 			var outdatedDependencies = [];
-/******/ 			
+/******/ 			var outdatedDependencies = {};
+/******/ 	
 /******/ 			var queue = outdatedModules.slice();
 /******/ 			while(queue.length > 0) {
 /******/ 				var moduleId = queue.pop();
@@ -324,9 +372,10 @@
 /******/ 					queue.push(parentId);
 /******/ 				}
 /******/ 			}
-/******/ 			
+/******/ 	
 /******/ 			return [outdatedModules, outdatedDependencies];
 /******/ 		}
+/******/ 	
 /******/ 		function addAllToSet(a, b) {
 /******/ 			for(var i = 0; i < b.length; i++) {
 /******/ 				var item = b[i];
@@ -342,7 +391,7 @@
 /******/ 		var appliedUpdate = {};
 /******/ 		for(var id in hotUpdate) {
 /******/ 			if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 				var moduleId = +id;
+/******/ 				var moduleId = toModuleId(id);
 /******/ 				var result = getAffectedStuff(moduleId);
 /******/ 				if(!result) {
 /******/ 					if(options.ignoreUnaccepted)
@@ -390,7 +439,7 @@
 /******/ 			// Call dispose handlers
 /******/ 			var disposeHandlers = module.hot._disposeHandlers;
 /******/ 			for(var j = 0; j < disposeHandlers.length; j++) {
-/******/ 				var cb = disposeHandlers[j]
+/******/ 				var cb = disposeHandlers[j];
 /******/ 				cb(data);
 /******/ 			}
 /******/ 			hotCurrentModuleData[moduleId] = data;
@@ -408,10 +457,6 @@
 /******/ 				var idx = child.parents.indexOf(moduleId);
 /******/ 				if(idx >= 0) {
 /******/ 					child.parents.splice(idx, 1);
-/******/ 					if(child.parents.length === 0 && child.hot && child.hot._disposeHandlers && child.hot._disposeHandlers.length > 0) {
-/******/ 						// Child has dispose handlers and no more references, dispose it too
-/******/ 						queue.push(child.id);
-/******/ 					}
 /******/ 				}
 /******/ 			}
 /******/ 		}
@@ -495,24 +540,24 @@
 /******/ 		hotSetStatus("idle");
 /******/ 		callback(null, outdatedModules);
 /******/ 	}
-/******/
+
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-/******/
+
 /******/ 	// object to store loaded and loading chunks
 /******/ 	// "0" means "already loaded"
 /******/ 	// Array means "loading", array contains callbacks
 /******/ 	var installedChunks = {
 /******/ 		0:0
 /******/ 	};
-/******/
+
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-/******/
+
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/
+
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
@@ -522,24 +567,24 @@
 /******/ 			parents: hotCurrentParents,
 /******/ 			children: []
 /******/ 		};
-/******/
+
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, hotCreateRequire(moduleId));
-/******/
+
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+
 /******/ 	// This file contains only the entry chunk.
 /******/ 	// The chunk loading function for additional chunks
 /******/ 	__webpack_require__.e = function requireEnsure(chunkId, callback) {
 /******/ 		// "0" is the signal for "already loaded"
 /******/ 		if(installedChunks[chunkId] === 0)
 /******/ 			return callback.call(null, __webpack_require__);
-/******/
+
 /******/ 		// an array means "currently loading".
 /******/ 		if(installedChunks[chunkId] !== undefined) {
 /******/ 			installedChunks[chunkId].push(callback);
@@ -551,23 +596,24 @@
 /******/ 			script.type = 'text/javascript';
 /******/ 			script.charset = 'utf-8';
 /******/ 			script.async = true;
+
 /******/ 			script.src = __webpack_require__.p + "" + chunkId + ".slides-loader.js";
 /******/ 			head.appendChild(script);
 /******/ 		}
 /******/ 	};
-/******/
+
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-/******/
+
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
+
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "build/";
-/******/
+
 /******/ 	// __webpack_hash__
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
-/******/
+
 /******/ 	// Load entry module and return exports
 /******/ 	return hotCreateRequire(0)(0);
 /******/ })
@@ -577,8 +623,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	__webpack_require__(2);
-	module.exports = __webpack_require__(3);
+	__webpack_require__(35);
+	module.exports = __webpack_require__(37);
 
 
 /***/ },
@@ -586,15 +632,15 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	__webpack_require__(16);
-	__webpack_require__(18);
-	__webpack_require__(20);
-
-	__webpack_require__(5);
+	__webpack_require__(2);
 	__webpack_require__(6);
-	__webpack_require__(7);
+	__webpack_require__(8);
 
-	__webpack_require__(4);
+	__webpack_require__(10);
+	__webpack_require__(13);
+	__webpack_require__(15);
+
+	__webpack_require__(17);
 
 	window.Reveal.initialize({
 	    controls: true,
@@ -605,10 +651,10 @@
 	    transition: 'linear' // default/cube/page/concave/zoom/linear/fade/none
 	});
 
-	__webpack_require__.e/*nsure*/(1, function() {
-	    __webpack_require__(8);
+	__webpack_require__.e/* nsure */(1, function() {
+	    __webpack_require__(31);
 	    window.hljs.initHighlightingOnLoad();
-	    __webpack_require__(9);
+	    __webpack_require__(33);
 	});
 
 
@@ -616,312 +662,140 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(3);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(5)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
 	if(true) {
-		var lastData;
-		var upToDate = function upToDate() {
-			return lastData.indexOf(__webpack_require__.h()) >= 0;
-		};
-		var check = function check() {
-			module.hot.check(true, function(err, updatedModules) {
-				if(err) {
-					if(module.hot.status() in {abort:1,fail:1}) {
-						console.warn("[HMR] Cannot apply update. Need to do a full reload!");
-						window.location.reload();
-					} else {
-						console.warn("[HMR] Update failed: " + err);
-					}
-					return;
-				}
-
-				if(!updatedModules)
-					return console.log("[HMR] No Update found.");
-
-				if(!upToDate()) {
-					check();
-				}
-
-				if(!updatedModules || updatedModules.length === 0) {
-					console.log("[HMR] Update is empty.");
-				} else {
-					console.log("[HMR] Updated modules:");
-					updatedModules.forEach(function(moduleId) {
-						console.log("[HMR]  - " + moduleId);
-					});
-				}
-				if(upToDate()) {
-					console.log("[HMR] App is up to date.");
-				}
-
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(3, function() {
+				var newContent = __webpack_require__(3);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
 			});
-		};
-		var addEventListener = window.addEventListener || function (eventName, listener) {
-			return attachEvent('on' + eventName, listener);
-		};
-		addEventListener("message", function(event) {
-			if(typeof event.data === "string" && event.data.indexOf("webpackHotUpdate") === 0) {
-				lastData = event.data;
-				if(!upToDate() && module.hot.status() === "idle") {
-					console.log("[HMR] Checking for updates on the server...");
-					check();
-				}
-			}
-		});
-		console.log("[HMR] Waiting for update signal from WDS...");
-	} else {
-		throw new Error("[HMR] Hot Module Replacement is disabled");
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
 	}
-
 
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(__resourceQuery) {var io = __webpack_require__(23);
-	var scriptElements = document.getElementsByTagName("script");
-	io = io.connect(true ?
-		__resourceQuery.substr(1) :
-		scriptElements[scriptElements.length-1].getAttribute("src").replace(/\/[^\/]+$/, "")
-	);
+	exports = module.exports = __webpack_require__(4)();
+	// imports
 
-	var hot = false;
-	var initial = true;
-	var currentHash = "";
 
-	io.on("hot", function() {
-		hot = true;
-		console.log("[WDS] Hot Module Replacement enabled.");
-	});
+	// module
+	exports.push([module.id, "@charset \"UTF-8\";\n\n/*!\n * reveal.js\n * http://lab.hakim.se/reveal-js\n * MIT licensed\n *\n * Copyright (C) 2014 Hakim El Hattab, http://hakim.se\n */\n\n\n/*********************************************\n * RESET STYLES\n *********************************************/\n\nhtml, body, .reveal div, .reveal span, .reveal applet, .reveal object, .reveal iframe,\n.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6, .reveal p, .reveal blockquote, .reveal pre,\n.reveal a, .reveal abbr, .reveal acronym, .reveal address, .reveal big, .reveal cite, .reveal code,\n.reveal del, .reveal dfn, .reveal em, .reveal img, .reveal ins, .reveal kbd, .reveal q, .reveal s, .reveal samp,\n.reveal small, .reveal strike, .reveal strong, .reveal sub, .reveal sup, .reveal tt, .reveal var,\n.reveal b, .reveal u, .reveal i, .reveal center,\n.reveal dl, .reveal dt, .reveal dd, .reveal ol, .reveal ul, .reveal li,\n.reveal fieldset, .reveal form, .reveal label, .reveal legend,\n.reveal table, .reveal caption, .reveal tbody, .reveal tfoot, .reveal thead, .reveal tr, .reveal th, .reveal td,\n.reveal article, .reveal aside, .reveal canvas, .reveal details, .reveal embed,\n.reveal figure, .reveal figcaption, .reveal footer, .reveal header, .reveal hgroup,\n.reveal menu, .reveal nav, .reveal output, .reveal ruby, .reveal section, .reveal summary,\n.reveal time, .reveal mark, .reveal audio, video {\n\tmargin: 0;\n\tpadding: 0;\n\tborder: 0;\n\tfont-size: 100%;\n\tfont: inherit;\n\tvertical-align: baseline;\n}\n\n.reveal article, .reveal aside, .reveal details, .reveal figcaption, .reveal figure,\n.reveal footer, .reveal header, .reveal hgroup, .reveal menu, .reveal nav, .reveal section {\n\tdisplay: block;\n}\n\n\n/*********************************************\n * GLOBAL STYLES\n *********************************************/\n\nhtml,\nbody {\n\twidth: 100%;\n\theight: 100%;\n\toverflow: hidden;\n}\n\nbody {\n\tposition: relative;\n\tline-height: 1;\n}\n\n::selection {\n\tbackground: #FF5E99;\n\tcolor: #fff;\n\ttext-shadow: none;\n}\n\n\n/*********************************************\n * HEADERS\n *********************************************/\n\n.reveal h1,\n.reveal h2,\n.reveal h3,\n.reveal h4,\n.reveal h5,\n.reveal h6 {\n\t-webkit-hyphens: auto;\n\t   -moz-hyphens: auto;\n\t        hyphens: auto;\n\n\tword-wrap: break-word;\n\tline-height: 1;\n}\n\n.reveal h1 { font-size: 3.77em; }\n.reveal h2 { font-size: 2.11em;\t}\n.reveal h3 { font-size: 1.55em;\t}\n.reveal h4 { font-size: 1em;\t}\n\n\n/*********************************************\n * VIEW FRAGMENTS\n *********************************************/\n\n.reveal .slides section .fragment {\n\topacity: 0;\n\n\t-webkit-transition: all .2s ease;\n\t   -moz-transition: all .2s ease;\n\t    -ms-transition: all .2s ease;\n\t     -o-transition: all .2s ease;\n\t        transition: all .2s ease;\n}\n\t.reveal .slides section .fragment.visible {\n\t\topacity: 1;\n\t}\n\n.reveal .slides section .fragment.grow {\n\topacity: 1;\n}\n\t.reveal .slides section .fragment.grow.visible {\n\t\t-webkit-transform: scale( 1.3 );\n\t\t   -moz-transform: scale( 1.3 );\n\t\t    -ms-transform: scale( 1.3 );\n\t\t     -o-transform: scale( 1.3 );\n\t\t        transform: scale( 1.3 );\n\t}\n\n.reveal .slides section .fragment.shrink {\n\topacity: 1;\n}\n\t.reveal .slides section .fragment.shrink.visible {\n\t\t-webkit-transform: scale( 0.7 );\n\t\t   -moz-transform: scale( 0.7 );\n\t\t    -ms-transform: scale( 0.7 );\n\t\t     -o-transform: scale( 0.7 );\n\t\t        transform: scale( 0.7 );\n\t}\n\n.reveal .slides section .fragment.zoom-in {\n\topacity: 0;\n\n\t-webkit-transform: scale( 0.1 );\n\t   -moz-transform: scale( 0.1 );\n\t    -ms-transform: scale( 0.1 );\n\t     -o-transform: scale( 0.1 );\n\t        transform: scale( 0.1 );\n}\n\n\t.reveal .slides section .fragment.zoom-in.visible {\n\t\topacity: 1;\n\n\t\t-webkit-transform: scale( 1 );\n\t\t   -moz-transform: scale( 1 );\n\t\t    -ms-transform: scale( 1 );\n\t\t     -o-transform: scale( 1 );\n\t\t        transform: scale( 1 );\n\t}\n\n.reveal .slides section .fragment.roll-in {\n\topacity: 0;\n\n\t-webkit-transform: rotateX( 90deg );\n\t   -moz-transform: rotateX( 90deg );\n\t    -ms-transform: rotateX( 90deg );\n\t     -o-transform: rotateX( 90deg );\n\t        transform: rotateX( 90deg );\n}\n\t.reveal .slides section .fragment.roll-in.visible {\n\t\topacity: 1;\n\n\t\t-webkit-transform: rotateX( 0 );\n\t\t   -moz-transform: rotateX( 0 );\n\t\t    -ms-transform: rotateX( 0 );\n\t\t     -o-transform: rotateX( 0 );\n\t\t        transform: rotateX( 0 );\n\t}\n\n.reveal .slides section .fragment.fade-out {\n\topacity: 1;\n}\n\t.reveal .slides section .fragment.fade-out.visible {\n\t\topacity: 0;\n\t}\n\n.reveal .slides section .fragment.semi-fade-out {\n\topacity: 1;\n}\n\t.reveal .slides section .fragment.semi-fade-out.visible {\n\t\topacity: 0.5;\n\t}\n\n.reveal .slides section .fragment.current-visible {\n\topacity:0;\n}\n\n.reveal .slides section .fragment.current-visible.current-fragment {\n\topacity:1;\n}\n\n.reveal .slides section .fragment.highlight-red,\n.reveal .slides section .fragment.highlight-current-red,\n.reveal .slides section .fragment.highlight-green,\n.reveal .slides section .fragment.highlight-current-green,\n.reveal .slides section .fragment.highlight-blue,\n.reveal .slides section .fragment.highlight-current-blue {\n\topacity: 1;\n}\n\t.reveal .slides section .fragment.highlight-red.visible {\n\t\tcolor: #ff2c2d\n\t}\n\t.reveal .slides section .fragment.highlight-green.visible {\n\t\tcolor: #17ff2e;\n\t}\n\t.reveal .slides section .fragment.highlight-blue.visible {\n\t\tcolor: #1b91ff;\n\t}\n\n.reveal .slides section .fragment.highlight-current-red.current-fragment {\n\tcolor: #ff2c2d\n}\n.reveal .slides section .fragment.highlight-current-green.current-fragment {\n\tcolor: #17ff2e;\n}\n.reveal .slides section .fragment.highlight-current-blue.current-fragment {\n\tcolor: #1b91ff;\n}\n\n\n/*********************************************\n * DEFAULT ELEMENT STYLES\n *********************************************/\n\n/* Fixes issue in Chrome where italic fonts did not appear when printing to PDF */\n.reveal:after {\n  content: '';\n  font-style: italic;\n}\n\n.reveal iframe {\n\tz-index: 1;\n}\n\n/* Ensure certain elements are never larger than the slide itself */\n.reveal img,\n.reveal video,\n.reveal iframe {\n\tmax-width: 95%;\n\tmax-height: 95%;\n}\n\n/** Prevents layering issues in certain browser/transition combinations */\n.reveal a {\n\tposition: relative;\n}\n\n.reveal strong,\n.reveal b {\n\tfont-weight: bold;\n}\n\n.reveal em,\n.reveal i {\n\tfont-style: italic;\n}\n\n.reveal ol,\n.reveal ul {\n\tdisplay: inline-block;\n\n\ttext-align: left;\n\tmargin: 0 0 0 1em;\n}\n\n.reveal ol {\n\tlist-style-type: decimal;\n}\n\n.reveal ul {\n\tlist-style-type: disc;\n}\n\n.reveal ul ul {\n\tlist-style-type: square;\n}\n\n.reveal ul ul ul {\n\tlist-style-type: circle;\n}\n\n.reveal ul ul,\n.reveal ul ol,\n.reveal ol ol,\n.reveal ol ul {\n\tdisplay: block;\n\tmargin-left: 40px;\n}\n\n.reveal p {\n\tmargin-bottom: 10px;\n\tline-height: 1.2em;\n}\n\n.reveal q,\n.reveal blockquote {\n\tquotes: none;\n}\n\n.reveal blockquote {\n\tdisplay: block;\n\tposition: relative;\n\twidth: 70%;\n\tmargin: 5px auto;\n\tpadding: 5px;\n\n\tfont-style: italic;\n\tbackground: rgba(255, 255, 255, 0.05);\n\tbox-shadow: 0px 0px 2px rgba(0,0,0,0.2);\n}\n\t.reveal blockquote p:first-child,\n\t.reveal blockquote p:last-child {\n\t\tdisplay: inline-block;\n\t}\n\n.reveal q {\n\tfont-style: italic;\n}\n\n.reveal pre {\n\tdisplay: block;\n\tposition: relative;\n\twidth: 90%;\n\tmargin: 15px auto;\n\n\ttext-align: left;\n\tfont-size: 0.55em;\n\tfont-family: monospace;\n\tline-height: 1.2em;\n\n\tword-wrap: break-word;\n\n\tbox-shadow: 0px 0px 6px rgba(0,0,0,0.3);\n}\n.reveal code {\n\tfont-family: monospace;\n}\n.reveal pre code {\n\tpadding: 5px;\n\toverflow: auto;\n\tmax-height: 400px;\n\tword-wrap: normal;\n}\n.reveal pre.stretch code {\n\theight: 100%;\n\tmax-height: 100%;\n\n\t-webkit-box-sizing: border-box;\n\t   -moz-box-sizing: border-box;\n\t        box-sizing: border-box;\n}\n\n.reveal table th,\n.reveal table td {\n\ttext-align: left;\n\tpadding-right: .3em;\n}\n\n.reveal table th {\n\tfont-weight: bold;\n}\n\n.reveal sup {\n\tvertical-align: super;\n}\n.reveal sub {\n\tvertical-align: sub;\n}\n\n.reveal small {\n\tdisplay: inline-block;\n\tfont-size: 0.6em;\n\tline-height: 1.2em;\n\tvertical-align: top;\n}\n\n.reveal small * {\n\tvertical-align: top;\n}\n\n.reveal .stretch {\n\tmax-width: none;\n\tmax-height: none;\n}\n\n\n/*********************************************\n * CONTROLS\n *********************************************/\n\n.reveal .controls {\n\tdisplay: none;\n\tposition: fixed;\n\twidth: 110px;\n\theight: 110px;\n\tz-index: 30;\n\tright: 10px;\n\tbottom: 10px;\n}\n\n.reveal .controls div {\n\tposition: absolute;\n\topacity: 0.05;\n\twidth: 0;\n\theight: 0;\n\tborder: 12px solid transparent;\n\n\t-moz-transform: scale(.9999);\n\n\t-webkit-transition: all 0.2s ease;\n\t   -moz-transition: all 0.2s ease;\n\t    -ms-transition: all 0.2s ease;\n\t     -o-transition: all 0.2s ease;\n\t        transition: all 0.2s ease;\n}\n\n.reveal .controls div.enabled {\n\topacity: 0.7;\n\tcursor: pointer;\n}\n\n.reveal .controls div.enabled:active {\n\tmargin-top: 1px;\n}\n\n\t.reveal .controls div.navigate-left {\n\t\ttop: 42px;\n\n\t\tborder-right-width: 22px;\n\t\tborder-right-color: #eee;\n\t}\n\t\t.reveal .controls div.navigate-left.fragmented {\n\t\t\topacity: 0.3;\n\t\t}\n\n\t.reveal .controls div.navigate-right {\n\t\tleft: 74px;\n\t\ttop: 42px;\n\n\t\tborder-left-width: 22px;\n\t\tborder-left-color: #eee;\n\t}\n\t\t.reveal .controls div.navigate-right.fragmented {\n\t\t\topacity: 0.3;\n\t\t}\n\n\t.reveal .controls div.navigate-up {\n\t\tleft: 42px;\n\n\t\tborder-bottom-width: 22px;\n\t\tborder-bottom-color: #eee;\n\t}\n\t\t.reveal .controls div.navigate-up.fragmented {\n\t\t\topacity: 0.3;\n\t\t}\n\n\t.reveal .controls div.navigate-down {\n\t\tleft: 42px;\n\t\ttop: 74px;\n\n\t\tborder-top-width: 22px;\n\t\tborder-top-color: #eee;\n\t}\n\t\t.reveal .controls div.navigate-down.fragmented {\n\t\t\topacity: 0.3;\n\t\t}\n\n\n/*********************************************\n * PROGRESS BAR\n *********************************************/\n\n.reveal .progress {\n\tposition: fixed;\n\tdisplay: none;\n\theight: 3px;\n\twidth: 100%;\n\tbottom: 0;\n\tleft: 0;\n\tz-index: 10;\n}\n\t.reveal .progress:after {\n\t\tcontent: '';\n\t\tdisplay: 'block';\n\t\tposition: absolute;\n\t\theight: 20px;\n\t\twidth: 100%;\n\t\ttop: -20px;\n\t}\n\t.reveal .progress span {\n\t\tdisplay: block;\n\t\theight: 100%;\n\t\twidth: 0px;\n\n\t\t-webkit-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t   -moz-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t    -ms-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t     -o-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t        transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t}\n\n/*********************************************\n * SLIDE NUMBER\n *********************************************/\n\n.reveal .slide-number {\n\tposition: fixed;\n\tdisplay: block;\n\tright: 15px;\n\tbottom: 15px;\n\topacity: 0.5;\n\tz-index: 31;\n\tfont-size: 12px;\n}\n\n/*********************************************\n * SLIDES\n *********************************************/\n\n.reveal {\n\tposition: relative;\n\twidth: 100%;\n\theight: 100%;\n\n\t-ms-touch-action: none;\n}\n\n.reveal .slides {\n\tposition: absolute;\n\twidth: 100%;\n\theight: 100%;\n\tleft: 50%;\n\ttop: 50%;\n\n\toverflow: visible;\n\tz-index: 1;\n\ttext-align: center;\n\n\t-webkit-transition: -webkit-perspective .4s ease;\n\t   -moz-transition: -moz-perspective .4s ease;\n\t    -ms-transition: -ms-perspective .4s ease;\n\t     -o-transition: -o-perspective .4s ease;\n\t        transition: perspective .4s ease;\n\n\t-webkit-perspective: 600px;\n\t   -moz-perspective: 600px;\n\t    -ms-perspective: 600px;\n\t        perspective: 600px;\n\n\t-webkit-perspective-origin: 0px -100px;\n\t   -moz-perspective-origin: 0px -100px;\n\t    -ms-perspective-origin: 0px -100px;\n\t        perspective-origin: 0px -100px;\n}\n\n.reveal .slides>section {\n\t-ms-perspective: 600px;\n}\n\n.reveal .slides>section,\n.reveal .slides>section>section {\n\tdisplay: none;\n\tposition: absolute;\n\twidth: 100%;\n\tpadding: 20px 0px;\n\n\tz-index: 10;\n\tline-height: 1.2em;\n\tfont-weight: inherit;\n\n\t-webkit-transform-style: preserve-3d;\n\t   -moz-transform-style: preserve-3d;\n\t    -ms-transform-style: preserve-3d;\n\t        transform-style: preserve-3d;\n\n\t-webkit-transition: -webkit-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\t-webkit-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t   -moz-transition: -moz-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\t-moz-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t    -ms-transition: -ms-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\t-ms-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t     -o-transition: -o-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\t-o-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t        transition: transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\ttransform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n}\n\n/* Global transition speed settings */\n.reveal[data-transition-speed=\"fast\"] .slides section {\n\t-webkit-transition-duration: 400ms;\n\t   -moz-transition-duration: 400ms;\n\t    -ms-transition-duration: 400ms;\n\t        transition-duration: 400ms;\n}\n.reveal[data-transition-speed=\"slow\"] .slides section {\n\t-webkit-transition-duration: 1200ms;\n\t   -moz-transition-duration: 1200ms;\n\t    -ms-transition-duration: 1200ms;\n\t        transition-duration: 1200ms;\n}\n\n/* Slide-specific transition speed overrides */\n.reveal .slides section[data-transition-speed=\"fast\"] {\n\t-webkit-transition-duration: 400ms;\n\t   -moz-transition-duration: 400ms;\n\t    -ms-transition-duration: 400ms;\n\t        transition-duration: 400ms;\n}\n.reveal .slides section[data-transition-speed=\"slow\"] {\n\t-webkit-transition-duration: 1200ms;\n\t   -moz-transition-duration: 1200ms;\n\t    -ms-transition-duration: 1200ms;\n\t        transition-duration: 1200ms;\n}\n\n.reveal .slides>section {\n\tleft: -50%;\n\ttop: -50%;\n}\n\n.reveal .slides>section.stack {\n\tpadding-top: 0;\n\tpadding-bottom: 0;\n}\n\n.reveal .slides>section.present,\n.reveal .slides>section>section.present {\n\tdisplay: block;\n\tz-index: 11;\n\topacity: 1;\n}\n\n.reveal.center,\n.reveal.center .slides,\n.reveal.center .slides section {\n\tmin-height: auto !important;\n}\n\n/* Don't allow interaction with invisible slides */\n.reveal .slides>section.future,\n.reveal .slides>section>section.future,\n.reveal .slides>section.past,\n.reveal .slides>section>section.past {\n\tpointer-events: none;\n}\n\n.reveal.overview .slides>section,\n.reveal.overview .slides>section>section {\n\tpointer-events: auto;\n}\n\n\n\n/*********************************************\n * DEFAULT TRANSITION\n *********************************************/\n\n.reveal .slides>section[data-transition=default].past,\n.reveal .slides>section.past {\n\tdisplay: block;\n\topacity: 0;\n\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n}\n.reveal .slides>section[data-transition=default].future,\n.reveal .slides>section.future {\n\tdisplay: block;\n\topacity: 0;\n\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n}\n\n.reveal .slides>section>section[data-transition=default].past,\n.reveal .slides>section>section.past {\n\tdisplay: block;\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\n\t   -moz-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\n\t    -ms-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\n\t        transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\n}\n.reveal .slides>section>section[data-transition=default].future,\n.reveal .slides>section>section.future {\n\tdisplay: block;\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\n\t   -moz-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\n\t    -ms-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\n\t        transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\n}\n\n\n/*********************************************\n * CONCAVE TRANSITION\n *********************************************/\n\n.reveal .slides>section[data-transition=concave].past,\n.reveal.concave  .slides>section.past {\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t        transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n}\n.reveal .slides>section[data-transition=concave].future,\n.reveal.concave .slides>section.future {\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t        transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n}\n\n.reveal .slides>section>section[data-transition=concave].past,\n.reveal.concave .slides>section>section.past {\n\t-webkit-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\n\t   -moz-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\n\t    -ms-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\n\t        transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\n}\n.reveal .slides>section>section[data-transition=concave].future,\n.reveal.concave .slides>section>section.future {\n\t-webkit-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\n\t   -moz-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\n\t    -ms-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\n\t        transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\n}\n\n\n/*********************************************\n * ZOOM TRANSITION\n *********************************************/\n\n.reveal .slides>section[data-transition=zoom],\n.reveal.zoom .slides>section {\n\t-webkit-transition-timing-function: ease;\n\t   -moz-transition-timing-function: ease;\n\t    -ms-transition-timing-function: ease;\n\t     -o-transition-timing-function: ease;\n\t        transition-timing-function: ease;\n}\n\n.reveal .slides>section[data-transition=zoom].past,\n.reveal.zoom .slides>section.past {\n\topacity: 0;\n\tvisibility: hidden;\n\n\t-webkit-transform: scale(16);\n\t   -moz-transform: scale(16);\n\t    -ms-transform: scale(16);\n\t     -o-transform: scale(16);\n\t        transform: scale(16);\n}\n.reveal .slides>section[data-transition=zoom].future,\n.reveal.zoom .slides>section.future {\n\topacity: 0;\n\tvisibility: hidden;\n\n\t-webkit-transform: scale(0.2);\n\t   -moz-transform: scale(0.2);\n\t    -ms-transform: scale(0.2);\n\t     -o-transform: scale(0.2);\n\t        transform: scale(0.2);\n}\n\n.reveal .slides>section>section[data-transition=zoom].past,\n.reveal.zoom .slides>section>section.past {\n\t-webkit-transform: translate(0, -150%);\n\t   -moz-transform: translate(0, -150%);\n\t    -ms-transform: translate(0, -150%);\n\t     -o-transform: translate(0, -150%);\n\t        transform: translate(0, -150%);\n}\n.reveal .slides>section>section[data-transition=zoom].future,\n.reveal.zoom .slides>section>section.future {\n\t-webkit-transform: translate(0, 150%);\n\t   -moz-transform: translate(0, 150%);\n\t    -ms-transform: translate(0, 150%);\n\t     -o-transform: translate(0, 150%);\n\t        transform: translate(0, 150%);\n}\n\n\n/*********************************************\n * LINEAR TRANSITION\n *********************************************/\n\n.reveal.linear section {\n\t-webkit-backface-visibility: hidden;\n\t   -moz-backface-visibility: hidden;\n\t    -ms-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n}\n\n.reveal .slides>section[data-transition=linear].past,\n.reveal.linear .slides>section.past {\n\t-webkit-transform: translate(-150%, 0);\n\t   -moz-transform: translate(-150%, 0);\n\t    -ms-transform: translate(-150%, 0);\n\t     -o-transform: translate(-150%, 0);\n\t        transform: translate(-150%, 0);\n}\n.reveal .slides>section[data-transition=linear].future,\n.reveal.linear .slides>section.future {\n\t-webkit-transform: translate(150%, 0);\n\t   -moz-transform: translate(150%, 0);\n\t    -ms-transform: translate(150%, 0);\n\t     -o-transform: translate(150%, 0);\n\t        transform: translate(150%, 0);\n}\n\n.reveal .slides>section>section[data-transition=linear].past,\n.reveal.linear .slides>section>section.past {\n\t-webkit-transform: translate(0, -150%);\n\t   -moz-transform: translate(0, -150%);\n\t    -ms-transform: translate(0, -150%);\n\t     -o-transform: translate(0, -150%);\n\t        transform: translate(0, -150%);\n}\n.reveal .slides>section>section[data-transition=linear].future,\n.reveal.linear .slides>section>section.future {\n\t-webkit-transform: translate(0, 150%);\n\t   -moz-transform: translate(0, 150%);\n\t    -ms-transform: translate(0, 150%);\n\t     -o-transform: translate(0, 150%);\n\t        transform: translate(0, 150%);\n}\n\n\n/*********************************************\n * CUBE TRANSITION\n *********************************************/\n\n.reveal.cube .slides {\n\t-webkit-perspective: 1300px;\n\t   -moz-perspective: 1300px;\n\t    -ms-perspective: 1300px;\n\t        perspective: 1300px;\n}\n\n.reveal.cube .slides section {\n\tpadding: 30px;\n\tmin-height: 700px;\n\n\t-webkit-backface-visibility: hidden;\n\t   -moz-backface-visibility: hidden;\n\t    -ms-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n\n\t-webkit-box-sizing: border-box;\n\t   -moz-box-sizing: border-box;\n\t        box-sizing: border-box;\n}\n\t.reveal.center.cube .slides section {\n\t\tmin-height: auto;\n\t}\n\t.reveal.cube .slides section:not(.stack):before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tdisplay: block;\n\t\twidth: 100%;\n\t\theight: 100%;\n\t\tleft: 0;\n\t\ttop: 0;\n\t\tbackground: rgba(0,0,0,0.1);\n\t\tborder-radius: 4px;\n\n\t\t-webkit-transform: translateZ( -20px );\n\t\t   -moz-transform: translateZ( -20px );\n\t\t    -ms-transform: translateZ( -20px );\n\t\t     -o-transform: translateZ( -20px );\n\t\t        transform: translateZ( -20px );\n\t}\n\t.reveal.cube .slides section:not(.stack):after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tdisplay: block;\n\t\twidth: 90%;\n\t\theight: 30px;\n\t\tleft: 5%;\n\t\tbottom: 0;\n\t\tbackground: none;\n\t\tz-index: 1;\n\n\t\tborder-radius: 4px;\n\t\tbox-shadow: 0px 95px 25px rgba(0,0,0,0.2);\n\n\t\t-webkit-transform: translateZ(-90px) rotateX( 65deg );\n\t\t   -moz-transform: translateZ(-90px) rotateX( 65deg );\n\t\t    -ms-transform: translateZ(-90px) rotateX( 65deg );\n\t\t     -o-transform: translateZ(-90px) rotateX( 65deg );\n\t\t        transform: translateZ(-90px) rotateX( 65deg );\n\t}\n\n.reveal.cube .slides>section.stack {\n\tpadding: 0;\n\tbackground: none;\n}\n\n.reveal.cube .slides>section.past {\n\t-webkit-transform-origin: 100% 0%;\n\t   -moz-transform-origin: 100% 0%;\n\t    -ms-transform-origin: 100% 0%;\n\t        transform-origin: 100% 0%;\n\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg);\n}\n\n.reveal.cube .slides>section.future {\n\t-webkit-transform-origin: 0% 0%;\n\t   -moz-transform-origin: 0% 0%;\n\t    -ms-transform-origin: 0% 0%;\n\t        transform-origin: 0% 0%;\n\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg);\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg);\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg);\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg);\n}\n\n.reveal.cube .slides>section>section.past {\n\t-webkit-transform-origin: 0% 100%;\n\t   -moz-transform-origin: 0% 100%;\n\t    -ms-transform-origin: 0% 100%;\n\t        transform-origin: 0% 100%;\n\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(90deg);\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(90deg);\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(90deg);\n\t        transform: translate3d(0, -100%, 0) rotateX(90deg);\n}\n\n.reveal.cube .slides>section>section.future {\n\t-webkit-transform-origin: 0% 0%;\n\t   -moz-transform-origin: 0% 0%;\n\t    -ms-transform-origin: 0% 0%;\n\t        transform-origin: 0% 0%;\n\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg);\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(-90deg);\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(-90deg);\n\t        transform: translate3d(0, 100%, 0) rotateX(-90deg);\n}\n\n\n/*********************************************\n * PAGE TRANSITION\n *********************************************/\n\n.reveal.page .slides {\n\t-webkit-perspective-origin: 0% 50%;\n\t   -moz-perspective-origin: 0% 50%;\n\t    -ms-perspective-origin: 0% 50%;\n\t        perspective-origin: 0% 50%;\n\n\t-webkit-perspective: 3000px;\n\t   -moz-perspective: 3000px;\n\t    -ms-perspective: 3000px;\n\t        perspective: 3000px;\n}\n\n.reveal.page .slides section {\n\tpadding: 30px;\n\tmin-height: 700px;\n\n\t-webkit-box-sizing: border-box;\n\t   -moz-box-sizing: border-box;\n\t        box-sizing: border-box;\n}\n\t.reveal.page .slides section.past {\n\t\tz-index: 12;\n\t}\n\t.reveal.page .slides section:not(.stack):before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tdisplay: block;\n\t\twidth: 100%;\n\t\theight: 100%;\n\t\tleft: 0;\n\t\ttop: 0;\n\t\tbackground: rgba(0,0,0,0.1);\n\n\t\t-webkit-transform: translateZ( -20px );\n\t\t   -moz-transform: translateZ( -20px );\n\t\t    -ms-transform: translateZ( -20px );\n\t\t     -o-transform: translateZ( -20px );\n\t\t        transform: translateZ( -20px );\n\t}\n\t.reveal.page .slides section:not(.stack):after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tdisplay: block;\n\t\twidth: 90%;\n\t\theight: 30px;\n\t\tleft: 5%;\n\t\tbottom: 0;\n\t\tbackground: none;\n\t\tz-index: 1;\n\n\t\tborder-radius: 4px;\n\t\tbox-shadow: 0px 95px 25px rgba(0,0,0,0.2);\n\n\t\t-webkit-transform: translateZ(-90px) rotateX( 65deg );\n\t}\n\n.reveal.page .slides>section.stack {\n\tpadding: 0;\n\tbackground: none;\n}\n\n.reveal.page .slides>section.past {\n\t-webkit-transform-origin: 0% 0%;\n\t   -moz-transform-origin: 0% 0%;\n\t    -ms-transform-origin: 0% 0%;\n\t        transform-origin: 0% 0%;\n\n\t-webkit-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\n\t   -moz-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\n\t    -ms-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\n\t        transform: translate3d(-40%, 0, 0) rotateY(-80deg);\n}\n\n.reveal.page .slides>section.future {\n\t-webkit-transform-origin: 100% 0%;\n\t   -moz-transform-origin: 100% 0%;\n\t    -ms-transform-origin: 100% 0%;\n\t        transform-origin: 100% 0%;\n\n\t-webkit-transform: translate3d(0, 0, 0);\n\t   -moz-transform: translate3d(0, 0, 0);\n\t    -ms-transform: translate3d(0, 0, 0);\n\t        transform: translate3d(0, 0, 0);\n}\n\n.reveal.page .slides>section>section.past {\n\t-webkit-transform-origin: 0% 0%;\n\t   -moz-transform-origin: 0% 0%;\n\t    -ms-transform-origin: 0% 0%;\n\t        transform-origin: 0% 0%;\n\n\t-webkit-transform: translate3d(0, -40%, 0) rotateX(80deg);\n\t   -moz-transform: translate3d(0, -40%, 0) rotateX(80deg);\n\t    -ms-transform: translate3d(0, -40%, 0) rotateX(80deg);\n\t        transform: translate3d(0, -40%, 0) rotateX(80deg);\n}\n\n.reveal.page .slides>section>section.future {\n\t-webkit-transform-origin: 0% 100%;\n\t   -moz-transform-origin: 0% 100%;\n\t    -ms-transform-origin: 0% 100%;\n\t        transform-origin: 0% 100%;\n\n\t-webkit-transform: translate3d(0, 0, 0);\n\t   -moz-transform: translate3d(0, 0, 0);\n\t    -ms-transform: translate3d(0, 0, 0);\n\t        transform: translate3d(0, 0, 0);\n}\n\n\n/*********************************************\n * FADE TRANSITION\n *********************************************/\n\n.reveal .slides section[data-transition=fade],\n.reveal.fade .slides section,\n.reveal.fade .slides>section>section {\n    -webkit-transform: none;\n\t   -moz-transform: none;\n\t    -ms-transform: none;\n\t     -o-transform: none;\n\t        transform: none;\n\n\t-webkit-transition: opacity 0.5s;\n\t   -moz-transition: opacity 0.5s;\n\t    -ms-transition: opacity 0.5s;\n\t     -o-transition: opacity 0.5s;\n\t        transition: opacity 0.5s;\n}\n\n\n.reveal.fade.overview .slides section,\n.reveal.fade.overview .slides>section>section,\n.reveal.fade.overview-deactivating .slides section,\n.reveal.fade.overview-deactivating .slides>section>section {\n\t-webkit-transition: none;\n\t   -moz-transition: none;\n\t    -ms-transition: none;\n\t     -o-transition: none;\n\t        transition: none;\n}\n\n\n/*********************************************\n * NO TRANSITION\n *********************************************/\n\n.reveal .slides section[data-transition=none],\n.reveal.none .slides section {\n\t-webkit-transform: none;\n\t   -moz-transform: none;\n\t    -ms-transform: none;\n\t     -o-transform: none;\n\t        transform: none;\n\n\t-webkit-transition: none;\n\t   -moz-transition: none;\n\t    -ms-transition: none;\n\t     -o-transition: none;\n\t        transition: none;\n}\n\n\n/*********************************************\n * OVERVIEW\n *********************************************/\n\n.reveal.overview .slides {\n\t-webkit-perspective-origin: 0% 0%;\n\t   -moz-perspective-origin: 0% 0%;\n\t    -ms-perspective-origin: 0% 0%;\n\t        perspective-origin: 0% 0%;\n\n\t-webkit-perspective: 700px;\n\t   -moz-perspective: 700px;\n\t    -ms-perspective: 700px;\n\t        perspective: 700px;\n}\n\n.reveal.overview .slides section {\n\theight: 600px;\n\ttop: -300px !important;\n\toverflow: hidden;\n\topacity: 1 !important;\n\tvisibility: visible !important;\n\tcursor: pointer;\n\tbackground: rgba(0,0,0,0.1);\n}\n.reveal.overview .slides section .fragment {\n\topacity: 1;\n}\n.reveal.overview .slides section:after,\n.reveal.overview .slides section:before {\n\tdisplay: none !important;\n}\n.reveal.overview .slides section>section {\n\topacity: 1;\n\tcursor: pointer;\n}\n\t.reveal.overview .slides section:hover {\n\t\tbackground: rgba(0,0,0,0.3);\n\t}\n\t.reveal.overview .slides section.present {\n\t\tbackground: rgba(0,0,0,0.3);\n\t}\n.reveal.overview .slides>section.stack {\n\tpadding: 0;\n\ttop: 0 !important;\n\tbackground: none;\n\toverflow: visible;\n}\n\n\n/*********************************************\n * PAUSED MODE\n *********************************************/\n\n.reveal .pause-overlay {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\tbackground: black;\n\tvisibility: hidden;\n\topacity: 0;\n\tz-index: 100;\n\n\t-webkit-transition: all 1s ease;\n\t   -moz-transition: all 1s ease;\n\t    -ms-transition: all 1s ease;\n\t     -o-transition: all 1s ease;\n\t        transition: all 1s ease;\n}\n.reveal.paused .pause-overlay {\n\tvisibility: visible;\n\topacity: 1;\n}\n\n\n/*********************************************\n * FALLBACK\n *********************************************/\n\n.no-transforms {\n\toverflow-y: auto;\n}\n\n.no-transforms .reveal .slides {\n\tposition: relative;\n\twidth: 80%;\n\theight: auto !important;\n\ttop: 0;\n\tleft: 50%;\n\tmargin: 0;\n\ttext-align: center;\n}\n\n.no-transforms .reveal .controls,\n.no-transforms .reveal .progress {\n\tdisplay: none !important;\n}\n\n.no-transforms .reveal .slides section {\n\tdisplay: block !important;\n\topacity: 1 !important;\n\tposition: relative !important;\n\theight: auto;\n\tmin-height: auto;\n\ttop: 0;\n\tleft: -50%;\n\tmargin: 70px 0;\n\n\t-webkit-transform: none;\n\t   -moz-transform: none;\n\t    -ms-transform: none;\n\t     -o-transform: none;\n\t        transform: none;\n}\n\n.no-transforms .reveal .slides section section {\n\tleft: 0;\n}\n\n.reveal .no-transition,\n.reveal .no-transition * {\n\t-webkit-transition: none !important;\n\t   -moz-transition: none !important;\n\t    -ms-transition: none !important;\n\t     -o-transition: none !important;\n\t        transition: none !important;\n}\n\n\n/*********************************************\n * BACKGROUND STATES [DEPRECATED]\n *********************************************/\n\n.reveal .state-background {\n\tposition: absolute;\n\twidth: 100%;\n\theight: 100%;\n\tbackground: rgba( 0, 0, 0, 0 );\n\n\t-webkit-transition: background 800ms ease;\n\t   -moz-transition: background 800ms ease;\n\t    -ms-transition: background 800ms ease;\n\t     -o-transition: background 800ms ease;\n\t        transition: background 800ms ease;\n}\n.alert .reveal .state-background {\n\tbackground: rgba( 200, 50, 30, 0.6 );\n}\n.soothe .reveal .state-background {\n\tbackground: rgba( 50, 200, 90, 0.4 );\n}\n.blackout .reveal .state-background {\n\tbackground: rgba( 0, 0, 0, 0.6 );\n}\n.whiteout .reveal .state-background {\n\tbackground: rgba( 255, 255, 255, 0.6 );\n}\n.cobalt .reveal .state-background {\n\tbackground: rgba( 22, 152, 213, 0.6 );\n}\n.mint .reveal .state-background {\n\tbackground: rgba( 22, 213, 75, 0.6 );\n}\n.submerge .reveal .state-background {\n\tbackground: rgba( 12, 25, 77, 0.6);\n}\n.lila .reveal .state-background {\n\tbackground: rgba( 180, 50, 140, 0.6 );\n}\n.sunset .reveal .state-background {\n\tbackground: rgba( 255, 122, 0, 0.6 );\n}\n\n\n/*********************************************\n * PER-SLIDE BACKGROUNDS\n *********************************************/\n\n.reveal>.backgrounds {\n\tposition: absolute;\n\twidth: 100%;\n\theight: 100%;\n\n\t-webkit-perspective: 600px;\n\t   -moz-perspective: 600px;\n\t    -ms-perspective: 600px;\n\t        perspective: 600px;\n}\n\t.reveal .slide-background {\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\theight: 100%;\n\t\topacity: 0;\n\t\tvisibility: hidden;\n\n\t\tbackground-color: rgba( 0, 0, 0, 0 );\n\t\tbackground-position: 50% 50%;\n\t\tbackground-repeat: no-repeat;\n\t\tbackground-size: cover;\n\n\t\t-webkit-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t   -moz-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t    -ms-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t     -o-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t\t        transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\n\t}\n\t.reveal .slide-background.present {\n\t\topacity: 1;\n\t\tvisibility: visible;\n\t}\n\n\t.print-pdf .reveal .slide-background {\n\t\topacity: 1 !important;\n\t\tvisibility: visible !important;\n\t}\n\n/* Immediate transition style */\n.reveal[data-background-transition=none]>.backgrounds .slide-background,\n.reveal>.backgrounds .slide-background[data-background-transition=none] {\n\t-webkit-transition: none;\n\t   -moz-transition: none;\n\t    -ms-transition: none;\n\t     -o-transition: none;\n\t        transition: none;\n}\n\n/* 2D slide */\n.reveal[data-background-transition=slide]>.backgrounds .slide-background,\n.reveal>.backgrounds .slide-background[data-background-transition=slide] {\n\topacity: 1;\n\n\t-webkit-backface-visibility: hidden;\n\t   -moz-backface-visibility: hidden;\n\t    -ms-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n}\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background.past,\n\t.reveal>.backgrounds .slide-background.past[data-background-transition=slide] {\n\t\t-webkit-transform: translate(-100%, 0);\n\t\t   -moz-transform: translate(-100%, 0);\n\t\t    -ms-transform: translate(-100%, 0);\n\t\t     -o-transform: translate(-100%, 0);\n\t\t        transform: translate(-100%, 0);\n\t}\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background.future,\n\t.reveal>.backgrounds .slide-background.future[data-background-transition=slide] {\n\t\t-webkit-transform: translate(100%, 0);\n\t\t   -moz-transform: translate(100%, 0);\n\t\t    -ms-transform: translate(100%, 0);\n\t\t     -o-transform: translate(100%, 0);\n\t\t        transform: translate(100%, 0);\n\t}\n\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background>.slide-background.past,\n\t.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=slide] {\n\t\t-webkit-transform: translate(0, -100%);\n\t\t   -moz-transform: translate(0, -100%);\n\t\t    -ms-transform: translate(0, -100%);\n\t\t     -o-transform: translate(0, -100%);\n\t\t        transform: translate(0, -100%);\n\t}\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background>.slide-background.future,\n\t.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=slide] {\n\t\t-webkit-transform: translate(0, 100%);\n\t\t   -moz-transform: translate(0, 100%);\n\t\t    -ms-transform: translate(0, 100%);\n\t\t     -o-transform: translate(0, 100%);\n\t\t        transform: translate(0, 100%);\n\t}\n\n\n/* Convex */\n.reveal[data-background-transition=convex]>.backgrounds .slide-background.past,\n.reveal>.backgrounds .slide-background.past[data-background-transition=convex] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\n}\n.reveal[data-background-transition=convex]>.backgrounds .slide-background.future,\n.reveal>.backgrounds .slide-background.future[data-background-transition=convex] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\n}\n\n.reveal[data-background-transition=convex]>.backgrounds .slide-background>.slide-background.past,\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=convex] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\n\t        transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\n}\n.reveal[data-background-transition=convex]>.backgrounds .slide-background>.slide-background.future,\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=convex] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\n\t        transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\n}\n\n\n/* Concave */\n.reveal[data-background-transition=concave]>.backgrounds .slide-background.past,\n.reveal>.backgrounds .slide-background.past[data-background-transition=concave] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n\t        transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\n}\n.reveal[data-background-transition=concave]>.backgrounds .slide-background.future,\n.reveal>.backgrounds .slide-background.future[data-background-transition=concave] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n\t        transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\n}\n\n.reveal[data-background-transition=concave]>.backgrounds .slide-background>.slide-background.past,\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=concave] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\n\t        transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\n}\n.reveal[data-background-transition=concave]>.backgrounds .slide-background>.slide-background.future,\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=concave] {\n\topacity: 0;\n\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\n\t        transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\n}\n\n/* Zoom */\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background,\n.reveal>.backgrounds .slide-background[data-background-transition=zoom] {\n\t-webkit-transition-timing-function: ease;\n\t   -moz-transition-timing-function: ease;\n\t    -ms-transition-timing-function: ease;\n\t     -o-transition-timing-function: ease;\n\t        transition-timing-function: ease;\n}\n\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background.past,\n.reveal>.backgrounds .slide-background.past[data-background-transition=zoom] {\n\topacity: 0;\n\tvisibility: hidden;\n\n\t-webkit-transform: scale(16);\n\t   -moz-transform: scale(16);\n\t    -ms-transform: scale(16);\n\t     -o-transform: scale(16);\n\t        transform: scale(16);\n}\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background.future,\n.reveal>.backgrounds .slide-background.future[data-background-transition=zoom] {\n\topacity: 0;\n\tvisibility: hidden;\n\n\t-webkit-transform: scale(0.2);\n\t   -moz-transform: scale(0.2);\n\t    -ms-transform: scale(0.2);\n\t     -o-transform: scale(0.2);\n\t        transform: scale(0.2);\n}\n\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background>.slide-background.past,\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=zoom] {\n\topacity: 0;\n\t\tvisibility: hidden;\n\n\t\t-webkit-transform: scale(16);\n\t\t   -moz-transform: scale(16);\n\t\t    -ms-transform: scale(16);\n\t\t     -o-transform: scale(16);\n\t\t        transform: scale(16);\n}\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background>.slide-background.future,\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=zoom] {\n\topacity: 0;\n\tvisibility: hidden;\n\n\t-webkit-transform: scale(0.2);\n\t   -moz-transform: scale(0.2);\n\t    -ms-transform: scale(0.2);\n\t     -o-transform: scale(0.2);\n\t        transform: scale(0.2);\n}\n\n\n/* Global transition speed settings */\n.reveal[data-transition-speed=\"fast\"]>.backgrounds .slide-background {\n\t-webkit-transition-duration: 400ms;\n\t   -moz-transition-duration: 400ms;\n\t    -ms-transition-duration: 400ms;\n\t        transition-duration: 400ms;\n}\n.reveal[data-transition-speed=\"slow\"]>.backgrounds .slide-background {\n\t-webkit-transition-duration: 1200ms;\n\t   -moz-transition-duration: 1200ms;\n\t    -ms-transition-duration: 1200ms;\n\t        transition-duration: 1200ms;\n}\n\n\n/*********************************************\n * RTL SUPPORT\n *********************************************/\n\n.reveal.rtl .slides,\n.reveal.rtl .slides h1,\n.reveal.rtl .slides h2,\n.reveal.rtl .slides h3,\n.reveal.rtl .slides h4,\n.reveal.rtl .slides h5,\n.reveal.rtl .slides h6 {\n\tdirection: rtl;\n\tfont-family: sans-serif;\n}\n\n.reveal.rtl pre,\n.reveal.rtl code {\n\tdirection: ltr;\n}\n\n.reveal.rtl ol,\n.reveal.rtl ul {\n\ttext-align: right;\n}\n\n.reveal.rtl .progress span {\n\tfloat: right\n}\n\n/*********************************************\n * PARALLAX BACKGROUND\n *********************************************/\n\n.reveal.has-parallax-background .backgrounds {\n\t-webkit-transition: all 0.8s ease;\n\t   -moz-transition: all 0.8s ease;\n\t    -ms-transition: all 0.8s ease;\n\t        transition: all 0.8s ease;\n}\n\n/* Global transition speed settings */\n.reveal.has-parallax-background[data-transition-speed=\"fast\"] .backgrounds {\n\t-webkit-transition-duration: 400ms;\n\t   -moz-transition-duration: 400ms;\n\t    -ms-transition-duration: 400ms;\n\t        transition-duration: 400ms;\n}\n.reveal.has-parallax-background[data-transition-speed=\"slow\"] .backgrounds {\n\t-webkit-transition-duration: 1200ms;\n\t   -moz-transition-duration: 1200ms;\n\t    -ms-transition-duration: 1200ms;\n\t        transition-duration: 1200ms;\n}\n\n\n/*********************************************\n * LINK PREVIEW OVERLAY\n *********************************************/\n\n .reveal .preview-link-overlay {\n \tposition: absolute;\n \ttop: 0;\n \tleft: 0;\n \twidth: 100%;\n \theight: 100%;\n \tz-index: 1000;\n \tbackground: rgba( 0, 0, 0, 0.9 );\n \topacity: 0;\n \tvisibility: hidden;\n\n \t-webkit-transition: all 0.3s ease;\n \t   -moz-transition: all 0.3s ease;\n \t    -ms-transition: all 0.3s ease;\n \t        transition: all 0.3s ease;\n }\n \t.reveal .preview-link-overlay.visible {\n \t\topacity: 1;\n \t\tvisibility: visible;\n \t}\n\n \t.reveal .preview-link-overlay .spinner {\n \t\tposition: absolute;\n \t\tdisplay: block;\n \t\ttop: 50%;\n \t\tleft: 50%;\n \t\twidth: 32px;\n \t\theight: 32px;\n \t\tmargin: -16px 0 0 -16px;\n \t\tz-index: 10;\n \t\tbackground-image: url(data:image/gif;base64,R0lGODlhIAAgAPMAAJmZmf%2F%2F%2F6%2Bvr8nJybW1tcDAwOjo6Nvb26ioqKOjo7Ozs%2FLy8vz8%2FAAAAAAAAAAAACH%2FC05FVFNDQVBFMi4wAwEAAAAh%2FhpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh%2BQQJCgAAACwAAAAAIAAgAAAE5xDISWlhperN52JLhSSdRgwVo1ICQZRUsiwHpTJT4iowNS8vyW2icCF6k8HMMBkCEDskxTBDAZwuAkkqIfxIQyhBQBFvAQSDITM5VDW6XNE4KagNh6Bgwe60smQUB3d4Rz1ZBApnFASDd0hihh12BkE9kjAJVlycXIg7CQIFA6SlnJ87paqbSKiKoqusnbMdmDC2tXQlkUhziYtyWTxIfy6BE8WJt5YJvpJivxNaGmLHT0VnOgSYf0dZXS7APdpB309RnHOG5gDqXGLDaC457D1zZ%2FV%2FnmOM82XiHRLYKhKP1oZmADdEAAAh%2BQQJCgAAACwAAAAAIAAgAAAE6hDISWlZpOrNp1lGNRSdRpDUolIGw5RUYhhHukqFu8DsrEyqnWThGvAmhVlteBvojpTDDBUEIFwMFBRAmBkSgOrBFZogCASwBDEY%2FCZSg7GSE0gSCjQBMVG023xWBhklAnoEdhQEfyNqMIcKjhRsjEdnezB%2BA4k8gTwJhFuiW4dokXiloUepBAp5qaKpp6%2BHo7aWW54wl7obvEe0kRuoplCGepwSx2jJvqHEmGt6whJpGpfJCHmOoNHKaHx61WiSR92E4lbFoq%2BB6QDtuetcaBPnW6%2BO7wDHpIiK9SaVK5GgV543tzjgGcghAgAh%2BQQJCgAAACwAAAAAIAAgAAAE7hDISSkxpOrN5zFHNWRdhSiVoVLHspRUMoyUakyEe8PTPCATW9A14E0UvuAKMNAZKYUZCiBMuBakSQKG8G2FzUWox2AUtAQFcBKlVQoLgQReZhQlCIJesQXI5B0CBnUMOxMCenoCfTCEWBsJColTMANldx15BGs8B5wlCZ9Po6OJkwmRpnqkqnuSrayqfKmqpLajoiW5HJq7FL1Gr2mMMcKUMIiJgIemy7xZtJsTmsM4xHiKv5KMCXqfyUCJEonXPN2rAOIAmsfB3uPoAK%2B%2BG%2Bw48edZPK%2BM6hLJpQg484enXIdQFSS1u6UhksENEQAAIfkECQoAAAAsAAAAACAAIAAABOcQyEmpGKLqzWcZRVUQnZYg1aBSh2GUVEIQ2aQOE%2BG%2BcD4ntpWkZQj1JIiZIogDFFyHI0UxQwFugMSOFIPJftfVAEoZLBbcLEFhlQiqGp1Vd140AUklUN3eCA51C1EWMzMCezCBBmkxVIVHBWd3HHl9JQOIJSdSnJ0TDKChCwUJjoWMPaGqDKannasMo6WnM562R5YluZRwur0wpgqZE7NKUm%2BFNRPIhjBJxKZteWuIBMN4zRMIVIhffcgojwCF117i4nlLnY5ztRLsnOk%2BaV%2BoJY7V7m76PdkS4trKcdg0Zc0tTcKkRAAAIfkECQoAAAAsAAAAACAAIAAABO4QyEkpKqjqzScpRaVkXZWQEximw1BSCUEIlDohrft6cpKCk5xid5MNJTaAIkekKGQkWyKHkvhKsR7ARmitkAYDYRIbUQRQjWBwJRzChi9CRlBcY1UN4g0%2FVNB0AlcvcAYHRyZPdEQFYV8ccwR5HWxEJ02YmRMLnJ1xCYp0Y5idpQuhopmmC2KgojKasUQDk5BNAwwMOh2RtRq5uQuPZKGIJQIGwAwGf6I0JXMpC8C7kXWDBINFMxS4DKMAWVWAGYsAdNqW5uaRxkSKJOZKaU3tPOBZ4DuK2LATgJhkPJMgTwKCdFjyPHEnKxFCDhEAACH5BAkKAAAALAAAAAAgACAAAATzEMhJaVKp6s2nIkolIJ2WkBShpkVRWqqQrhLSEu9MZJKK9y1ZrqYK9WiClmvoUaF8gIQSNeF1Er4MNFn4SRSDARWroAIETg1iVwuHjYB1kYc1mwruwXKC9gmsJXliGxc%2BXiUCby9ydh1sOSdMkpMTBpaXBzsfhoc5l58Gm5yToAaZhaOUqjkDgCWNHAULCwOLaTmzswadEqggQwgHuQsHIoZCHQMMQgQGubVEcxOPFAcMDAYUA85eWARmfSRQCdcMe0zeP1AAygwLlJtPNAAL19DARdPzBOWSm1brJBi45soRAWQAAkrQIykShQ9wVhHCwCQCACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiRMDjI0Fd30%2FiI2UA5GSS5UDj2l6NoqgOgN4gksEBgYFf0FDqKgHnyZ9OX8HrgYHdHpcHQULXAS2qKpENRg7eAMLC7kTBaixUYFkKAzWAAnLC7FLVxLWDBLKCwaKTULgEwbLA4hJtOkSBNqITT3xEgfLpBtzE%2FjiuL04RGEBgwWhShRgQExHBAAh%2BQQJCgAAACwAAAAAIAAgAAAE7xDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfZiCqGk5dTESJeaOAlClzsJsqwiJwiqnFrb2nS9kmIcgEsjQydLiIlHehhpejaIjzh9eomSjZR%2BipslWIRLAgMDOR2DOqKogTB9pCUJBagDBXR6XB0EBkIIsaRsGGMMAxoDBgYHTKJiUYEGDAzHC9EACcUGkIgFzgwZ0QsSBcXHiQvOwgDdEwfFs0sDzt4S6BK4xYjkDOzn0unFeBzOBijIm1Dgmg5YFQwsCMjp1oJ8LyIAACH5BAkKAAAALAAAAAAgACAAAATwEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GGl6NoiPOH16iZKNlH6KmyWFOggHhEEvAwwMA0N9GBsEC6amhnVcEwavDAazGwIDaH1ipaYLBUTCGgQDA8NdHz0FpqgTBwsLqAbWAAnIA4FWKdMLGdYGEgraigbT0OITBcg5QwPT4xLrROZL6AuQAPUS7bxLpoWidY0JtxLHKhwwMJBTHgPKdEQAACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GAULDJCRiXo1CpGXDJOUjY%2BYip9DhToJA4RBLwMLCwVDfRgbBAaqqoZ1XBMHswsHtxtFaH1iqaoGNgAIxRpbFAgfPQSqpbgGBqUD1wBXeCYp1AYZ19JJOYgH1KwA4UBvQwXUBxPqVD9L3sbp2BNk2xvvFPJd%2BMFCN6HAAIKgNggY0KtEBAAh%2BQQJCgAAACwAAAAAIAAgAAAE6BDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfYIDMaAFdTESJeaEDAIMxYFqrOUaNW4E4ObYcCXaiBVEgULe0NJaxxtYksjh2NLkZISgDgJhHthkpU4mW6blRiYmZOlh4JWkDqILwUGBnE6TYEbCgevr0N1gH4At7gHiRpFaLNrrq8HNgAJA70AWxQIH1%2BvsYMDAzZQPC9VCNkDWUhGkuE5PxJNwiUK4UfLzOlD4WvzAHaoG9nxPi5d%2BjYUqfAhhykOFwJWiAAAIfkECQoAAAAsAAAAACAAIAAABPAQyElpUqnqzaciSoVkXVUMFaFSwlpOCcMYlErAavhOMnNLNo8KsZsMZItJEIDIFSkLGQoQTNhIsFehRww2CQLKF0tYGKYSg%2BygsZIuNqJksKgbfgIGepNo2cIUB3V1B3IvNiBYNQaDSTtfhhx0CwVPI0UJe0%2Bbm4g5VgcGoqOcnjmjqDSdnhgEoamcsZuXO1aWQy8KAwOAuTYYGwi7w5h%2BKr0SJ8MFihpNbx%2B4Erq7BYBuzsdiH1jCAzoSfl0rVirNbRXlBBlLX%2BBP0XJLAPGzTkAuAOqb0WT5AH7OcdCm5B8TgRwSRKIHQtaLCwg1RAAAOwAAAAAAAAAAAA%3D%3D);\n\n \t\tvisibility: visible;\n \t\topacity: 0.6;\n\n \t\t-webkit-transition: all 0.3s ease;\n \t\t   -moz-transition: all 0.3s ease;\n \t\t    -ms-transition: all 0.3s ease;\n \t\t        transition: all 0.3s ease;\n \t}\n\n \t.reveal .preview-link-overlay header {\n \t\tposition: absolute;\n \t\tleft: 0;\n \t\ttop: 0;\n \t\twidth: 100%;\n \t\theight: 40px;\n \t\tz-index: 2;\n \t\tborder-bottom: 1px solid #222;\n \t}\n \t\t.reveal .preview-link-overlay header a {\n \t\t\tdisplay: inline-block;\n \t\t\twidth: 40px;\n \t\t\theight: 40px;\n \t\t\tpadding: 0 10px;\n \t\t\tfloat: right;\n \t\t\topacity: 0.6;\n\n \t\t\tbox-sizing: border-box;\n \t\t}\n \t\t\t.reveal .preview-link-overlay header a:hover {\n \t\t\t\topacity: 1;\n \t\t\t}\n \t\t\t.reveal .preview-link-overlay header a .icon {\n \t\t\t\tdisplay: inline-block;\n \t\t\t\twidth: 20px;\n \t\t\t\theight: 20px;\n\n \t\t\t\tbackground-position: 50% 50%;\n \t\t\t\tbackground-size: 100%;\n \t\t\t\tbackground-repeat: no-repeat;\n \t\t\t}\n \t\t\t.reveal .preview-link-overlay header a.close .icon {\n \t\t\t\tbackground-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABkklEQVRYR8WX4VHDMAxG6wnoJrABZQPYBCaBTWAD2g1gE5gg6OOsXuxIlr40d81dfrSJ9V4c2VLK7spHuTJ/5wpM07QXuXc5X0opX2tEJcadjHuV80li/FgxTIEK/5QBCICBD6xEhSMGHgQPgBgLiYVAB1dpSqKDawxTohFw4JSEA3clzgIBPCURwE2JucBR7rhPJJv5OpJwDX+SfDjgx1wACQeJG1aChP9K/IMmdZ8DtESV1WyP3Bt4MwM6sj4NMxMYiqUWHQu4KYA/SYkIjOsm3BXYWMKFDwU2khjCQ4ELJUJ4SmClRArOCmSXGuKma0fYD5CbzHxFpCSGAhfAVSSUGDUk2BWZaff2g6GE15BsBQ9nwmpIGDiyHQddwNTMKkbZaf9fajXQca1EX44puJZUsnY0ObGmITE3GVLCbEhQUjGVt146j6oasWN+49Vph2w1pZ5EansNZqKBm1txbU57iRRcZ86RWMDdWtBJUHBHwoQPi1GV+JCbntmvok7iTX4/Up9mgyTc/FJYDTcndgH/AA5A/CHsyEkVAAAAAElFTkSuQmCC);\n \t\t\t}\n \t\t\t.reveal .preview-link-overlay header a.external .icon {\n \t\t\t\tbackground-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAcElEQVRYR+2WSQoAIQwEzf8f7XiOMkUQxUPlGkM3hVmiQfQR9GYnH1SsAQlI4DiBqkCMoNb9y2e90IAEJPAcgdznU9+engMaeJ7Azh5Y1U67gAho4DqBqmB1buAf0MB1AlVBek83ZPkmJMGc1wAR+AAqod/B97TRpQAAAABJRU5ErkJggg==);\n \t\t\t}\n\n \t.reveal .preview-link-overlay .viewport {\n \t\tposition: absolute;\n \t\ttop: 40px;\n \t\tright: 0;\n \t\tbottom: 0;\n \t\tleft: 0;\n \t}\n\n \t.reveal .preview-link-overlay .viewport iframe {\n \t\twidth: 100%;\n \t\theight: 100%;\n \t\tmax-width: 100%;\n \t\tmax-height: 100%;\n \t\tborder: 0;\n\n \t\topacity: 0;\n \t\tvisibility: hidden;\n\n \t\t-webkit-transition: all 0.3s ease;\n \t\t   -moz-transition: all 0.3s ease;\n \t\t    -ms-transition: all 0.3s ease;\n \t\t        transition: all 0.3s ease;\n \t}\n\n \t.reveal .preview-link-overlay.loaded .viewport iframe {\n \t\topacity: 1;\n \t\tvisibility: visible;\n \t}\n\n \t.reveal .preview-link-overlay.loaded .spinner {\n \t\topacity: 0;\n \t\tvisibility: hidden;\n\n \t\t-webkit-transform: scale(0.2);\n \t\t   -moz-transform: scale(0.2);\n \t\t    -ms-transform: scale(0.2);\n \t\t        transform: scale(0.2);\n \t}\n\n\n\n/*********************************************\n * PLAYBACK COMPONENT\n *********************************************/\n\n.reveal .playback {\n\tposition: fixed;\n\tleft: 15px;\n\tbottom: 15px;\n\tz-index: 30;\n\tcursor: pointer;\n\n\t-webkit-transition: all 400ms ease;\n\t   -moz-transition: all 400ms ease;\n\t    -ms-transition: all 400ms ease;\n\t        transition: all 400ms ease;\n}\n\n.reveal.overview .playback {\n\topacity: 0;\n\tvisibility: hidden;\n}\n\n\n/*********************************************\n * ROLLING LINKS\n *********************************************/\n\n.reveal .roll {\n\tdisplay: inline-block;\n\tline-height: 1.2;\n\toverflow: hidden;\n\n\tvertical-align: top;\n\n\t-webkit-perspective: 400px;\n\t   -moz-perspective: 400px;\n\t    -ms-perspective: 400px;\n\t        perspective: 400px;\n\n\t-webkit-perspective-origin: 50% 50%;\n\t   -moz-perspective-origin: 50% 50%;\n\t    -ms-perspective-origin: 50% 50%;\n\t        perspective-origin: 50% 50%;\n}\n\t.reveal .roll:hover {\n\t\tbackground: none;\n\t\ttext-shadow: none;\n\t}\n.reveal .roll span {\n\tdisplay: block;\n\tposition: relative;\n\tpadding: 0 2px;\n\n\tpointer-events: none;\n\n\t-webkit-transition: all 400ms ease;\n\t   -moz-transition: all 400ms ease;\n\t    -ms-transition: all 400ms ease;\n\t        transition: all 400ms ease;\n\n\t-webkit-transform-origin: 50% 0%;\n\t   -moz-transform-origin: 50% 0%;\n\t    -ms-transform-origin: 50% 0%;\n\t        transform-origin: 50% 0%;\n\n\t-webkit-transform-style: preserve-3d;\n\t   -moz-transform-style: preserve-3d;\n\t    -ms-transform-style: preserve-3d;\n\t        transform-style: preserve-3d;\n\n\t-webkit-backface-visibility: hidden;\n\t   -moz-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n}\n\t.reveal .roll:hover span {\n\t    background: rgba(0,0,0,0.5);\n\n\t    -webkit-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\n\t       -moz-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\n\t        -ms-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\n\t            transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\n\t}\n.reveal .roll span:after {\n\tcontent: attr(data-title);\n\n\tdisplay: block;\n\tposition: absolute;\n\tleft: 0;\n\ttop: 0;\n\tpadding: 0 2px;\n\n\t-webkit-backface-visibility: hidden;\n\t   -moz-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n\n\t-webkit-transform-origin: 50% 0%;\n\t   -moz-transform-origin: 50% 0%;\n\t    -ms-transform-origin: 50% 0%;\n\t        transform-origin: 50% 0%;\n\n\t-webkit-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\n\t   -moz-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\n\t    -ms-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\n\t        transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\n}\n\n\n/*********************************************\n * SPEAKER NOTES\n *********************************************/\n\n.reveal aside.notes {\n\tdisplay: none;\n}\n\n\n/*********************************************\n * ZOOM PLUGIN\n *********************************************/\n\n.zoomed .reveal *,\n.zoomed .reveal *:before,\n.zoomed .reveal *:after {\n\t-webkit-transform: none !important;\n\t   -moz-transform: none !important;\n\t    -ms-transform: none !important;\n\t        transform: none !important;\n\n\t-webkit-backface-visibility: visible !important;\n\t   -moz-backface-visibility: visible !important;\n\t    -ms-backface-visibility: visible !important;\n\t        backface-visibility: visible !important;\n}\n\n.zoomed .reveal .progress,\n.zoomed .reveal .controls {\n\topacity: 0;\n}\n\n.zoomed .reveal .roll span {\n\tbackground: none;\n}\n\n.zoomed .reveal .roll span:after {\n\tvisibility: hidden;\n}\n\n\n", ""]);
 
-	io.on("invalid", function() {
-		console.log("[WDS] App updated. Recompiling...");
-	});
+	// exports
 
-	io.on("hash", function(hash) {
-		currentHash = hash;
-	});
-
-	io.on("ok", function() {
-		if(initial) return initial = false;
-		reloadApp();
-	});
-
-	io.on("warnings", function(warnings) {
-		console.log("[WDS] Warnings while compiling.");
-		for(var i = 0; i < warnings.length; i++)
-			console.warn(warnings[i]);
-		if(initial) return initial = false;
-		reloadApp();
-	});
-
-	io.on("errors", function(errors) {
-		console.log("[WDS] Errors while compiling.");
-		for(var i = 0; i < errors.length; i++)
-			console.error(errors[i]);
-		if(initial) return initial = false;
-		reloadApp();
-	});
-
-	io.on("proxy-error", function(errors) {
-		console.log("[WDS] Proxy error.");
-		for(var i = 0; i < errors.length; i++)
-			console.error(errors[i]);
-		if(initial) return initial = false;
-		reloadApp();
-	});
-
-	io.on("disconnect", function() {
-		console.error("[WDS] Disconnected!");
-	});
-
-	function reloadApp() {
-		if(hot) {
-			console.log("[WDS] App hot update...");
-			window.postMessage("webpackHotUpdate" + currentHash, "*");
-		} else {
-			console.log("[WDS] App updated. Reloading...");
-			window.location.reload();
-		}
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, "?http://localhost:8081"))
 
 /***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	"use strict";
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
 
-	var $ = __webpack_require__(28);
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
 
-	var slides = __webpack_require__(26);
-
-	$('.slides').append(slides);
-	$('#what-is-webpack').attr("src", __webpack_require__(25));
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
 
 
 /***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(10)(__webpack_require__(11))
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(10)(__webpack_require__(12))
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(10)(__webpack_require__(13))
-
-/***/ },
-/* 8 */,
-/* 9 */,
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/*
 		MIT License http://www.opensource.org/licenses/mit-license.php
 		Author Tobias Koppers @sokra
 	*/
-	module.exports = function(src) {
-		if (window.execScript)
-			window.execScript(src);
-		else
-			eval.call(null, src);
-	}
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0,
+		styleElementsInsertedAtTop = [];
 
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = "/**\r\n    Head JS     The only script in your <HEAD>\r\n    Copyright   Tero Piirainen (tipiirai)\r\n    License     MIT / http://bit.ly/mit-license\r\n    Version     0.96\r\n\r\n    http://headjs.com\r\n*/(function(a){function z(){d||(d=!0,s(e,function(a){p(a)}))}function y(c,d){var e=a.createElement(\"script\");e.type=\"text/\"+(c.type||\"javascript\"),e.src=c.src||c,e.async=!1,e.onreadystatechange=e.onload=function(){var a=e.readyState;!d.done&&(!a||/loaded|complete/.test(a))&&(d.done=!0,d())},(a.body||b).appendChild(e)}function x(a,b){if(a.state==o)return b&&b();if(a.state==n)return k.ready(a.name,b);if(a.state==m)return a.onpreload.push(function(){x(a,b)});a.state=n,y(a.url,function(){a.state=o,b&&b(),s(g[a.name],function(a){p(a)}),u()&&d&&s(g.ALL,function(a){p(a)})})}function w(a,b){a.state===undefined&&(a.state=m,a.onpreload=[],y({src:a.url,type:\"cache\"},function(){v(a)}))}function v(a){a.state=l,s(a.onpreload,function(a){a.call()})}function u(a){a=a||h;var b;for(var c in a){if(a.hasOwnProperty(c)&&a[c].state!=o)return!1;b=!0}return b}function t(a){return Object.prototype.toString.call(a)==\"[object Function]\"}function s(a,b){if(!!a){typeof a==\"object\"&&(a=[].slice.call(a));for(var c=0;c<a.length;c++)b.call(a,a[c],c)}}function r(a){var b;if(typeof a==\"object\")for(var c in a)a[c]&&(b={name:c,url:a[c]});else b={name:q(a),url:a};var d=h[b.name];if(d&&d.url===b.url)return d;h[b.name]=b;return b}function q(a){var b=a.split(\"/\"),c=b[b.length-1],d=c.indexOf(\"?\");return d!=-1?c.substring(0,d):c}function p(a){a._done||(a(),a._done=1)}var b=a.documentElement,c,d,e=[],f=[],g={},h={},i=a.createElement(\"script\").async===!0||\"MozAppearance\"in a.documentElement.style||window.opera,j=window.head_conf&&head_conf.head||\"head\",k=window[j]=window[j]||function(){k.ready.apply(null,arguments)},l=1,m=2,n=3,o=4;i?k.js=function(){var a=arguments,b=a[a.length-1],c={};t(b)||(b=null),s(a,function(d,e){d!=b&&(d=r(d),c[d.name]=d,x(d,b&&e==a.length-2?function(){u(c)&&p(b)}:null))});return k}:k.js=function(){var a=arguments,b=[].slice.call(a,1),d=b[0];if(!c){f.push(function(){k.js.apply(null,a)});return k}d?(s(b,function(a){t(a)||w(r(a))}),x(r(a[0]),t(d)?d:function(){k.js.apply(null,b)})):x(r(a[0]));return k},k.ready=function(b,c){if(b==a){d?p(c):e.push(c);return k}t(b)&&(c=b,b=\"ALL\");if(typeof b!=\"string\"||!t(c))return k;var f=h[b];if(f&&f.state==o||b==\"ALL\"&&u()&&d){p(c);return k}var i=g[b];i?i.push(c):i=g[b]=[c];return k},k.ready(a,function(){u()&&s(g.ALL,function(a){p(a)}),k.feature&&k.feature(\"domloaded\",!0)});if(window.addEventListener)a.addEventListener(\"DOMContentLoaded\",z,!1),window.addEventListener(\"load\",z,!1);else if(window.attachEvent){a.attachEvent(\"onreadystatechange\",function(){a.readyState===\"complete\"&&z()});var A=1;try{A=window.frameElement}catch(B){}!A&&b.doScroll&&function(){try{b.doScroll(\"left\"),z()}catch(a){setTimeout(arguments.callee,1);return}}(),window.attachEvent(\"onload\",z)}!a.readyState&&a.addEventListener&&(a.readyState=\"loading\",a.addEventListener(\"DOMContentLoaded\",handler=function(){a.removeEventListener(\"DOMContentLoaded\",handler,!1),a.readyState=\"complete\"},!1)),setTimeout(function(){c=!0,s(f,function(a){a()})},300)})(document)"
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = "/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/\r\nif(typeof document!==\"undefined\"&&!(\"classList\" in document.createElement(\"a\"))){(function(j){var a=\"classList\",f=\"prototype\",m=(j.HTMLElement||j.Element)[f],b=Object,k=String[f].trim||function(){return this.replace(/^\\s+|\\s+$/g,\"\")},c=Array[f].indexOf||function(q){var p=0,o=this.length;for(;p<o;p++){if(p in this&&this[p]===q){return p}}return -1},n=function(o,p){this.name=o;this.code=DOMException[o];this.message=p},g=function(p,o){if(o===\"\"){throw new n(\"SYNTAX_ERR\",\"An invalid or illegal string was specified\")}if(/\\s/.test(o)){throw new n(\"INVALID_CHARACTER_ERR\",\"String contains an invalid character\")}return c.call(p,o)},d=function(s){var r=k.call(s.className),q=r?r.split(/\\s+/):[],p=0,o=q.length;for(;p<o;p++){this.push(q[p])}this._updateClassName=function(){s.className=this.toString()}},e=d[f]=[],i=function(){return new d(this)};n[f]=Error[f];e.item=function(o){return this[o]||null};e.contains=function(o){o+=\"\";return g(this,o)!==-1};e.add=function(o){o+=\"\";if(g(this,o)===-1){this.push(o);this._updateClassName()}};e.remove=function(p){p+=\"\";var o=g(this,p);if(o!==-1){this.splice(o,1);this._updateClassName()}};e.toggle=function(o){o+=\"\";if(g(this,o)===-1){this.add(o)}else{this.remove(o)}};e.toString=function(){return this.join(\" \")};if(b.defineProperty){var l={get:i,enumerable:true,configurable:true};try{b.defineProperty(m,a,l)}catch(h){if(h.number===-2146823252){l.enumerable=false;b.defineProperty(m,a,l)}}}else{if(b[f].__defineGetter__){m.__defineGetter__(a,i)}}}(self))};"
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = "/*!\r\n * reveal.js 2.6.1 (2014-03-13, 09:22)\r\n * http://lab.hakim.se/reveal-js\r\n * MIT licensed\r\n *\r\n * Copyright (C) 2014 Hakim El Hattab, http://hakim.se\r\n */\r\nvar Reveal=function(){\"use strict\";function a(a){if(b(),!ec.transforms2d&&!ec.transforms3d)return document.body.setAttribute(\"class\",\"no-transforms\"),void 0;window.addEventListener(\"load\",A,!1);var d=Reveal.getQueryHash();\"undefined\"!=typeof d.dependencies&&delete d.dependencies,k(_b,a),k(_b,d),r(),c()}function b(){ec.transforms3d=\"WebkitPerspective\"in document.body.style||\"MozPerspective\"in document.body.style||\"msPerspective\"in document.body.style||\"OPerspective\"in document.body.style||\"perspective\"in document.body.style,ec.transforms2d=\"WebkitTransform\"in document.body.style||\"MozTransform\"in document.body.style||\"msTransform\"in document.body.style||\"OTransform\"in document.body.style||\"transform\"in document.body.style,ec.requestAnimationFrameMethod=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame,ec.requestAnimationFrame=\"function\"==typeof ec.requestAnimationFrameMethod,ec.canvas=!!document.createElement(\"canvas\").getContext,Vb=navigator.userAgent.match(/(iphone|ipod|android)/gi)}function c(){function a(){e.length&&head.js.apply(null,e),d()}function b(b){head.ready(b.src.match(/([\\w\\d_\\-]*)\\.?js$|[^\\\\\\/]*$/i)[0],function(){\"function\"==typeof b.callback&&b.callback.apply(this),0===--f&&a()})}for(var c=[],e=[],f=0,g=0,h=_b.dependencies.length;h>g;g++){var i=_b.dependencies[g];(!i.condition||i.condition())&&(i.async?e.push(i.src):c.push(i.src),b(i))}c.length?(f=c.length,head.js.apply(null,c)):a()}function d(){e(),Q(),h(),cb(),X(!0),setTimeout(function(){dc.slides.classList.remove(\"no-transition\"),ac=!0,t(\"ready\",{indexh:Qb,indexv:Rb,currentSlide:Tb})},1)}function e(){dc.theme=document.querySelector(\"#theme\"),dc.wrapper=document.querySelector(\".reveal\"),dc.slides=document.querySelector(\".reveal .slides\"),dc.slides.classList.add(\"no-transition\"),dc.background=f(dc.wrapper,\"div\",\"backgrounds\",null),dc.progress=f(dc.wrapper,\"div\",\"progress\",\"<span></span>\"),dc.progressbar=dc.progress.querySelector(\"span\"),f(dc.wrapper,\"aside\",\"controls\",'<div class=\"navigate-left\"></div><div class=\"navigate-right\"></div><div class=\"navigate-up\"></div><div class=\"navigate-down\"></div>'),dc.slideNumber=f(dc.wrapper,\"div\",\"slide-number\",\"\"),f(dc.wrapper,\"div\",\"state-background\",null),f(dc.wrapper,\"div\",\"pause-overlay\",null),dc.controls=document.querySelector(\".reveal .controls\"),dc.controlsLeft=l(document.querySelectorAll(\".navigate-left\")),dc.controlsRight=l(document.querySelectorAll(\".navigate-right\")),dc.controlsUp=l(document.querySelectorAll(\".navigate-up\")),dc.controlsDown=l(document.querySelectorAll(\".navigate-down\")),dc.controlsPrev=l(document.querySelectorAll(\".navigate-prev\")),dc.controlsNext=l(document.querySelectorAll(\".navigate-next\"))}function f(a,b,c,d){var e=a.querySelector(\".\"+c);return e||(e=document.createElement(b),e.classList.add(c),null!==d&&(e.innerHTML=d),a.appendChild(e)),e}function g(){function a(a,b){var c={background:a.getAttribute(\"data-background\"),backgroundSize:a.getAttribute(\"data-background-size\"),backgroundImage:a.getAttribute(\"data-background-image\"),backgroundColor:a.getAttribute(\"data-background-color\"),backgroundRepeat:a.getAttribute(\"data-background-repeat\"),backgroundPosition:a.getAttribute(\"data-background-position\"),backgroundTransition:a.getAttribute(\"data-background-transition\")},d=document.createElement(\"div\");return d.className=\"slide-background\",c.background&&(/^(http|file|\\/\\/)/gi.test(c.background)||/\\.(svg|png|jpg|jpeg|gif|bmp)$/gi.test(c.background)?d.style.backgroundImage=\"url(\"+c.background+\")\":d.style.background=c.background),(c.background||c.backgroundColor||c.backgroundImage)&&d.setAttribute(\"data-background-hash\",c.background+c.backgroundSize+c.backgroundImage+c.backgroundColor+c.backgroundRepeat+c.backgroundPosition+c.backgroundTransition),c.backgroundSize&&(d.style.backgroundSize=c.backgroundSize),c.backgroundImage&&(d.style.backgroundImage='url(\"'+c.backgroundImage+'\")'),c.backgroundColor&&(d.style.backgroundColor=c.backgroundColor),c.backgroundRepeat&&(d.style.backgroundRepeat=c.backgroundRepeat),c.backgroundPosition&&(d.style.backgroundPosition=c.backgroundPosition),c.backgroundTransition&&d.setAttribute(\"data-background-transition\",c.backgroundTransition),b.appendChild(d),d}q()&&document.body.classList.add(\"print-pdf\"),dc.background.innerHTML=\"\",dc.background.classList.add(\"no-transition\"),l(document.querySelectorAll(Yb)).forEach(function(b){var c;c=q()?a(b,b):a(b,dc.background),l(b.querySelectorAll(\"section\")).forEach(function(b){q()?a(b,b):a(b,c)})}),_b.parallaxBackgroundImage?(dc.background.style.backgroundImage='url(\"'+_b.parallaxBackgroundImage+'\")',dc.background.style.backgroundSize=_b.parallaxBackgroundSize,setTimeout(function(){dc.wrapper.classList.add(\"has-parallax-background\")},1)):(dc.background.style.backgroundImage=\"\",dc.wrapper.classList.remove(\"has-parallax-background\"))}function h(a){var b=document.querySelectorAll(Xb).length;if(dc.wrapper.classList.remove(_b.transition),\"object\"==typeof a&&k(_b,a),ec.transforms3d===!1&&(_b.transition=\"linear\"),dc.wrapper.classList.add(_b.transition),dc.wrapper.setAttribute(\"data-transition-speed\",_b.transitionSpeed),dc.wrapper.setAttribute(\"data-background-transition\",_b.backgroundTransition),dc.controls.style.display=_b.controls?\"block\":\"none\",dc.progress.style.display=_b.progress?\"block\":\"none\",_b.rtl?dc.wrapper.classList.add(\"rtl\"):dc.wrapper.classList.remove(\"rtl\"),_b.center?dc.wrapper.classList.add(\"center\"):dc.wrapper.classList.remove(\"center\"),_b.mouseWheel?(document.addEventListener(\"DOMMouseScroll\",Bb,!1),document.addEventListener(\"mousewheel\",Bb,!1)):(document.removeEventListener(\"DOMMouseScroll\",Bb,!1),document.removeEventListener(\"mousewheel\",Bb,!1)),_b.rollingLinks?u():v(),_b.previewLinks?w():(x(),w(\"[data-preview-link]\")),b>1&&_b.autoSlide&&_b.autoSlideStoppable&&ec.canvas&&ec.requestAnimationFrame?(Wb=new Pb(dc.wrapper,function(){return Math.min(Math.max((Date.now()-mc)/kc,0),1)}),Wb.on(\"click\",Ob),nc=!1):Wb&&(Wb.destroy(),Wb=null),_b.theme&&dc.theme){var c=dc.theme.getAttribute(\"href\"),d=/[^\\/]*?(?=\\.css)/,e=c.match(d)[0];_b.theme!==e&&(c=c.replace(d,_b.theme),dc.theme.setAttribute(\"href\",c))}P()}function i(){if(jc=!0,window.addEventListener(\"hashchange\",Jb,!1),window.addEventListener(\"resize\",Kb,!1),_b.touch&&(dc.wrapper.addEventListener(\"touchstart\",vb,!1),dc.wrapper.addEventListener(\"touchmove\",wb,!1),dc.wrapper.addEventListener(\"touchend\",xb,!1),window.navigator.msPointerEnabled&&(dc.wrapper.addEventListener(\"MSPointerDown\",yb,!1),dc.wrapper.addEventListener(\"MSPointerMove\",zb,!1),dc.wrapper.addEventListener(\"MSPointerUp\",Ab,!1))),_b.keyboard&&document.addEventListener(\"keydown\",ub,!1),_b.progress&&dc.progress&&dc.progress.addEventListener(\"click\",Cb,!1),_b.focusBodyOnPageVisiblityChange){var a;\"hidden\"in document?a=\"visibilitychange\":\"msHidden\"in document?a=\"msvisibilitychange\":\"webkitHidden\"in document&&(a=\"webkitvisibilitychange\"),a&&document.addEventListener(a,Lb,!1)}[\"touchstart\",\"click\"].forEach(function(a){dc.controlsLeft.forEach(function(b){b.addEventListener(a,Db,!1)}),dc.controlsRight.forEach(function(b){b.addEventListener(a,Eb,!1)}),dc.controlsUp.forEach(function(b){b.addEventListener(a,Fb,!1)}),dc.controlsDown.forEach(function(b){b.addEventListener(a,Gb,!1)}),dc.controlsPrev.forEach(function(b){b.addEventListener(a,Hb,!1)}),dc.controlsNext.forEach(function(b){b.addEventListener(a,Ib,!1)})})}function j(){jc=!1,document.removeEventListener(\"keydown\",ub,!1),window.removeEventListener(\"hashchange\",Jb,!1),window.removeEventListener(\"resize\",Kb,!1),dc.wrapper.removeEventListener(\"touchstart\",vb,!1),dc.wrapper.removeEventListener(\"touchmove\",wb,!1),dc.wrapper.removeEventListener(\"touchend\",xb,!1),window.navigator.msPointerEnabled&&(dc.wrapper.removeEventListener(\"MSPointerDown\",yb,!1),dc.wrapper.removeEventListener(\"MSPointerMove\",zb,!1),dc.wrapper.removeEventListener(\"MSPointerUp\",Ab,!1)),_b.progress&&dc.progress&&dc.progress.removeEventListener(\"click\",Cb,!1),[\"touchstart\",\"click\"].forEach(function(a){dc.controlsLeft.forEach(function(b){b.removeEventListener(a,Db,!1)}),dc.controlsRight.forEach(function(b){b.removeEventListener(a,Eb,!1)}),dc.controlsUp.forEach(function(b){b.removeEventListener(a,Fb,!1)}),dc.controlsDown.forEach(function(b){b.removeEventListener(a,Gb,!1)}),dc.controlsPrev.forEach(function(b){b.removeEventListener(a,Hb,!1)}),dc.controlsNext.forEach(function(b){b.removeEventListener(a,Ib,!1)})})}function k(a,b){for(var c in b)a[c]=b[c]}function l(a){return Array.prototype.slice.call(a)}function m(a,b){var c=a.x-b.x,d=a.y-b.y;return Math.sqrt(c*c+d*d)}function n(a,b){a.style.WebkitTransform=b,a.style.MozTransform=b,a.style.msTransform=b,a.style.OTransform=b,a.style.transform=b}function o(a){var b=0;if(a){var c=0;l(a.childNodes).forEach(function(a){\"number\"==typeof a.offsetTop&&a.style&&(\"absolute\"===a.style.position&&(c+=1),b=Math.max(b,a.offsetTop+a.offsetHeight))}),0===c&&(b=a.offsetHeight)}return b}function p(a,b){if(b=b||0,a){var c=a.parentNode,d=c.childNodes;l(d).forEach(function(c){if(\"number\"==typeof c.offsetHeight&&c!==a){var d=window.getComputedStyle(c),e=parseInt(d.marginTop,10),f=parseInt(d.marginBottom,10);b-=c.offsetHeight+e+f}});var e=window.getComputedStyle(a);b-=parseInt(e.marginTop,10)+parseInt(e.marginBottom,10)}return b}function q(){return/print-pdf/gi.test(window.location.search)}function r(){_b.hideAddressBar&&Vb&&(window.addEventListener(\"load\",s,!1),window.addEventListener(\"orientationchange\",s,!1))}function s(){setTimeout(function(){window.scrollTo(0,1)},10)}function t(a,b){var c=document.createEvent(\"HTMLEvents\",1,2);c.initEvent(a,!0,!0),k(c,b),dc.wrapper.dispatchEvent(c)}function u(){if(ec.transforms3d&&!(\"msPerspective\"in document.body.style))for(var a=document.querySelectorAll(Xb+\" a:not(.image)\"),b=0,c=a.length;c>b;b++){var d=a[b];if(!(!d.textContent||d.querySelector(\"*\")||d.className&&d.classList.contains(d,\"roll\"))){var e=document.createElement(\"span\");e.setAttribute(\"data-title\",d.text),e.innerHTML=d.innerHTML,d.classList.add(\"roll\"),d.innerHTML=\"\",d.appendChild(e)}}}function v(){for(var a=document.querySelectorAll(Xb+\" a.roll\"),b=0,c=a.length;c>b;b++){var d=a[b],e=d.querySelector(\"span\");e&&(d.classList.remove(\"roll\"),d.innerHTML=e.innerHTML)}}function w(a){var b=l(document.querySelectorAll(a?a:\"a\"));b.forEach(function(a){/^(http|www)/gi.test(a.getAttribute(\"href\"))&&a.addEventListener(\"click\",Nb,!1)})}function x(){var a=l(document.querySelectorAll(\"a\"));a.forEach(function(a){/^(http|www)/gi.test(a.getAttribute(\"href\"))&&a.removeEventListener(\"click\",Nb,!1)})}function y(a){z(),dc.preview=document.createElement(\"div\"),dc.preview.classList.add(\"preview-link-overlay\"),dc.wrapper.appendChild(dc.preview),dc.preview.innerHTML=[\"<header>\",'<a class=\"close\" href=\"#\"><span class=\"icon\"></span></a>','<a class=\"external\" href=\"'+a+'\" target=\"_blank\"><span class=\"icon\"></span></a>',\"</header>\",'<div class=\"spinner\"></div>','<div class=\"viewport\">','<iframe src=\"'+a+'\"></iframe>',\"</div>\"].join(\"\"),dc.preview.querySelector(\"iframe\").addEventListener(\"load\",function(){dc.preview.classList.add(\"loaded\")},!1),dc.preview.querySelector(\".close\").addEventListener(\"click\",function(a){z(),a.preventDefault()},!1),dc.preview.querySelector(\".external\").addEventListener(\"click\",function(){z()},!1),setTimeout(function(){dc.preview.classList.add(\"visible\")},1)}function z(){dc.preview&&(dc.preview.setAttribute(\"src\",\"\"),dc.preview.parentNode.removeChild(dc.preview),dc.preview=null)}function A(){if(dc.wrapper&&!q()){var a=dc.wrapper.offsetWidth,b=dc.wrapper.offsetHeight;a-=b*_b.margin,b-=b*_b.margin;var c=_b.width,d=_b.height,e=20;B(_b.width,_b.height,e),\"string\"==typeof c&&/%$/.test(c)&&(c=parseInt(c,10)/100*a),\"string\"==typeof d&&/%$/.test(d)&&(d=parseInt(d,10)/100*b),dc.slides.style.width=c+\"px\",dc.slides.style.height=d+\"px\",cc=Math.min(a/c,b/d),cc=Math.max(cc,_b.minScale),cc=Math.min(cc,_b.maxScale),\"undefined\"==typeof dc.slides.style.zoom||navigator.userAgent.match(/(iphone|ipod|ipad|android)/gi)?n(dc.slides,\"translate(-50%, -50%) scale(\"+cc+\") translate(50%, 50%)\"):dc.slides.style.zoom=cc;for(var f=l(document.querySelectorAll(Xb)),g=0,h=f.length;h>g;g++){var i=f[g];\"none\"!==i.style.display&&(i.style.top=_b.center||i.classList.contains(\"center\")?i.classList.contains(\"stack\")?0:Math.max(-(o(i)/2)-e,-d/2)+\"px\":\"\")}U(),Y()}}function B(a,b,c){l(dc.slides.querySelectorAll(\"section > .stretch\")).forEach(function(d){var e=p(d,b-2*c);if(/(img|video)/gi.test(d.nodeName)){var f=d.naturalWidth||d.videoWidth,g=d.naturalHeight||d.videoHeight,h=Math.min(a/f,e/g);d.style.width=f*h+\"px\",d.style.height=g*h+\"px\"}else d.style.width=a+\"px\",d.style.height=e+\"px\"})}function C(a,b){\"object\"==typeof a&&\"function\"==typeof a.setAttribute&&a.setAttribute(\"data-previous-indexv\",b||0)}function D(a){if(\"object\"==typeof a&&\"function\"==typeof a.setAttribute&&a.classList.contains(\"stack\")){var b=a.hasAttribute(\"data-start-indexv\")?\"data-start-indexv\":\"data-previous-indexv\";return parseInt(a.getAttribute(b)||0,10)}return 0}function E(){if(_b.overview){kb();var a=dc.wrapper.classList.contains(\"overview\"),b=window.innerWidth<400?1e3:2500;dc.wrapper.classList.add(\"overview\"),dc.wrapper.classList.remove(\"overview-deactivating\"),clearTimeout(hc),clearTimeout(ic),hc=setTimeout(function(){for(var c=document.querySelectorAll(Yb),d=0,e=c.length;e>d;d++){var f=c[d],g=_b.rtl?-105:105;if(f.setAttribute(\"data-index-h\",d),n(f,\"translateZ(-\"+b+\"px) translate(\"+(d-Qb)*g+\"%, 0%)\"),f.classList.contains(\"stack\"))for(var h=f.querySelectorAll(\"section\"),i=0,j=h.length;j>i;i++){var k=d===Qb?Rb:D(f),l=h[i];l.setAttribute(\"data-index-h\",d),l.setAttribute(\"data-index-v\",i),n(l,\"translate(0%, \"+105*(i-k)+\"%)\"),l.addEventListener(\"click\",Mb,!0)}else f.addEventListener(\"click\",Mb,!0)}T(),A(),a||t(\"overviewshown\",{indexh:Qb,indexv:Rb,currentSlide:Tb})},10)}}function F(){_b.overview&&(clearTimeout(hc),clearTimeout(ic),dc.wrapper.classList.remove(\"overview\"),dc.wrapper.classList.add(\"overview-deactivating\"),ic=setTimeout(function(){dc.wrapper.classList.remove(\"overview-deactivating\")},1),l(document.querySelectorAll(Xb)).forEach(function(a){n(a,\"\"),a.removeEventListener(\"click\",Mb,!0)}),O(Qb,Rb),jb(),t(\"overviewhidden\",{indexh:Qb,indexv:Rb,currentSlide:Tb}))}function G(a){\"boolean\"==typeof a?a?E():F():H()?F():E()}function H(){return dc.wrapper.classList.contains(\"overview\")}function I(a){return a=a?a:Tb,a&&a.parentNode&&!!a.parentNode.nodeName.match(/section/i)}function J(){var a=document.body,b=a.requestFullScreen||a.webkitRequestFullscreen||a.webkitRequestFullScreen||a.mozRequestFullScreen||a.msRequestFullScreen;b&&b.apply(a)}function K(){var a=dc.wrapper.classList.contains(\"paused\");kb(),dc.wrapper.classList.add(\"paused\"),a===!1&&t(\"paused\")}function L(){var a=dc.wrapper.classList.contains(\"paused\");dc.wrapper.classList.remove(\"paused\"),jb(),a&&t(\"resumed\")}function M(){N()?L():K()}function N(){return dc.wrapper.classList.contains(\"paused\")}function O(a,b,c,d){Sb=Tb;var e=document.querySelectorAll(Yb);void 0===b&&(b=D(e[a])),Sb&&Sb.parentNode&&Sb.parentNode.classList.contains(\"stack\")&&C(Sb.parentNode,Rb);var f=bc.concat();bc.length=0;var g=Qb||0,h=Rb||0;Qb=S(Yb,void 0===a?Qb:a),Rb=S(Zb,void 0===b?Rb:b),T(),A();a:for(var i=0,j=bc.length;j>i;i++){for(var k=0;k<f.length;k++)if(f[k]===bc[i]){f.splice(k,1);continue a}document.documentElement.classList.add(bc[i]),t(bc[i])}for(;f.length;)document.documentElement.classList.remove(f.pop());H()&&E();var m=e[Qb],n=m.querySelectorAll(\"section\");Tb=n[Rb]||m,\"undefined\"!=typeof c&&gb(c);var o=Qb!==g||Rb!==h;o?t(\"slidechanged\",{indexh:Qb,indexv:Rb,previousSlide:Sb,currentSlide:Tb,origin:d}):Sb=null,Sb&&(Sb.classList.remove(\"present\"),document.querySelector($b).classList.contains(\"present\")&&setTimeout(function(){var a,b=l(document.querySelectorAll(Yb+\".stack\"));for(a in b)b[a]&&C(b[a],0)},0)),o&&(ab(Sb),_(Tb)),W(),U(),X(),Y(),V(),db(),jb()}function P(){j(),i(),A(),kc=_b.autoSlide,jb(),g(),R(),W(),U(),X(!0),V()}function Q(){var a=l(document.querySelectorAll(Yb));a.forEach(function(a){var b=l(a.querySelectorAll(\"section\"));b.forEach(function(a,b){b>0&&(a.classList.remove(\"present\"),a.classList.remove(\"past\"),a.classList.add(\"future\"))})})}function R(){var a=l(document.querySelectorAll(Yb));a.forEach(function(a){var b=l(a.querySelectorAll(\"section\"));b.forEach(function(a){fb(a.querySelectorAll(\".fragment\"))}),0===b.length&&fb(a.querySelectorAll(\".fragment\"))})}function S(a,b){var c=l(document.querySelectorAll(a)),d=c.length;if(d){_b.loop&&(b%=d,0>b&&(b=d+b)),b=Math.max(Math.min(b,d-1),0);for(var e=0;d>e;e++){var f=c[e],g=_b.rtl&&!I(f);if(f.classList.remove(\"past\"),f.classList.remove(\"present\"),f.classList.remove(\"future\"),f.setAttribute(\"hidden\",\"\"),b>e){f.classList.add(g?\"future\":\"past\");for(var h=l(f.querySelectorAll(\".fragment\"));h.length;){var i=h.pop();i.classList.add(\"visible\"),i.classList.remove(\"current-fragment\")}}else if(e>b){f.classList.add(g?\"past\":\"future\");for(var j=l(f.querySelectorAll(\".fragment.visible\"));j.length;){var k=j.pop();k.classList.remove(\"visible\"),k.classList.remove(\"current-fragment\")}}f.querySelector(\"section\")&&f.classList.add(\"stack\")}c[b].classList.add(\"present\"),c[b].removeAttribute(\"hidden\");var m=c[b].getAttribute(\"data-state\");m&&(bc=bc.concat(m.split(\" \")))}else b=0;return b}function T(){var a,b,c=l(document.querySelectorAll(Yb)),d=c.length;if(d){var e=H()?10:_b.viewDistance;Vb&&(e=H()?6:1);for(var f=0;d>f;f++){var g=c[f],h=l(g.querySelectorAll(\"section\")),i=h.length;if(a=Math.abs((Qb-f)%(d-e))||0,g.style.display=a>e?\"none\":\"block\",i)for(var j=D(g),k=0;i>k;k++){var m=h[k];b=f===Qb?Math.abs(Rb-k):Math.abs(k-j),m.style.display=a+b>e?\"none\":\"block\"}}}}function U(){if(_b.progress&&dc.progress){var a=l(document.querySelectorAll(Yb)),b=document.querySelectorAll(Xb+\":not(.stack)\").length,c=0;a:for(var d=0;d<a.length;d++){for(var e=a[d],f=l(e.querySelectorAll(\"section\")),g=0;g<f.length;g++){if(f[g].classList.contains(\"present\"))break a;c++}if(e.classList.contains(\"present\"))break;e.classList.contains(\"stack\")===!1&&c++}dc.progressbar.style.width=c/(b-1)*window.innerWidth+\"px\"}}function V(){if(_b.slideNumber&&dc.slideNumber){var a=Qb;Rb>0&&(a+=\" - \"+Rb),dc.slideNumber.innerHTML=a}}function W(){var a=Z(),b=$();dc.controlsLeft.concat(dc.controlsRight).concat(dc.controlsUp).concat(dc.controlsDown).concat(dc.controlsPrev).concat(dc.controlsNext).forEach(function(a){a.classList.remove(\"enabled\"),a.classList.remove(\"fragmented\")}),a.left&&dc.controlsLeft.forEach(function(a){a.classList.add(\"enabled\")}),a.right&&dc.controlsRight.forEach(function(a){a.classList.add(\"enabled\")}),a.up&&dc.controlsUp.forEach(function(a){a.classList.add(\"enabled\")}),a.down&&dc.controlsDown.forEach(function(a){a.classList.add(\"enabled\")}),(a.left||a.up)&&dc.controlsPrev.forEach(function(a){a.classList.add(\"enabled\")}),(a.right||a.down)&&dc.controlsNext.forEach(function(a){a.classList.add(\"enabled\")}),Tb&&(b.prev&&dc.controlsPrev.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsNext.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),I(Tb)?(b.prev&&dc.controlsUp.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsDown.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")})):(b.prev&&dc.controlsLeft.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsRight.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")})))}function X(a){var b=null,c=_b.rtl?\"future\":\"past\",d=_b.rtl?\"past\":\"future\";if(l(dc.background.childNodes).forEach(function(e,f){Qb>f?e.className=\"slide-background \"+c:f>Qb?e.className=\"slide-background \"+d:(e.className=\"slide-background present\",b=e),(a||f===Qb)&&l(e.childNodes).forEach(function(a,c){Rb>c?a.className=\"slide-background past\":c>Rb?a.className=\"slide-background future\":(a.className=\"slide-background present\",f===Qb&&(b=a))})}),b){var e=Ub?Ub.getAttribute(\"data-background-hash\"):null,f=b.getAttribute(\"data-background-hash\");f&&f===e&&b!==Ub&&dc.background.classList.add(\"no-transition\"),Ub=b}setTimeout(function(){dc.background.classList.remove(\"no-transition\")},1)}function Y(){if(_b.parallaxBackgroundImage){var a,b,c=document.querySelectorAll(Yb),d=document.querySelectorAll(Zb),e=dc.background.style.backgroundSize.split(\" \");1===e.length?a=b=parseInt(e[0],10):(a=parseInt(e[0],10),b=parseInt(e[1],10));var f=dc.background.offsetWidth,g=c.length,h=-(a-f)/(g-1)*Qb,i=dc.background.offsetHeight,j=d.length,k=j>0?-(b-i)/(j-1)*Rb:0;dc.background.style.backgroundPosition=h+\"px \"+k+\"px\"}}function Z(){var a=document.querySelectorAll(Yb),b=document.querySelectorAll(Zb),c={left:Qb>0||_b.loop,right:Qb<a.length-1||_b.loop,up:Rb>0,down:Rb<b.length-1};if(_b.rtl){var d=c.left;c.left=c.right,c.right=d}return c}function $(){if(Tb&&_b.fragments){var a=Tb.querySelectorAll(\".fragment\"),b=Tb.querySelectorAll(\".fragment:not(.visible)\");return{prev:a.length-b.length>0,next:!!b.length}}return{prev:!1,next:!1}}function _(a){a&&!bb()&&(l(a.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&a.play()}),l(a.querySelectorAll(\"iframe\")).forEach(function(a){a.contentWindow.postMessage(\"slide:start\",\"*\")}),l(a.querySelectorAll('iframe[src*=\"youtube.com/embed/\"]')).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&a.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}',\"*\")}))}function ab(a){a&&(l(a.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-ignore\")||a.pause()}),l(a.querySelectorAll(\"iframe\")).forEach(function(a){a.contentWindow.postMessage(\"slide:stop\",\"*\")}),l(a.querySelectorAll('iframe[src*=\"youtube.com/embed/\"]')).forEach(function(a){a.hasAttribute(\"data-ignore\")||\"function\"!=typeof a.contentWindow.postMessage||a.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}',\"*\")}))}function bb(){return!!window.location.search.match(/receiver/gi)}function cb(){var a=window.location.hash,b=a.slice(2).split(\"/\"),c=a.replace(/#|\\//gi,\"\");if(isNaN(parseInt(b[0],10))&&c.length){var d=document.querySelector(\"#\"+c);if(d){var e=Reveal.getIndices(d);O(e.h,e.v)}else O(Qb||0,Rb||0)}else{var f=parseInt(b[0],10)||0,g=parseInt(b[1],10)||0;(f!==Qb||g!==Rb)&&O(f,g)}}function db(a){if(_b.history)if(clearTimeout(gc),\"number\"==typeof a)gc=setTimeout(db,a);else{var b=\"/\";Tb&&\"string\"==typeof Tb.getAttribute(\"id\")?b=\"/\"+Tb.getAttribute(\"id\"):((Qb>0||Rb>0)&&(b+=Qb),Rb>0&&(b+=\"/\"+Rb)),window.location.hash=b}}function eb(a){var b,c=Qb,d=Rb;if(a){var e=I(a),f=e?a.parentNode:a,g=l(document.querySelectorAll(Yb));c=Math.max(g.indexOf(f),0),e&&(d=Math.max(l(a.parentNode.querySelectorAll(\"section\")).indexOf(a),0))}if(!a&&Tb){var h=Tb.querySelectorAll(\".fragment\").length>0;if(h){var i=Tb.querySelectorAll(\".fragment.visible\");b=i.length-1}}return{h:c,v:d,f:b}}function fb(a){a=l(a);var b=[],c=[],d=[];a.forEach(function(a){if(a.hasAttribute(\"data-fragment-index\")){var d=parseInt(a.getAttribute(\"data-fragment-index\"),10);b[d]||(b[d]=[]),b[d].push(a)}else c.push([a])}),b=b.concat(c);var e=0;return b.forEach(function(a){a.forEach(function(a){d.push(a),a.setAttribute(\"data-fragment-index\",e)}),e++}),d}function gb(a,b){if(Tb&&_b.fragments){var c=fb(Tb.querySelectorAll(\".fragment\"));if(c.length){if(\"number\"!=typeof a){var d=fb(Tb.querySelectorAll(\".fragment.visible\")).pop();a=d?parseInt(d.getAttribute(\"data-fragment-index\")||0,10):-1}\"number\"==typeof b&&(a+=b);var e=[],f=[];return l(c).forEach(function(b,c){b.hasAttribute(\"data-fragment-index\")&&(c=parseInt(b.getAttribute(\"data-fragment-index\"),10)),a>=c?(b.classList.contains(\"visible\")||e.push(b),b.classList.add(\"visible\"),b.classList.remove(\"current-fragment\"),c===a&&b.classList.add(\"current-fragment\")):(b.classList.contains(\"visible\")&&f.push(b),b.classList.remove(\"visible\"),b.classList.remove(\"current-fragment\"))}),f.length&&t(\"fragmenthidden\",{fragment:f[0],fragments:f}),e.length&&t(\"fragmentshown\",{fragment:e[0],fragments:e}),W(),!(!e.length&&!f.length)}}return!1}function hb(){return gb(null,1)}function ib(){return gb(null,-1)}function jb(){if(kb(),Tb){var a=Tb.parentNode?Tb.parentNode.getAttribute(\"data-autoslide\"):null,b=Tb.getAttribute(\"data-autoslide\");kc=b?parseInt(b,10):a?parseInt(a,10):_b.autoSlide,l(Tb.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&kc&&1e3*a.duration>kc&&(kc=1e3*a.duration+1e3)}),!kc||nc||N()||H()||Reveal.isLastSlide()&&_b.loop!==!0||(lc=setTimeout(sb,kc),mc=Date.now()),Wb&&Wb.setPlaying(-1!==lc)}}function kb(){clearTimeout(lc),lc=-1}function lb(){nc=!0,clearTimeout(lc),Wb&&Wb.setPlaying(!1)}function mb(){nc=!1,jb()}function nb(){_b.rtl?(H()||hb()===!1)&&Z().left&&O(Qb+1):(H()||ib()===!1)&&Z().left&&O(Qb-1)}function ob(){_b.rtl?(H()||ib()===!1)&&Z().right&&O(Qb-1):(H()||hb()===!1)&&Z().right&&O(Qb+1)}function pb(){(H()||ib()===!1)&&Z().up&&O(Qb,Rb-1)}function qb(){(H()||hb()===!1)&&Z().down&&O(Qb,Rb+1)}function rb(){if(ib()===!1)if(Z().up)pb();else{var a=document.querySelector(Yb+\".past:nth-child(\"+Qb+\")\");if(a){var b=a.querySelectorAll(\"section\").length-1||void 0,c=Qb-1;O(c,b)}}}function sb(){hb()===!1&&(Z().down?qb():ob()),jb()}function tb(){_b.autoSlideStoppable&&lb()}function ub(a){tb(a),document.activeElement;var b=!(!document.activeElement||!document.activeElement.type&&!document.activeElement.href&&\"inherit\"===document.activeElement.contentEditable);if(!(b||a.shiftKey&&32!==a.keyCode||a.altKey||a.ctrlKey||a.metaKey)){if(N()&&-1===[66,190,191].indexOf(a.keyCode))return!1;var c=!1;if(\"object\"==typeof _b.keyboard)for(var d in _b.keyboard)if(parseInt(d,10)===a.keyCode){var e=_b.keyboard[d];\"function\"==typeof e?e.apply(null,[a]):\"string\"==typeof e&&\"function\"==typeof Reveal[e]&&Reveal[e].call(),c=!0}if(c===!1)switch(c=!0,a.keyCode){case 80:case 33:rb();break;case 78:case 34:sb();break;case 72:case 37:nb();break;case 76:case 39:ob();break;case 75:case 38:pb();break;case 74:case 40:qb();break;case 36:O(0);break;case 35:O(Number.MAX_VALUE);break;case 32:H()?F():a.shiftKey?rb():sb();break;case 13:H()?F():c=!1;break;case 66:case 190:case 191:M();break;case 70:J();break;default:c=!1}c?a.preventDefault():27!==a.keyCode&&79!==a.keyCode||!ec.transforms3d||(dc.preview?z():G(),a.preventDefault()),jb()}}function vb(a){oc.startX=a.touches[0].clientX,oc.startY=a.touches[0].clientY,oc.startCount=a.touches.length,2===a.touches.length&&_b.overview&&(oc.startSpan=m({x:a.touches[1].clientX,y:a.touches[1].clientY},{x:oc.startX,y:oc.startY}))}function wb(a){if(oc.captured)navigator.userAgent.match(/android/gi)&&a.preventDefault();else{tb(a);var b=a.touches[0].clientX,c=a.touches[0].clientY;if(2===a.touches.length&&2===oc.startCount&&_b.overview){var d=m({x:a.touches[1].clientX,y:a.touches[1].clientY},{x:oc.startX,y:oc.startY});Math.abs(oc.startSpan-d)>oc.threshold&&(oc.captured=!0,d<oc.startSpan?E():F()),a.preventDefault()}else if(1===a.touches.length&&2!==oc.startCount){var e=b-oc.startX,f=c-oc.startY;e>oc.threshold&&Math.abs(e)>Math.abs(f)?(oc.captured=!0,nb()):e<-oc.threshold&&Math.abs(e)>Math.abs(f)?(oc.captured=!0,ob()):f>oc.threshold?(oc.captured=!0,pb()):f<-oc.threshold&&(oc.captured=!0,qb()),_b.embedded?(oc.captured||I(Tb))&&a.preventDefault():a.preventDefault()}}}function xb(){oc.captured=!1}function yb(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],vb(a))}function zb(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],wb(a))}function Ab(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],xb(a))}function Bb(a){if(Date.now()-fc>600){fc=Date.now();var b=a.detail||-a.wheelDelta;b>0?sb():rb()}}function Cb(a){tb(a),a.preventDefault();var b=l(document.querySelectorAll(Yb)).length,c=Math.floor(a.clientX/dc.wrapper.offsetWidth*b);O(c)}function Db(a){a.preventDefault(),tb(),nb()}function Eb(a){a.preventDefault(),tb(),ob()}function Fb(a){a.preventDefault(),tb(),pb()}function Gb(a){a.preventDefault(),tb(),qb()}function Hb(a){a.preventDefault(),tb(),rb()}function Ib(a){a.preventDefault(),tb(),sb()}function Jb(){cb()}function Kb(){A()}function Lb(){var a=document.webkitHidden||document.msHidden||document.hidden;a===!1&&document.activeElement!==document.body&&(document.activeElement.blur(),document.body.focus())}function Mb(a){if(jc&&H()){a.preventDefault();for(var b=a.target;b&&!b.nodeName.match(/section/gi);)b=b.parentNode;if(b&&!b.classList.contains(\"disabled\")&&(F(),b.nodeName.match(/section/gi))){var c=parseInt(b.getAttribute(\"data-index-h\"),10),d=parseInt(b.getAttribute(\"data-index-v\"),10);O(c,d)}}}function Nb(a){var b=a.target.getAttribute(\"href\");b&&(y(b),a.preventDefault())}function Ob(){Reveal.isLastSlide()&&_b.loop===!1?(O(0,0),mb()):nc?mb():lb()}function Pb(a,b){this.diameter=50,this.thickness=3,this.playing=!1,this.progress=0,this.progressOffset=1,this.container=a,this.progressCheck=b,this.canvas=document.createElement(\"canvas\"),this.canvas.className=\"playback\",this.canvas.width=this.diameter,this.canvas.height=this.diameter,this.context=this.canvas.getContext(\"2d\"),this.container.appendChild(this.canvas),this.render()}var Qb,Rb,Sb,Tb,Ub,Vb,Wb,Xb=\".reveal .slides section\",Yb=\".reveal .slides>section\",Zb=\".reveal .slides>section.present>section\",$b=\".reveal .slides>section:first-of-type\",_b={width:960,height:700,margin:.1,minScale:.2,maxScale:1,controls:!0,progress:!0,slideNumber:!1,history:!1,keyboard:!0,overview:!0,center:!0,touch:!0,loop:!1,rtl:!1,fragments:!0,embedded:!1,autoSlide:0,autoSlideStoppable:!0,mouseWheel:!1,rollingLinks:!1,hideAddressBar:!0,previewLinks:!1,focusBodyOnPageVisiblityChange:!0,theme:null,transition:\"default\",transitionSpeed:\"default\",backgroundTransition:\"default\",parallaxBackgroundImage:\"\",parallaxBackgroundSize:\"\",viewDistance:3,dependencies:[]},ac=!1,bc=[],cc=1,dc={},ec={},fc=0,gc=0,hc=0,ic=0,jc=!1,kc=0,lc=0,mc=-1,nc=!1,oc={startX:0,startY:0,startSpan:0,startCount:0,captured:!1,threshold:40};return Pb.prototype.setPlaying=function(a){var b=this.playing;this.playing=a,!b&&this.playing?this.animate():this.render()},Pb.prototype.animate=function(){var a=this.progress;this.progress=this.progressCheck(),a>.8&&this.progress<.2&&(this.progressOffset=this.progress),this.render(),this.playing&&ec.requestAnimationFrameMethod.call(window,this.animate.bind(this))},Pb.prototype.render=function(){var a=this.playing?this.progress:0,b=this.diameter/2-this.thickness,c=this.diameter/2,d=this.diameter/2,e=14;this.progressOffset+=.1*(1-this.progressOffset);var f=-Math.PI/2+a*2*Math.PI,g=-Math.PI/2+this.progressOffset*2*Math.PI;this.context.save(),this.context.clearRect(0,0,this.diameter,this.diameter),this.context.beginPath(),this.context.arc(c,d,b+2,0,2*Math.PI,!1),this.context.fillStyle=\"rgba( 0, 0, 0, 0.4 )\",this.context.fill(),this.context.beginPath(),this.context.arc(c,d,b,0,2*Math.PI,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=\"#666\",this.context.stroke(),this.playing&&(this.context.beginPath(),this.context.arc(c,d,b,g,f,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=\"#fff\",this.context.stroke()),this.context.translate(c-e/2,d-e/2),this.playing?(this.context.fillStyle=\"#fff\",this.context.fillRect(0,0,e/2-2,e),this.context.fillRect(e/2+2,0,e/2-2,e)):(this.context.beginPath(),this.context.translate(2,0),this.context.moveTo(0,0),this.context.lineTo(e-2,e/2),this.context.lineTo(0,e),this.context.fillStyle=\"#fff\",this.context.fill()),this.context.restore()},Pb.prototype.on=function(a,b){this.canvas.addEventListener(a,b,!1)},Pb.prototype.off=function(a,b){this.canvas.removeEventListener(a,b,!1)},Pb.prototype.destroy=function(){this.playing=!1,this.canvas.parentNode&&this.container.removeChild(this.canvas)},{initialize:a,configure:h,sync:P,slide:O,left:nb,right:ob,up:pb,down:qb,prev:rb,next:sb,navigateFragment:gb,prevFragment:ib,nextFragment:hb,navigateTo:O,navigateLeft:nb,navigateRight:ob,navigateUp:pb,navigateDown:qb,navigatePrev:rb,navigateNext:sb,layout:A,availableRoutes:Z,availableFragments:$,toggleOverview:G,togglePause:M,isOverview:H,isPaused:N,addEventListeners:i,removeEventListeners:j,getIndices:eb,getSlide:function(a,b){var c=document.querySelectorAll(Yb)[a],d=c&&c.querySelectorAll(\"section\");\r\nreturn\"undefined\"!=typeof b?d?d[b]:void 0:c},getPreviousSlide:function(){return Sb},getCurrentSlide:function(){return Tb},getScale:function(){return cc},getConfig:function(){return _b},getQueryHash:function(){var a={};location.search.replace(/[A-Z0-9]+?=([\\w\\.%-]*)/gi,function(b){a[b.split(\"=\").shift()]=b.split(\"=\").pop()});for(var b in a){var c=a[b];a[b]=unescape(c),\"null\"===c?a[b]=null:\"true\"===c?a[b]=!0:\"false\"===c?a[b]=!1:c.match(/^\\d+$/)&&(a[b]=parseFloat(c))}return a},isFirstSlide:function(){return null==document.querySelector(Xb+\".past\")?!0:!1},isLastSlide:function(){return Tb?Tb.nextElementSibling?!1:I(Tb)&&Tb.parentNode.nextElementSibling?!1:!0:!1},isReady:function(){return ac},addEventListener:function(a,b,c){\"addEventListener\"in window&&(dc.wrapper||document.querySelector(\".reveal\")).addEventListener(a,b,c)},removeEventListener:function(a,b,c){\"addEventListener\"in window&&(dc.wrapper||document.querySelector(\".reveal\")).removeEventListener(a,b,c)}}}();"
-
-/***/ },
-/* 14 */,
-/* 15 */,
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(17);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(22)(content);
-	// Hot Module Replacement
-	if(true) {
-		// When the styles change, update the <style> tags
-		module.hot.accept(17, function() {
-			var newContent = __webpack_require__(17);
-			if(typeof newContent === 'string') newContent = [module.id, newContent, ''];
-			update(newContent);
-		});
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(24)();
-	exports.push([module.id, "@charset \"UTF-8\";\r\n\r\n/*!\r\n * reveal.js\r\n * http://lab.hakim.se/reveal-js\r\n * MIT licensed\r\n *\r\n * Copyright (C) 2014 Hakim El Hattab, http://hakim.se\r\n */\r\n\r\n\r\n/*********************************************\r\n * RESET STYLES\r\n *********************************************/\r\n\r\nhtml, body, .reveal div, .reveal span, .reveal applet, .reveal object, .reveal iframe,\r\n.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6, .reveal p, .reveal blockquote, .reveal pre,\r\n.reveal a, .reveal abbr, .reveal acronym, .reveal address, .reveal big, .reveal cite, .reveal code,\r\n.reveal del, .reveal dfn, .reveal em, .reveal img, .reveal ins, .reveal kbd, .reveal q, .reveal s, .reveal samp,\r\n.reveal small, .reveal strike, .reveal strong, .reveal sub, .reveal sup, .reveal tt, .reveal var,\r\n.reveal b, .reveal u, .reveal i, .reveal center,\r\n.reveal dl, .reveal dt, .reveal dd, .reveal ol, .reveal ul, .reveal li,\r\n.reveal fieldset, .reveal form, .reveal label, .reveal legend,\r\n.reveal table, .reveal caption, .reveal tbody, .reveal tfoot, .reveal thead, .reveal tr, .reveal th, .reveal td,\r\n.reveal article, .reveal aside, .reveal canvas, .reveal details, .reveal embed,\r\n.reveal figure, .reveal figcaption, .reveal footer, .reveal header, .reveal hgroup,\r\n.reveal menu, .reveal nav, .reveal output, .reveal ruby, .reveal section, .reveal summary,\r\n.reveal time, .reveal mark, .reveal audio, video {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\tborder: 0;\r\n\tfont-size: 100%;\r\n\tfont: inherit;\r\n\tvertical-align: baseline;\r\n}\r\n\r\n.reveal article, .reveal aside, .reveal details, .reveal figcaption, .reveal figure,\r\n.reveal footer, .reveal header, .reveal hgroup, .reveal menu, .reveal nav, .reveal section {\r\n\tdisplay: block;\r\n}\r\n\r\n\r\n/*********************************************\r\n * GLOBAL STYLES\r\n *********************************************/\r\n\r\nhtml,\r\nbody {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\toverflow: hidden;\r\n}\r\n\r\nbody {\r\n\tposition: relative;\r\n\tline-height: 1;\r\n}\r\n\r\n::selection {\r\n\tbackground: #FF5E99;\r\n\tcolor: #fff;\r\n\ttext-shadow: none;\r\n}\r\n\r\n\r\n/*********************************************\r\n * HEADERS\r\n *********************************************/\r\n\r\n.reveal h1,\r\n.reveal h2,\r\n.reveal h3,\r\n.reveal h4,\r\n.reveal h5,\r\n.reveal h6 {\r\n\t-webkit-hyphens: auto;\r\n\t   -moz-hyphens: auto;\r\n\t        hyphens: auto;\r\n\r\n\tword-wrap: break-word;\r\n\tline-height: 1;\r\n}\r\n\r\n.reveal h1 { font-size: 3.77em; }\r\n.reveal h2 { font-size: 2.11em;\t}\r\n.reveal h3 { font-size: 1.55em;\t}\r\n.reveal h4 { font-size: 1em;\t}\r\n\r\n\r\n/*********************************************\r\n * VIEW FRAGMENTS\r\n *********************************************/\r\n\r\n.reveal .slides section .fragment {\r\n\topacity: 0;\r\n\r\n\t-webkit-transition: all .2s ease;\r\n\t   -moz-transition: all .2s ease;\r\n\t    -ms-transition: all .2s ease;\r\n\t     -o-transition: all .2s ease;\r\n\t        transition: all .2s ease;\r\n}\r\n\t.reveal .slides section .fragment.visible {\r\n\t\topacity: 1;\r\n\t}\r\n\r\n.reveal .slides section .fragment.grow {\r\n\topacity: 1;\r\n}\r\n\t.reveal .slides section .fragment.grow.visible {\r\n\t\t-webkit-transform: scale( 1.3 );\r\n\t\t   -moz-transform: scale( 1.3 );\r\n\t\t    -ms-transform: scale( 1.3 );\r\n\t\t     -o-transform: scale( 1.3 );\r\n\t\t        transform: scale( 1.3 );\r\n\t}\r\n\r\n.reveal .slides section .fragment.shrink {\r\n\topacity: 1;\r\n}\r\n\t.reveal .slides section .fragment.shrink.visible {\r\n\t\t-webkit-transform: scale( 0.7 );\r\n\t\t   -moz-transform: scale( 0.7 );\r\n\t\t    -ms-transform: scale( 0.7 );\r\n\t\t     -o-transform: scale( 0.7 );\r\n\t\t        transform: scale( 0.7 );\r\n\t}\r\n\r\n.reveal .slides section .fragment.zoom-in {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: scale( 0.1 );\r\n\t   -moz-transform: scale( 0.1 );\r\n\t    -ms-transform: scale( 0.1 );\r\n\t     -o-transform: scale( 0.1 );\r\n\t        transform: scale( 0.1 );\r\n}\r\n\r\n\t.reveal .slides section .fragment.zoom-in.visible {\r\n\t\topacity: 1;\r\n\r\n\t\t-webkit-transform: scale( 1 );\r\n\t\t   -moz-transform: scale( 1 );\r\n\t\t    -ms-transform: scale( 1 );\r\n\t\t     -o-transform: scale( 1 );\r\n\t\t        transform: scale( 1 );\r\n\t}\r\n\r\n.reveal .slides section .fragment.roll-in {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: rotateX( 90deg );\r\n\t   -moz-transform: rotateX( 90deg );\r\n\t    -ms-transform: rotateX( 90deg );\r\n\t     -o-transform: rotateX( 90deg );\r\n\t        transform: rotateX( 90deg );\r\n}\r\n\t.reveal .slides section .fragment.roll-in.visible {\r\n\t\topacity: 1;\r\n\r\n\t\t-webkit-transform: rotateX( 0 );\r\n\t\t   -moz-transform: rotateX( 0 );\r\n\t\t    -ms-transform: rotateX( 0 );\r\n\t\t     -o-transform: rotateX( 0 );\r\n\t\t        transform: rotateX( 0 );\r\n\t}\r\n\r\n.reveal .slides section .fragment.fade-out {\r\n\topacity: 1;\r\n}\r\n\t.reveal .slides section .fragment.fade-out.visible {\r\n\t\topacity: 0;\r\n\t}\r\n\r\n.reveal .slides section .fragment.semi-fade-out {\r\n\topacity: 1;\r\n}\r\n\t.reveal .slides section .fragment.semi-fade-out.visible {\r\n\t\topacity: 0.5;\r\n\t}\r\n\r\n.reveal .slides section .fragment.current-visible {\r\n\topacity:0;\r\n}\r\n\r\n.reveal .slides section .fragment.current-visible.current-fragment {\r\n\topacity:1;\r\n}\r\n\r\n.reveal .slides section .fragment.highlight-red,\r\n.reveal .slides section .fragment.highlight-current-red,\r\n.reveal .slides section .fragment.highlight-green,\r\n.reveal .slides section .fragment.highlight-current-green,\r\n.reveal .slides section .fragment.highlight-blue,\r\n.reveal .slides section .fragment.highlight-current-blue {\r\n\topacity: 1;\r\n}\r\n\t.reveal .slides section .fragment.highlight-red.visible {\r\n\t\tcolor: #ff2c2d\r\n\t}\r\n\t.reveal .slides section .fragment.highlight-green.visible {\r\n\t\tcolor: #17ff2e;\r\n\t}\r\n\t.reveal .slides section .fragment.highlight-blue.visible {\r\n\t\tcolor: #1b91ff;\r\n\t}\r\n\r\n.reveal .slides section .fragment.highlight-current-red.current-fragment {\r\n\tcolor: #ff2c2d\r\n}\r\n.reveal .slides section .fragment.highlight-current-green.current-fragment {\r\n\tcolor: #17ff2e;\r\n}\r\n.reveal .slides section .fragment.highlight-current-blue.current-fragment {\r\n\tcolor: #1b91ff;\r\n}\r\n\r\n\r\n/*********************************************\r\n * DEFAULT ELEMENT STYLES\r\n *********************************************/\r\n\r\n/* Fixes issue in Chrome where italic fonts did not appear when printing to PDF */\r\n.reveal:after {\r\n  content: '';\r\n  font-style: italic;\r\n}\r\n\r\n.reveal iframe {\r\n\tz-index: 1;\r\n}\r\n\r\n/* Ensure certain elements are never larger than the slide itself */\r\n.reveal img,\r\n.reveal video,\r\n.reveal iframe {\r\n\tmax-width: 95%;\r\n\tmax-height: 95%;\r\n}\r\n\r\n/** Prevents layering issues in certain browser/transition combinations */\r\n.reveal a {\r\n\tposition: relative;\r\n}\r\n\r\n.reveal strong,\r\n.reveal b {\r\n\tfont-weight: bold;\r\n}\r\n\r\n.reveal em,\r\n.reveal i {\r\n\tfont-style: italic;\r\n}\r\n\r\n.reveal ol,\r\n.reveal ul {\r\n\tdisplay: inline-block;\r\n\r\n\ttext-align: left;\r\n\tmargin: 0 0 0 1em;\r\n}\r\n\r\n.reveal ol {\r\n\tlist-style-type: decimal;\r\n}\r\n\r\n.reveal ul {\r\n\tlist-style-type: disc;\r\n}\r\n\r\n.reveal ul ul {\r\n\tlist-style-type: square;\r\n}\r\n\r\n.reveal ul ul ul {\r\n\tlist-style-type: circle;\r\n}\r\n\r\n.reveal ul ul,\r\n.reveal ul ol,\r\n.reveal ol ol,\r\n.reveal ol ul {\r\n\tdisplay: block;\r\n\tmargin-left: 40px;\r\n}\r\n\r\n.reveal p {\r\n\tmargin-bottom: 10px;\r\n\tline-height: 1.2em;\r\n}\r\n\r\n.reveal q,\r\n.reveal blockquote {\r\n\tquotes: none;\r\n}\r\n\r\n.reveal blockquote {\r\n\tdisplay: block;\r\n\tposition: relative;\r\n\twidth: 70%;\r\n\tmargin: 5px auto;\r\n\tpadding: 5px;\r\n\r\n\tfont-style: italic;\r\n\tbackground: rgba(255, 255, 255, 0.05);\r\n\tbox-shadow: 0px 0px 2px rgba(0,0,0,0.2);\r\n}\r\n\t.reveal blockquote p:first-child,\r\n\t.reveal blockquote p:last-child {\r\n\t\tdisplay: inline-block;\r\n\t}\r\n\r\n.reveal q {\r\n\tfont-style: italic;\r\n}\r\n\r\n.reveal pre {\r\n\tdisplay: block;\r\n\tposition: relative;\r\n\twidth: 90%;\r\n\tmargin: 15px auto;\r\n\r\n\ttext-align: left;\r\n\tfont-size: 0.55em;\r\n\tfont-family: monospace;\r\n\tline-height: 1.2em;\r\n\r\n\tword-wrap: break-word;\r\n\r\n\tbox-shadow: 0px 0px 6px rgba(0,0,0,0.3);\r\n}\r\n.reveal code {\r\n\tfont-family: monospace;\r\n}\r\n.reveal pre code {\r\n\tpadding: 5px;\r\n\toverflow: auto;\r\n\tmax-height: 400px;\r\n\tword-wrap: normal;\r\n}\r\n.reveal pre.stretch code {\r\n\theight: 100%;\r\n\tmax-height: 100%;\r\n\r\n\t-webkit-box-sizing: border-box;\r\n\t   -moz-box-sizing: border-box;\r\n\t        box-sizing: border-box;\r\n}\r\n\r\n.reveal table th,\r\n.reveal table td {\r\n\ttext-align: left;\r\n\tpadding-right: .3em;\r\n}\r\n\r\n.reveal table th {\r\n\tfont-weight: bold;\r\n}\r\n\r\n.reveal sup {\r\n\tvertical-align: super;\r\n}\r\n.reveal sub {\r\n\tvertical-align: sub;\r\n}\r\n\r\n.reveal small {\r\n\tdisplay: inline-block;\r\n\tfont-size: 0.6em;\r\n\tline-height: 1.2em;\r\n\tvertical-align: top;\r\n}\r\n\r\n.reveal small * {\r\n\tvertical-align: top;\r\n}\r\n\r\n.reveal .stretch {\r\n\tmax-width: none;\r\n\tmax-height: none;\r\n}\r\n\r\n\r\n/*********************************************\r\n * CONTROLS\r\n *********************************************/\r\n\r\n.reveal .controls {\r\n\tdisplay: none;\r\n\tposition: fixed;\r\n\twidth: 110px;\r\n\theight: 110px;\r\n\tz-index: 30;\r\n\tright: 10px;\r\n\tbottom: 10px;\r\n}\r\n\r\n.reveal .controls div {\r\n\tposition: absolute;\r\n\topacity: 0.05;\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder: 12px solid transparent;\r\n\r\n\t-moz-transform: scale(.9999);\r\n\r\n\t-webkit-transition: all 0.2s ease;\r\n\t   -moz-transition: all 0.2s ease;\r\n\t    -ms-transition: all 0.2s ease;\r\n\t     -o-transition: all 0.2s ease;\r\n\t        transition: all 0.2s ease;\r\n}\r\n\r\n.reveal .controls div.enabled {\r\n\topacity: 0.7;\r\n\tcursor: pointer;\r\n}\r\n\r\n.reveal .controls div.enabled:active {\r\n\tmargin-top: 1px;\r\n}\r\n\r\n\t.reveal .controls div.navigate-left {\r\n\t\ttop: 42px;\r\n\r\n\t\tborder-right-width: 22px;\r\n\t\tborder-right-color: #eee;\r\n\t}\r\n\t\t.reveal .controls div.navigate-left.fragmented {\r\n\t\t\topacity: 0.3;\r\n\t\t}\r\n\r\n\t.reveal .controls div.navigate-right {\r\n\t\tleft: 74px;\r\n\t\ttop: 42px;\r\n\r\n\t\tborder-left-width: 22px;\r\n\t\tborder-left-color: #eee;\r\n\t}\r\n\t\t.reveal .controls div.navigate-right.fragmented {\r\n\t\t\topacity: 0.3;\r\n\t\t}\r\n\r\n\t.reveal .controls div.navigate-up {\r\n\t\tleft: 42px;\r\n\r\n\t\tborder-bottom-width: 22px;\r\n\t\tborder-bottom-color: #eee;\r\n\t}\r\n\t\t.reveal .controls div.navigate-up.fragmented {\r\n\t\t\topacity: 0.3;\r\n\t\t}\r\n\r\n\t.reveal .controls div.navigate-down {\r\n\t\tleft: 42px;\r\n\t\ttop: 74px;\r\n\r\n\t\tborder-top-width: 22px;\r\n\t\tborder-top-color: #eee;\r\n\t}\r\n\t\t.reveal .controls div.navigate-down.fragmented {\r\n\t\t\topacity: 0.3;\r\n\t\t}\r\n\r\n\r\n/*********************************************\r\n * PROGRESS BAR\r\n *********************************************/\r\n\r\n.reveal .progress {\r\n\tposition: fixed;\r\n\tdisplay: none;\r\n\theight: 3px;\r\n\twidth: 100%;\r\n\tbottom: 0;\r\n\tleft: 0;\r\n\tz-index: 10;\r\n}\r\n\t.reveal .progress:after {\r\n\t\tcontent: '';\r\n\t\tdisplay: 'block';\r\n\t\tposition: absolute;\r\n\t\theight: 20px;\r\n\t\twidth: 100%;\r\n\t\ttop: -20px;\r\n\t}\r\n\t.reveal .progress span {\r\n\t\tdisplay: block;\r\n\t\theight: 100%;\r\n\t\twidth: 0px;\r\n\r\n\t\t-webkit-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t   -moz-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t    -ms-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t     -o-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t        transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t}\r\n\r\n/*********************************************\r\n * SLIDE NUMBER\r\n *********************************************/\r\n\r\n.reveal .slide-number {\r\n\tposition: fixed;\r\n\tdisplay: block;\r\n\tright: 15px;\r\n\tbottom: 15px;\r\n\topacity: 0.5;\r\n\tz-index: 31;\r\n\tfont-size: 12px;\r\n}\r\n\r\n/*********************************************\r\n * SLIDES\r\n *********************************************/\r\n\r\n.reveal {\r\n\tposition: relative;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\t-ms-touch-action: none;\r\n}\r\n\r\n.reveal .slides {\r\n\tposition: absolute;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tleft: 50%;\r\n\ttop: 50%;\r\n\r\n\toverflow: visible;\r\n\tz-index: 1;\r\n\ttext-align: center;\r\n\r\n\t-webkit-transition: -webkit-perspective .4s ease;\r\n\t   -moz-transition: -moz-perspective .4s ease;\r\n\t    -ms-transition: -ms-perspective .4s ease;\r\n\t     -o-transition: -o-perspective .4s ease;\r\n\t        transition: perspective .4s ease;\r\n\r\n\t-webkit-perspective: 600px;\r\n\t   -moz-perspective: 600px;\r\n\t    -ms-perspective: 600px;\r\n\t        perspective: 600px;\r\n\r\n\t-webkit-perspective-origin: 0px -100px;\r\n\t   -moz-perspective-origin: 0px -100px;\r\n\t    -ms-perspective-origin: 0px -100px;\r\n\t        perspective-origin: 0px -100px;\r\n}\r\n\r\n.reveal .slides>section {\r\n\t-ms-perspective: 600px;\r\n}\r\n\r\n.reveal .slides>section,\r\n.reveal .slides>section>section {\r\n\tdisplay: none;\r\n\tposition: absolute;\r\n\twidth: 100%;\r\n\tpadding: 20px 0px;\r\n\r\n\tz-index: 10;\r\n\tline-height: 1.2em;\r\n\tfont-weight: inherit;\r\n\r\n\t-webkit-transform-style: preserve-3d;\r\n\t   -moz-transform-style: preserve-3d;\r\n\t    -ms-transform-style: preserve-3d;\r\n\t        transform-style: preserve-3d;\r\n\r\n\t-webkit-transition: -webkit-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\t-webkit-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t   -moz-transition: -moz-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\t-moz-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t    -ms-transition: -ms-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\t-ms-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t     -o-transition: -o-transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\t-o-transform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t        transition: transform-origin 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\ttransform 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\tvisibility 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985),\r\n\t\t\t\t\t\topacity 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n}\r\n\r\n/* Global transition speed settings */\r\n.reveal[data-transition-speed=\"fast\"] .slides section {\r\n\t-webkit-transition-duration: 400ms;\r\n\t   -moz-transition-duration: 400ms;\r\n\t    -ms-transition-duration: 400ms;\r\n\t        transition-duration: 400ms;\r\n}\r\n.reveal[data-transition-speed=\"slow\"] .slides section {\r\n\t-webkit-transition-duration: 1200ms;\r\n\t   -moz-transition-duration: 1200ms;\r\n\t    -ms-transition-duration: 1200ms;\r\n\t        transition-duration: 1200ms;\r\n}\r\n\r\n/* Slide-specific transition speed overrides */\r\n.reveal .slides section[data-transition-speed=\"fast\"] {\r\n\t-webkit-transition-duration: 400ms;\r\n\t   -moz-transition-duration: 400ms;\r\n\t    -ms-transition-duration: 400ms;\r\n\t        transition-duration: 400ms;\r\n}\r\n.reveal .slides section[data-transition-speed=\"slow\"] {\r\n\t-webkit-transition-duration: 1200ms;\r\n\t   -moz-transition-duration: 1200ms;\r\n\t    -ms-transition-duration: 1200ms;\r\n\t        transition-duration: 1200ms;\r\n}\r\n\r\n.reveal .slides>section {\r\n\tleft: -50%;\r\n\ttop: -50%;\r\n}\r\n\r\n.reveal .slides>section.stack {\r\n\tpadding-top: 0;\r\n\tpadding-bottom: 0;\r\n}\r\n\r\n.reveal .slides>section.present,\r\n.reveal .slides>section>section.present {\r\n\tdisplay: block;\r\n\tz-index: 11;\r\n\topacity: 1;\r\n}\r\n\r\n.reveal.center,\r\n.reveal.center .slides,\r\n.reveal.center .slides section {\r\n\tmin-height: auto !important;\r\n}\r\n\r\n/* Don't allow interaction with invisible slides */\r\n.reveal .slides>section.future,\r\n.reveal .slides>section>section.future,\r\n.reveal .slides>section.past,\r\n.reveal .slides>section>section.past {\r\n\tpointer-events: none;\r\n}\r\n\r\n.reveal.overview .slides>section,\r\n.reveal.overview .slides>section>section {\r\n\tpointer-events: auto;\r\n}\r\n\r\n\r\n\r\n/*********************************************\r\n * DEFAULT TRANSITION\r\n *********************************************/\r\n\r\n.reveal .slides>section[data-transition=default].past,\r\n.reveal .slides>section.past {\r\n\tdisplay: block;\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n}\r\n.reveal .slides>section[data-transition=default].future,\r\n.reveal .slides>section.future {\r\n\tdisplay: block;\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n}\r\n\r\n.reveal .slides>section>section[data-transition=default].past,\r\n.reveal .slides>section>section.past {\r\n\tdisplay: block;\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\r\n\t   -moz-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\r\n\t    -ms-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\r\n\t        transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);\r\n}\r\n.reveal .slides>section>section[data-transition=default].future,\r\n.reveal .slides>section>section.future {\r\n\tdisplay: block;\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\r\n\t   -moz-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\r\n\t    -ms-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\r\n\t        transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);\r\n}\r\n\r\n\r\n/*********************************************\r\n * CONCAVE TRANSITION\r\n *********************************************/\r\n\r\n.reveal .slides>section[data-transition=concave].past,\r\n.reveal.concave  .slides>section.past {\r\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t        transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n}\r\n.reveal .slides>section[data-transition=concave].future,\r\n.reveal.concave .slides>section.future {\r\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t        transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n}\r\n\r\n.reveal .slides>section>section[data-transition=concave].past,\r\n.reveal.concave .slides>section>section.past {\r\n\t-webkit-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\r\n\t   -moz-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\r\n\t    -ms-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\r\n\t        transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);\r\n}\r\n.reveal .slides>section>section[data-transition=concave].future,\r\n.reveal.concave .slides>section>section.future {\r\n\t-webkit-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\r\n\t   -moz-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\r\n\t    -ms-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\r\n\t        transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);\r\n}\r\n\r\n\r\n/*********************************************\r\n * ZOOM TRANSITION\r\n *********************************************/\r\n\r\n.reveal .slides>section[data-transition=zoom],\r\n.reveal.zoom .slides>section {\r\n\t-webkit-transition-timing-function: ease;\r\n\t   -moz-transition-timing-function: ease;\r\n\t    -ms-transition-timing-function: ease;\r\n\t     -o-transition-timing-function: ease;\r\n\t        transition-timing-function: ease;\r\n}\r\n\r\n.reveal .slides>section[data-transition=zoom].past,\r\n.reveal.zoom .slides>section.past {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n\r\n\t-webkit-transform: scale(16);\r\n\t   -moz-transform: scale(16);\r\n\t    -ms-transform: scale(16);\r\n\t     -o-transform: scale(16);\r\n\t        transform: scale(16);\r\n}\r\n.reveal .slides>section[data-transition=zoom].future,\r\n.reveal.zoom .slides>section.future {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n\r\n\t-webkit-transform: scale(0.2);\r\n\t   -moz-transform: scale(0.2);\r\n\t    -ms-transform: scale(0.2);\r\n\t     -o-transform: scale(0.2);\r\n\t        transform: scale(0.2);\r\n}\r\n\r\n.reveal .slides>section>section[data-transition=zoom].past,\r\n.reveal.zoom .slides>section>section.past {\r\n\t-webkit-transform: translate(0, -150%);\r\n\t   -moz-transform: translate(0, -150%);\r\n\t    -ms-transform: translate(0, -150%);\r\n\t     -o-transform: translate(0, -150%);\r\n\t        transform: translate(0, -150%);\r\n}\r\n.reveal .slides>section>section[data-transition=zoom].future,\r\n.reveal.zoom .slides>section>section.future {\r\n\t-webkit-transform: translate(0, 150%);\r\n\t   -moz-transform: translate(0, 150%);\r\n\t    -ms-transform: translate(0, 150%);\r\n\t     -o-transform: translate(0, 150%);\r\n\t        transform: translate(0, 150%);\r\n}\r\n\r\n\r\n/*********************************************\r\n * LINEAR TRANSITION\r\n *********************************************/\r\n\r\n.reveal.linear section {\r\n\t-webkit-backface-visibility: hidden;\r\n\t   -moz-backface-visibility: hidden;\r\n\t    -ms-backface-visibility: hidden;\r\n\t        backface-visibility: hidden;\r\n}\r\n\r\n.reveal .slides>section[data-transition=linear].past,\r\n.reveal.linear .slides>section.past {\r\n\t-webkit-transform: translate(-150%, 0);\r\n\t   -moz-transform: translate(-150%, 0);\r\n\t    -ms-transform: translate(-150%, 0);\r\n\t     -o-transform: translate(-150%, 0);\r\n\t        transform: translate(-150%, 0);\r\n}\r\n.reveal .slides>section[data-transition=linear].future,\r\n.reveal.linear .slides>section.future {\r\n\t-webkit-transform: translate(150%, 0);\r\n\t   -moz-transform: translate(150%, 0);\r\n\t    -ms-transform: translate(150%, 0);\r\n\t     -o-transform: translate(150%, 0);\r\n\t        transform: translate(150%, 0);\r\n}\r\n\r\n.reveal .slides>section>section[data-transition=linear].past,\r\n.reveal.linear .slides>section>section.past {\r\n\t-webkit-transform: translate(0, -150%);\r\n\t   -moz-transform: translate(0, -150%);\r\n\t    -ms-transform: translate(0, -150%);\r\n\t     -o-transform: translate(0, -150%);\r\n\t        transform: translate(0, -150%);\r\n}\r\n.reveal .slides>section>section[data-transition=linear].future,\r\n.reveal.linear .slides>section>section.future {\r\n\t-webkit-transform: translate(0, 150%);\r\n\t   -moz-transform: translate(0, 150%);\r\n\t    -ms-transform: translate(0, 150%);\r\n\t     -o-transform: translate(0, 150%);\r\n\t        transform: translate(0, 150%);\r\n}\r\n\r\n\r\n/*********************************************\r\n * CUBE TRANSITION\r\n *********************************************/\r\n\r\n.reveal.cube .slides {\r\n\t-webkit-perspective: 1300px;\r\n\t   -moz-perspective: 1300px;\r\n\t    -ms-perspective: 1300px;\r\n\t        perspective: 1300px;\r\n}\r\n\r\n.reveal.cube .slides section {\r\n\tpadding: 30px;\r\n\tmin-height: 700px;\r\n\r\n\t-webkit-backface-visibility: hidden;\r\n\t   -moz-backface-visibility: hidden;\r\n\t    -ms-backface-visibility: hidden;\r\n\t        backface-visibility: hidden;\r\n\r\n\t-webkit-box-sizing: border-box;\r\n\t   -moz-box-sizing: border-box;\r\n\t        box-sizing: border-box;\r\n}\r\n\t.reveal.center.cube .slides section {\r\n\t\tmin-height: auto;\r\n\t}\r\n\t.reveal.cube .slides section:not(.stack):before {\r\n\t\tcontent: '';\r\n\t\tposition: absolute;\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t\theight: 100%;\r\n\t\tleft: 0;\r\n\t\ttop: 0;\r\n\t\tbackground: rgba(0,0,0,0.1);\r\n\t\tborder-radius: 4px;\r\n\r\n\t\t-webkit-transform: translateZ( -20px );\r\n\t\t   -moz-transform: translateZ( -20px );\r\n\t\t    -ms-transform: translateZ( -20px );\r\n\t\t     -o-transform: translateZ( -20px );\r\n\t\t        transform: translateZ( -20px );\r\n\t}\r\n\t.reveal.cube .slides section:not(.stack):after {\r\n\t\tcontent: '';\r\n\t\tposition: absolute;\r\n\t\tdisplay: block;\r\n\t\twidth: 90%;\r\n\t\theight: 30px;\r\n\t\tleft: 5%;\r\n\t\tbottom: 0;\r\n\t\tbackground: none;\r\n\t\tz-index: 1;\r\n\r\n\t\tborder-radius: 4px;\r\n\t\tbox-shadow: 0px 95px 25px rgba(0,0,0,0.2);\r\n\r\n\t\t-webkit-transform: translateZ(-90px) rotateX( 65deg );\r\n\t\t   -moz-transform: translateZ(-90px) rotateX( 65deg );\r\n\t\t    -ms-transform: translateZ(-90px) rotateX( 65deg );\r\n\t\t     -o-transform: translateZ(-90px) rotateX( 65deg );\r\n\t\t        transform: translateZ(-90px) rotateX( 65deg );\r\n\t}\r\n\r\n.reveal.cube .slides>section.stack {\r\n\tpadding: 0;\r\n\tbackground: none;\r\n}\r\n\r\n.reveal.cube .slides>section.past {\r\n\t-webkit-transform-origin: 100% 0%;\r\n\t   -moz-transform-origin: 100% 0%;\r\n\t    -ms-transform-origin: 100% 0%;\r\n\t        transform-origin: 100% 0%;\r\n\r\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\r\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\r\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg);\r\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg);\r\n}\r\n\r\n.reveal.cube .slides>section.future {\r\n\t-webkit-transform-origin: 0% 0%;\r\n\t   -moz-transform-origin: 0% 0%;\r\n\t    -ms-transform-origin: 0% 0%;\r\n\t        transform-origin: 0% 0%;\r\n\r\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg);\r\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg);\r\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg);\r\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg);\r\n}\r\n\r\n.reveal.cube .slides>section>section.past {\r\n\t-webkit-transform-origin: 0% 100%;\r\n\t   -moz-transform-origin: 0% 100%;\r\n\t    -ms-transform-origin: 0% 100%;\r\n\t        transform-origin: 0% 100%;\r\n\r\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(90deg);\r\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(90deg);\r\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(90deg);\r\n\t        transform: translate3d(0, -100%, 0) rotateX(90deg);\r\n}\r\n\r\n.reveal.cube .slides>section>section.future {\r\n\t-webkit-transform-origin: 0% 0%;\r\n\t   -moz-transform-origin: 0% 0%;\r\n\t    -ms-transform-origin: 0% 0%;\r\n\t        transform-origin: 0% 0%;\r\n\r\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg);\r\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(-90deg);\r\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(-90deg);\r\n\t        transform: translate3d(0, 100%, 0) rotateX(-90deg);\r\n}\r\n\r\n\r\n/*********************************************\r\n * PAGE TRANSITION\r\n *********************************************/\r\n\r\n.reveal.page .slides {\r\n\t-webkit-perspective-origin: 0% 50%;\r\n\t   -moz-perspective-origin: 0% 50%;\r\n\t    -ms-perspective-origin: 0% 50%;\r\n\t        perspective-origin: 0% 50%;\r\n\r\n\t-webkit-perspective: 3000px;\r\n\t   -moz-perspective: 3000px;\r\n\t    -ms-perspective: 3000px;\r\n\t        perspective: 3000px;\r\n}\r\n\r\n.reveal.page .slides section {\r\n\tpadding: 30px;\r\n\tmin-height: 700px;\r\n\r\n\t-webkit-box-sizing: border-box;\r\n\t   -moz-box-sizing: border-box;\r\n\t        box-sizing: border-box;\r\n}\r\n\t.reveal.page .slides section.past {\r\n\t\tz-index: 12;\r\n\t}\r\n\t.reveal.page .slides section:not(.stack):before {\r\n\t\tcontent: '';\r\n\t\tposition: absolute;\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t\theight: 100%;\r\n\t\tleft: 0;\r\n\t\ttop: 0;\r\n\t\tbackground: rgba(0,0,0,0.1);\r\n\r\n\t\t-webkit-transform: translateZ( -20px );\r\n\t\t   -moz-transform: translateZ( -20px );\r\n\t\t    -ms-transform: translateZ( -20px );\r\n\t\t     -o-transform: translateZ( -20px );\r\n\t\t        transform: translateZ( -20px );\r\n\t}\r\n\t.reveal.page .slides section:not(.stack):after {\r\n\t\tcontent: '';\r\n\t\tposition: absolute;\r\n\t\tdisplay: block;\r\n\t\twidth: 90%;\r\n\t\theight: 30px;\r\n\t\tleft: 5%;\r\n\t\tbottom: 0;\r\n\t\tbackground: none;\r\n\t\tz-index: 1;\r\n\r\n\t\tborder-radius: 4px;\r\n\t\tbox-shadow: 0px 95px 25px rgba(0,0,0,0.2);\r\n\r\n\t\t-webkit-transform: translateZ(-90px) rotateX( 65deg );\r\n\t}\r\n\r\n.reveal.page .slides>section.stack {\r\n\tpadding: 0;\r\n\tbackground: none;\r\n}\r\n\r\n.reveal.page .slides>section.past {\r\n\t-webkit-transform-origin: 0% 0%;\r\n\t   -moz-transform-origin: 0% 0%;\r\n\t    -ms-transform-origin: 0% 0%;\r\n\t        transform-origin: 0% 0%;\r\n\r\n\t-webkit-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\r\n\t   -moz-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\r\n\t    -ms-transform: translate3d(-40%, 0, 0) rotateY(-80deg);\r\n\t        transform: translate3d(-40%, 0, 0) rotateY(-80deg);\r\n}\r\n\r\n.reveal.page .slides>section.future {\r\n\t-webkit-transform-origin: 100% 0%;\r\n\t   -moz-transform-origin: 100% 0%;\r\n\t    -ms-transform-origin: 100% 0%;\r\n\t        transform-origin: 100% 0%;\r\n\r\n\t-webkit-transform: translate3d(0, 0, 0);\r\n\t   -moz-transform: translate3d(0, 0, 0);\r\n\t    -ms-transform: translate3d(0, 0, 0);\r\n\t        transform: translate3d(0, 0, 0);\r\n}\r\n\r\n.reveal.page .slides>section>section.past {\r\n\t-webkit-transform-origin: 0% 0%;\r\n\t   -moz-transform-origin: 0% 0%;\r\n\t    -ms-transform-origin: 0% 0%;\r\n\t        transform-origin: 0% 0%;\r\n\r\n\t-webkit-transform: translate3d(0, -40%, 0) rotateX(80deg);\r\n\t   -moz-transform: translate3d(0, -40%, 0) rotateX(80deg);\r\n\t    -ms-transform: translate3d(0, -40%, 0) rotateX(80deg);\r\n\t        transform: translate3d(0, -40%, 0) rotateX(80deg);\r\n}\r\n\r\n.reveal.page .slides>section>section.future {\r\n\t-webkit-transform-origin: 0% 100%;\r\n\t   -moz-transform-origin: 0% 100%;\r\n\t    -ms-transform-origin: 0% 100%;\r\n\t        transform-origin: 0% 100%;\r\n\r\n\t-webkit-transform: translate3d(0, 0, 0);\r\n\t   -moz-transform: translate3d(0, 0, 0);\r\n\t    -ms-transform: translate3d(0, 0, 0);\r\n\t        transform: translate3d(0, 0, 0);\r\n}\r\n\r\n\r\n/*********************************************\r\n * FADE TRANSITION\r\n *********************************************/\r\n\r\n.reveal .slides section[data-transition=fade],\r\n.reveal.fade .slides section,\r\n.reveal.fade .slides>section>section {\r\n    -webkit-transform: none;\r\n\t   -moz-transform: none;\r\n\t    -ms-transform: none;\r\n\t     -o-transform: none;\r\n\t        transform: none;\r\n\r\n\t-webkit-transition: opacity 0.5s;\r\n\t   -moz-transition: opacity 0.5s;\r\n\t    -ms-transition: opacity 0.5s;\r\n\t     -o-transition: opacity 0.5s;\r\n\t        transition: opacity 0.5s;\r\n}\r\n\r\n\r\n.reveal.fade.overview .slides section,\r\n.reveal.fade.overview .slides>section>section,\r\n.reveal.fade.overview-deactivating .slides section,\r\n.reveal.fade.overview-deactivating .slides>section>section {\r\n\t-webkit-transition: none;\r\n\t   -moz-transition: none;\r\n\t    -ms-transition: none;\r\n\t     -o-transition: none;\r\n\t        transition: none;\r\n}\r\n\r\n\r\n/*********************************************\r\n * NO TRANSITION\r\n *********************************************/\r\n\r\n.reveal .slides section[data-transition=none],\r\n.reveal.none .slides section {\r\n\t-webkit-transform: none;\r\n\t   -moz-transform: none;\r\n\t    -ms-transform: none;\r\n\t     -o-transform: none;\r\n\t        transform: none;\r\n\r\n\t-webkit-transition: none;\r\n\t   -moz-transition: none;\r\n\t    -ms-transition: none;\r\n\t     -o-transition: none;\r\n\t        transition: none;\r\n}\r\n\r\n\r\n/*********************************************\r\n * OVERVIEW\r\n *********************************************/\r\n\r\n.reveal.overview .slides {\r\n\t-webkit-perspective-origin: 0% 0%;\r\n\t   -moz-perspective-origin: 0% 0%;\r\n\t    -ms-perspective-origin: 0% 0%;\r\n\t        perspective-origin: 0% 0%;\r\n\r\n\t-webkit-perspective: 700px;\r\n\t   -moz-perspective: 700px;\r\n\t    -ms-perspective: 700px;\r\n\t        perspective: 700px;\r\n}\r\n\r\n.reveal.overview .slides section {\r\n\theight: 600px;\r\n\ttop: -300px !important;\r\n\toverflow: hidden;\r\n\topacity: 1 !important;\r\n\tvisibility: visible !important;\r\n\tcursor: pointer;\r\n\tbackground: rgba(0,0,0,0.1);\r\n}\r\n.reveal.overview .slides section .fragment {\r\n\topacity: 1;\r\n}\r\n.reveal.overview .slides section:after,\r\n.reveal.overview .slides section:before {\r\n\tdisplay: none !important;\r\n}\r\n.reveal.overview .slides section>section {\r\n\topacity: 1;\r\n\tcursor: pointer;\r\n}\r\n\t.reveal.overview .slides section:hover {\r\n\t\tbackground: rgba(0,0,0,0.3);\r\n\t}\r\n\t.reveal.overview .slides section.present {\r\n\t\tbackground: rgba(0,0,0,0.3);\r\n\t}\r\n.reveal.overview .slides>section.stack {\r\n\tpadding: 0;\r\n\ttop: 0 !important;\r\n\tbackground: none;\r\n\toverflow: visible;\r\n}\r\n\r\n\r\n/*********************************************\r\n * PAUSED MODE\r\n *********************************************/\r\n\r\n.reveal .pause-overlay {\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: black;\r\n\tvisibility: hidden;\r\n\topacity: 0;\r\n\tz-index: 100;\r\n\r\n\t-webkit-transition: all 1s ease;\r\n\t   -moz-transition: all 1s ease;\r\n\t    -ms-transition: all 1s ease;\r\n\t     -o-transition: all 1s ease;\r\n\t        transition: all 1s ease;\r\n}\r\n.reveal.paused .pause-overlay {\r\n\tvisibility: visible;\r\n\topacity: 1;\r\n}\r\n\r\n\r\n/*********************************************\r\n * FALLBACK\r\n *********************************************/\r\n\r\n.no-transforms {\r\n\toverflow-y: auto;\r\n}\r\n\r\n.no-transforms .reveal .slides {\r\n\tposition: relative;\r\n\twidth: 80%;\r\n\theight: auto !important;\r\n\ttop: 0;\r\n\tleft: 50%;\r\n\tmargin: 0;\r\n\ttext-align: center;\r\n}\r\n\r\n.no-transforms .reveal .controls,\r\n.no-transforms .reveal .progress {\r\n\tdisplay: none !important;\r\n}\r\n\r\n.no-transforms .reveal .slides section {\r\n\tdisplay: block !important;\r\n\topacity: 1 !important;\r\n\tposition: relative !important;\r\n\theight: auto;\r\n\tmin-height: auto;\r\n\ttop: 0;\r\n\tleft: -50%;\r\n\tmargin: 70px 0;\r\n\r\n\t-webkit-transform: none;\r\n\t   -moz-transform: none;\r\n\t    -ms-transform: none;\r\n\t     -o-transform: none;\r\n\t        transform: none;\r\n}\r\n\r\n.no-transforms .reveal .slides section section {\r\n\tleft: 0;\r\n}\r\n\r\n.reveal .no-transition,\r\n.reveal .no-transition * {\r\n\t-webkit-transition: none !important;\r\n\t   -moz-transition: none !important;\r\n\t    -ms-transition: none !important;\r\n\t     -o-transition: none !important;\r\n\t        transition: none !important;\r\n}\r\n\r\n\r\n/*********************************************\r\n * BACKGROUND STATES [DEPRECATED]\r\n *********************************************/\r\n\r\n.reveal .state-background {\r\n\tposition: absolute;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: rgba( 0, 0, 0, 0 );\r\n\r\n\t-webkit-transition: background 800ms ease;\r\n\t   -moz-transition: background 800ms ease;\r\n\t    -ms-transition: background 800ms ease;\r\n\t     -o-transition: background 800ms ease;\r\n\t        transition: background 800ms ease;\r\n}\r\n.alert .reveal .state-background {\r\n\tbackground: rgba( 200, 50, 30, 0.6 );\r\n}\r\n.soothe .reveal .state-background {\r\n\tbackground: rgba( 50, 200, 90, 0.4 );\r\n}\r\n.blackout .reveal .state-background {\r\n\tbackground: rgba( 0, 0, 0, 0.6 );\r\n}\r\n.whiteout .reveal .state-background {\r\n\tbackground: rgba( 255, 255, 255, 0.6 );\r\n}\r\n.cobalt .reveal .state-background {\r\n\tbackground: rgba( 22, 152, 213, 0.6 );\r\n}\r\n.mint .reveal .state-background {\r\n\tbackground: rgba( 22, 213, 75, 0.6 );\r\n}\r\n.submerge .reveal .state-background {\r\n\tbackground: rgba( 12, 25, 77, 0.6);\r\n}\r\n.lila .reveal .state-background {\r\n\tbackground: rgba( 180, 50, 140, 0.6 );\r\n}\r\n.sunset .reveal .state-background {\r\n\tbackground: rgba( 255, 122, 0, 0.6 );\r\n}\r\n\r\n\r\n/*********************************************\r\n * PER-SLIDE BACKGROUNDS\r\n *********************************************/\r\n\r\n.reveal>.backgrounds {\r\n\tposition: absolute;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\r\n\t-webkit-perspective: 600px;\r\n\t   -moz-perspective: 600px;\r\n\t    -ms-perspective: 600px;\r\n\t        perspective: 600px;\r\n}\r\n\t.reveal .slide-background {\r\n\t\tposition: absolute;\r\n\t\twidth: 100%;\r\n\t\theight: 100%;\r\n\t\topacity: 0;\r\n\t\tvisibility: hidden;\r\n\r\n\t\tbackground-color: rgba( 0, 0, 0, 0 );\r\n\t\tbackground-position: 50% 50%;\r\n\t\tbackground-repeat: no-repeat;\r\n\t\tbackground-size: cover;\r\n\r\n\t\t-webkit-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t   -moz-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t    -ms-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t     -o-transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t\t        transition: all 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);\r\n\t}\r\n\t.reveal .slide-background.present {\r\n\t\topacity: 1;\r\n\t\tvisibility: visible;\r\n\t}\r\n\r\n\t.print-pdf .reveal .slide-background {\r\n\t\topacity: 1 !important;\r\n\t\tvisibility: visible !important;\r\n\t}\r\n\r\n/* Immediate transition style */\r\n.reveal[data-background-transition=none]>.backgrounds .slide-background,\r\n.reveal>.backgrounds .slide-background[data-background-transition=none] {\r\n\t-webkit-transition: none;\r\n\t   -moz-transition: none;\r\n\t    -ms-transition: none;\r\n\t     -o-transition: none;\r\n\t        transition: none;\r\n}\r\n\r\n/* 2D slide */\r\n.reveal[data-background-transition=slide]>.backgrounds .slide-background,\r\n.reveal>.backgrounds .slide-background[data-background-transition=slide] {\r\n\topacity: 1;\r\n\r\n\t-webkit-backface-visibility: hidden;\r\n\t   -moz-backface-visibility: hidden;\r\n\t    -ms-backface-visibility: hidden;\r\n\t        backface-visibility: hidden;\r\n}\r\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background.past,\r\n\t.reveal>.backgrounds .slide-background.past[data-background-transition=slide] {\r\n\t\t-webkit-transform: translate(-100%, 0);\r\n\t\t   -moz-transform: translate(-100%, 0);\r\n\t\t    -ms-transform: translate(-100%, 0);\r\n\t\t     -o-transform: translate(-100%, 0);\r\n\t\t        transform: translate(-100%, 0);\r\n\t}\r\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background.future,\r\n\t.reveal>.backgrounds .slide-background.future[data-background-transition=slide] {\r\n\t\t-webkit-transform: translate(100%, 0);\r\n\t\t   -moz-transform: translate(100%, 0);\r\n\t\t    -ms-transform: translate(100%, 0);\r\n\t\t     -o-transform: translate(100%, 0);\r\n\t\t        transform: translate(100%, 0);\r\n\t}\r\n\r\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background>.slide-background.past,\r\n\t.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=slide] {\r\n\t\t-webkit-transform: translate(0, -100%);\r\n\t\t   -moz-transform: translate(0, -100%);\r\n\t\t    -ms-transform: translate(0, -100%);\r\n\t\t     -o-transform: translate(0, -100%);\r\n\t\t        transform: translate(0, -100%);\r\n\t}\r\n\t.reveal[data-background-transition=slide]>.backgrounds .slide-background>.slide-background.future,\r\n\t.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=slide] {\r\n\t\t-webkit-transform: translate(0, 100%);\r\n\t\t   -moz-transform: translate(0, 100%);\r\n\t\t    -ms-transform: translate(0, 100%);\r\n\t\t     -o-transform: translate(0, 100%);\r\n\t\t        transform: translate(0, 100%);\r\n\t}\r\n\r\n\r\n/* Convex */\r\n.reveal[data-background-transition=convex]>.backgrounds .slide-background.past,\r\n.reveal>.backgrounds .slide-background.past[data-background-transition=convex] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n\t        transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);\r\n}\r\n.reveal[data-background-transition=convex]>.backgrounds .slide-background.future,\r\n.reveal>.backgrounds .slide-background.future[data-background-transition=convex] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n\t        transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);\r\n}\r\n\r\n.reveal[data-background-transition=convex]>.backgrounds .slide-background>.slide-background.past,\r\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=convex] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\r\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\r\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\r\n\t        transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);\r\n}\r\n.reveal[data-background-transition=convex]>.backgrounds .slide-background>.slide-background.future,\r\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=convex] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\r\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\r\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\r\n\t        transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);\r\n}\r\n\r\n\r\n/* Concave */\r\n.reveal[data-background-transition=concave]>.backgrounds .slide-background.past,\r\n.reveal>.backgrounds .slide-background.past[data-background-transition=concave] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t   -moz-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t    -ms-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n\t        transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);\r\n}\r\n.reveal[data-background-transition=concave]>.backgrounds .slide-background.future,\r\n.reveal>.backgrounds .slide-background.future[data-background-transition=concave] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t   -moz-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t    -ms-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n\t        transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);\r\n}\r\n\r\n.reveal[data-background-transition=concave]>.backgrounds .slide-background>.slide-background.past,\r\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=concave] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\r\n\t   -moz-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\r\n\t    -ms-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\r\n\t        transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);\r\n}\r\n.reveal[data-background-transition=concave]>.backgrounds .slide-background>.slide-background.future,\r\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=concave] {\r\n\topacity: 0;\r\n\r\n\t-webkit-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\r\n\t   -moz-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\r\n\t    -ms-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\r\n\t        transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);\r\n}\r\n\r\n/* Zoom */\r\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background,\r\n.reveal>.backgrounds .slide-background[data-background-transition=zoom] {\r\n\t-webkit-transition-timing-function: ease;\r\n\t   -moz-transition-timing-function: ease;\r\n\t    -ms-transition-timing-function: ease;\r\n\t     -o-transition-timing-function: ease;\r\n\t        transition-timing-function: ease;\r\n}\r\n\r\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background.past,\r\n.reveal>.backgrounds .slide-background.past[data-background-transition=zoom] {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n\r\n\t-webkit-transform: scale(16);\r\n\t   -moz-transform: scale(16);\r\n\t    -ms-transform: scale(16);\r\n\t     -o-transform: scale(16);\r\n\t        transform: scale(16);\r\n}\r\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background.future,\r\n.reveal>.backgrounds .slide-background.future[data-background-transition=zoom] {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n\r\n\t-webkit-transform: scale(0.2);\r\n\t   -moz-transform: scale(0.2);\r\n\t    -ms-transform: scale(0.2);\r\n\t     -o-transform: scale(0.2);\r\n\t        transform: scale(0.2);\r\n}\r\n\r\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background>.slide-background.past,\r\n.reveal>.backgrounds .slide-background>.slide-background.past[data-background-transition=zoom] {\r\n\topacity: 0;\r\n\t\tvisibility: hidden;\r\n\r\n\t\t-webkit-transform: scale(16);\r\n\t\t   -moz-transform: scale(16);\r\n\t\t    -ms-transform: scale(16);\r\n\t\t     -o-transform: scale(16);\r\n\t\t        transform: scale(16);\r\n}\r\n.reveal[data-background-transition=zoom]>.backgrounds .slide-background>.slide-background.future,\r\n.reveal>.backgrounds .slide-background>.slide-background.future[data-background-transition=zoom] {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n\r\n\t-webkit-transform: scale(0.2);\r\n\t   -moz-transform: scale(0.2);\r\n\t    -ms-transform: scale(0.2);\r\n\t     -o-transform: scale(0.2);\r\n\t        transform: scale(0.2);\r\n}\r\n\r\n\r\n/* Global transition speed settings */\r\n.reveal[data-transition-speed=\"fast\"]>.backgrounds .slide-background {\r\n\t-webkit-transition-duration: 400ms;\r\n\t   -moz-transition-duration: 400ms;\r\n\t    -ms-transition-duration: 400ms;\r\n\t        transition-duration: 400ms;\r\n}\r\n.reveal[data-transition-speed=\"slow\"]>.backgrounds .slide-background {\r\n\t-webkit-transition-duration: 1200ms;\r\n\t   -moz-transition-duration: 1200ms;\r\n\t    -ms-transition-duration: 1200ms;\r\n\t        transition-duration: 1200ms;\r\n}\r\n\r\n\r\n/*********************************************\r\n * RTL SUPPORT\r\n *********************************************/\r\n\r\n.reveal.rtl .slides,\r\n.reveal.rtl .slides h1,\r\n.reveal.rtl .slides h2,\r\n.reveal.rtl .slides h3,\r\n.reveal.rtl .slides h4,\r\n.reveal.rtl .slides h5,\r\n.reveal.rtl .slides h6 {\r\n\tdirection: rtl;\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.reveal.rtl pre,\r\n.reveal.rtl code {\r\n\tdirection: ltr;\r\n}\r\n\r\n.reveal.rtl ol,\r\n.reveal.rtl ul {\r\n\ttext-align: right;\r\n}\r\n\r\n.reveal.rtl .progress span {\r\n\tfloat: right\r\n}\r\n\r\n/*********************************************\r\n * PARALLAX BACKGROUND\r\n *********************************************/\r\n\r\n.reveal.has-parallax-background .backgrounds {\r\n\t-webkit-transition: all 0.8s ease;\r\n\t   -moz-transition: all 0.8s ease;\r\n\t    -ms-transition: all 0.8s ease;\r\n\t        transition: all 0.8s ease;\r\n}\r\n\r\n/* Global transition speed settings */\r\n.reveal.has-parallax-background[data-transition-speed=\"fast\"] .backgrounds {\r\n\t-webkit-transition-duration: 400ms;\r\n\t   -moz-transition-duration: 400ms;\r\n\t    -ms-transition-duration: 400ms;\r\n\t        transition-duration: 400ms;\r\n}\r\n.reveal.has-parallax-background[data-transition-speed=\"slow\"] .backgrounds {\r\n\t-webkit-transition-duration: 1200ms;\r\n\t   -moz-transition-duration: 1200ms;\r\n\t    -ms-transition-duration: 1200ms;\r\n\t        transition-duration: 1200ms;\r\n}\r\n\r\n\r\n/*********************************************\r\n * LINK PREVIEW OVERLAY\r\n *********************************************/\r\n\r\n .reveal .preview-link-overlay {\r\n \tposition: absolute;\r\n \ttop: 0;\r\n \tleft: 0;\r\n \twidth: 100%;\r\n \theight: 100%;\r\n \tz-index: 1000;\r\n \tbackground: rgba( 0, 0, 0, 0.9 );\r\n \topacity: 0;\r\n \tvisibility: hidden;\r\n\r\n \t-webkit-transition: all 0.3s ease;\r\n \t   -moz-transition: all 0.3s ease;\r\n \t    -ms-transition: all 0.3s ease;\r\n \t        transition: all 0.3s ease;\r\n }\r\n \t.reveal .preview-link-overlay.visible {\r\n \t\topacity: 1;\r\n \t\tvisibility: visible;\r\n \t}\r\n\r\n \t.reveal .preview-link-overlay .spinner {\r\n \t\tposition: absolute;\r\n \t\tdisplay: block;\r\n \t\ttop: 50%;\r\n \t\tleft: 50%;\r\n \t\twidth: 32px;\r\n \t\theight: 32px;\r\n \t\tmargin: -16px 0 0 -16px;\r\n \t\tz-index: 10;\r\n \t\tbackground-image: url(data:image/gif;base64,R0lGODlhIAAgAPMAAJmZmf%2F%2F%2F6%2Bvr8nJybW1tcDAwOjo6Nvb26ioqKOjo7Ozs%2FLy8vz8%2FAAAAAAAAAAAACH%2FC05FVFNDQVBFMi4wAwEAAAAh%2FhpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh%2BQQJCgAAACwAAAAAIAAgAAAE5xDISWlhperN52JLhSSdRgwVo1ICQZRUsiwHpTJT4iowNS8vyW2icCF6k8HMMBkCEDskxTBDAZwuAkkqIfxIQyhBQBFvAQSDITM5VDW6XNE4KagNh6Bgwe60smQUB3d4Rz1ZBApnFASDd0hihh12BkE9kjAJVlycXIg7CQIFA6SlnJ87paqbSKiKoqusnbMdmDC2tXQlkUhziYtyWTxIfy6BE8WJt5YJvpJivxNaGmLHT0VnOgSYf0dZXS7APdpB309RnHOG5gDqXGLDaC457D1zZ%2FV%2FnmOM82XiHRLYKhKP1oZmADdEAAAh%2BQQJCgAAACwAAAAAIAAgAAAE6hDISWlZpOrNp1lGNRSdRpDUolIGw5RUYhhHukqFu8DsrEyqnWThGvAmhVlteBvojpTDDBUEIFwMFBRAmBkSgOrBFZogCASwBDEY%2FCZSg7GSE0gSCjQBMVG023xWBhklAnoEdhQEfyNqMIcKjhRsjEdnezB%2BA4k8gTwJhFuiW4dokXiloUepBAp5qaKpp6%2BHo7aWW54wl7obvEe0kRuoplCGepwSx2jJvqHEmGt6whJpGpfJCHmOoNHKaHx61WiSR92E4lbFoq%2BB6QDtuetcaBPnW6%2BO7wDHpIiK9SaVK5GgV543tzjgGcghAgAh%2BQQJCgAAACwAAAAAIAAgAAAE7hDISSkxpOrN5zFHNWRdhSiVoVLHspRUMoyUakyEe8PTPCATW9A14E0UvuAKMNAZKYUZCiBMuBakSQKG8G2FzUWox2AUtAQFcBKlVQoLgQReZhQlCIJesQXI5B0CBnUMOxMCenoCfTCEWBsJColTMANldx15BGs8B5wlCZ9Po6OJkwmRpnqkqnuSrayqfKmqpLajoiW5HJq7FL1Gr2mMMcKUMIiJgIemy7xZtJsTmsM4xHiKv5KMCXqfyUCJEonXPN2rAOIAmsfB3uPoAK%2B%2BG%2Bw48edZPK%2BM6hLJpQg484enXIdQFSS1u6UhksENEQAAIfkECQoAAAAsAAAAACAAIAAABOcQyEmpGKLqzWcZRVUQnZYg1aBSh2GUVEIQ2aQOE%2BG%2BcD4ntpWkZQj1JIiZIogDFFyHI0UxQwFugMSOFIPJftfVAEoZLBbcLEFhlQiqGp1Vd140AUklUN3eCA51C1EWMzMCezCBBmkxVIVHBWd3HHl9JQOIJSdSnJ0TDKChCwUJjoWMPaGqDKannasMo6WnM562R5YluZRwur0wpgqZE7NKUm%2BFNRPIhjBJxKZteWuIBMN4zRMIVIhffcgojwCF117i4nlLnY5ztRLsnOk%2BaV%2BoJY7V7m76PdkS4trKcdg0Zc0tTcKkRAAAIfkECQoAAAAsAAAAACAAIAAABO4QyEkpKqjqzScpRaVkXZWQEximw1BSCUEIlDohrft6cpKCk5xid5MNJTaAIkekKGQkWyKHkvhKsR7ARmitkAYDYRIbUQRQjWBwJRzChi9CRlBcY1UN4g0%2FVNB0AlcvcAYHRyZPdEQFYV8ccwR5HWxEJ02YmRMLnJ1xCYp0Y5idpQuhopmmC2KgojKasUQDk5BNAwwMOh2RtRq5uQuPZKGIJQIGwAwGf6I0JXMpC8C7kXWDBINFMxS4DKMAWVWAGYsAdNqW5uaRxkSKJOZKaU3tPOBZ4DuK2LATgJhkPJMgTwKCdFjyPHEnKxFCDhEAACH5BAkKAAAALAAAAAAgACAAAATzEMhJaVKp6s2nIkolIJ2WkBShpkVRWqqQrhLSEu9MZJKK9y1ZrqYK9WiClmvoUaF8gIQSNeF1Er4MNFn4SRSDARWroAIETg1iVwuHjYB1kYc1mwruwXKC9gmsJXliGxc%2BXiUCby9ydh1sOSdMkpMTBpaXBzsfhoc5l58Gm5yToAaZhaOUqjkDgCWNHAULCwOLaTmzswadEqggQwgHuQsHIoZCHQMMQgQGubVEcxOPFAcMDAYUA85eWARmfSRQCdcMe0zeP1AAygwLlJtPNAAL19DARdPzBOWSm1brJBi45soRAWQAAkrQIykShQ9wVhHCwCQCACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiRMDjI0Fd30%2FiI2UA5GSS5UDj2l6NoqgOgN4gksEBgYFf0FDqKgHnyZ9OX8HrgYHdHpcHQULXAS2qKpENRg7eAMLC7kTBaixUYFkKAzWAAnLC7FLVxLWDBLKCwaKTULgEwbLA4hJtOkSBNqITT3xEgfLpBtzE%2FjiuL04RGEBgwWhShRgQExHBAAh%2BQQJCgAAACwAAAAAIAAgAAAE7xDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfZiCqGk5dTESJeaOAlClzsJsqwiJwiqnFrb2nS9kmIcgEsjQydLiIlHehhpejaIjzh9eomSjZR%2BipslWIRLAgMDOR2DOqKogTB9pCUJBagDBXR6XB0EBkIIsaRsGGMMAxoDBgYHTKJiUYEGDAzHC9EACcUGkIgFzgwZ0QsSBcXHiQvOwgDdEwfFs0sDzt4S6BK4xYjkDOzn0unFeBzOBijIm1Dgmg5YFQwsCMjp1oJ8LyIAACH5BAkKAAAALAAAAAAgACAAAATwEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GGl6NoiPOH16iZKNlH6KmyWFOggHhEEvAwwMA0N9GBsEC6amhnVcEwavDAazGwIDaH1ipaYLBUTCGgQDA8NdHz0FpqgTBwsLqAbWAAnIA4FWKdMLGdYGEgraigbT0OITBcg5QwPT4xLrROZL6AuQAPUS7bxLpoWidY0JtxLHKhwwMJBTHgPKdEQAACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq%2BE71SRQeyqUToLA7VxF0JDyIQh%2FMVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GAULDJCRiXo1CpGXDJOUjY%2BYip9DhToJA4RBLwMLCwVDfRgbBAaqqoZ1XBMHswsHtxtFaH1iqaoGNgAIxRpbFAgfPQSqpbgGBqUD1wBXeCYp1AYZ19JJOYgH1KwA4UBvQwXUBxPqVD9L3sbp2BNk2xvvFPJd%2BMFCN6HAAIKgNggY0KtEBAAh%2BQQJCgAAACwAAAAAIAAgAAAE6BDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfYIDMaAFdTESJeaEDAIMxYFqrOUaNW4E4ObYcCXaiBVEgULe0NJaxxtYksjh2NLkZISgDgJhHthkpU4mW6blRiYmZOlh4JWkDqILwUGBnE6TYEbCgevr0N1gH4At7gHiRpFaLNrrq8HNgAJA70AWxQIH1%2BvsYMDAzZQPC9VCNkDWUhGkuE5PxJNwiUK4UfLzOlD4WvzAHaoG9nxPi5d%2BjYUqfAhhykOFwJWiAAAIfkECQoAAAAsAAAAACAAIAAABPAQyElpUqnqzaciSoVkXVUMFaFSwlpOCcMYlErAavhOMnNLNo8KsZsMZItJEIDIFSkLGQoQTNhIsFehRww2CQLKF0tYGKYSg%2BygsZIuNqJksKgbfgIGepNo2cIUB3V1B3IvNiBYNQaDSTtfhhx0CwVPI0UJe0%2Bbm4g5VgcGoqOcnjmjqDSdnhgEoamcsZuXO1aWQy8KAwOAuTYYGwi7w5h%2BKr0SJ8MFihpNbx%2B4Erq7BYBuzsdiH1jCAzoSfl0rVirNbRXlBBlLX%2BBP0XJLAPGzTkAuAOqb0WT5AH7OcdCm5B8TgRwSRKIHQtaLCwg1RAAAOwAAAAAAAAAAAA%3D%3D);\r\n\r\n \t\tvisibility: visible;\r\n \t\topacity: 0.6;\r\n\r\n \t\t-webkit-transition: all 0.3s ease;\r\n \t\t   -moz-transition: all 0.3s ease;\r\n \t\t    -ms-transition: all 0.3s ease;\r\n \t\t        transition: all 0.3s ease;\r\n \t}\r\n\r\n \t.reveal .preview-link-overlay header {\r\n \t\tposition: absolute;\r\n \t\tleft: 0;\r\n \t\ttop: 0;\r\n \t\twidth: 100%;\r\n \t\theight: 40px;\r\n \t\tz-index: 2;\r\n \t\tborder-bottom: 1px solid #222;\r\n \t}\r\n \t\t.reveal .preview-link-overlay header a {\r\n \t\t\tdisplay: inline-block;\r\n \t\t\twidth: 40px;\r\n \t\t\theight: 40px;\r\n \t\t\tpadding: 0 10px;\r\n \t\t\tfloat: right;\r\n \t\t\topacity: 0.6;\r\n\r\n \t\t\tbox-sizing: border-box;\r\n \t\t}\r\n \t\t\t.reveal .preview-link-overlay header a:hover {\r\n \t\t\t\topacity: 1;\r\n \t\t\t}\r\n \t\t\t.reveal .preview-link-overlay header a .icon {\r\n \t\t\t\tdisplay: inline-block;\r\n \t\t\t\twidth: 20px;\r\n \t\t\t\theight: 20px;\r\n\r\n \t\t\t\tbackground-position: 50% 50%;\r\n \t\t\t\tbackground-size: 100%;\r\n \t\t\t\tbackground-repeat: no-repeat;\r\n \t\t\t}\r\n \t\t\t.reveal .preview-link-overlay header a.close .icon {\r\n \t\t\t\tbackground-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABkklEQVRYR8WX4VHDMAxG6wnoJrABZQPYBCaBTWAD2g1gE5gg6OOsXuxIlr40d81dfrSJ9V4c2VLK7spHuTJ/5wpM07QXuXc5X0opX2tEJcadjHuV80li/FgxTIEK/5QBCICBD6xEhSMGHgQPgBgLiYVAB1dpSqKDawxTohFw4JSEA3clzgIBPCURwE2JucBR7rhPJJv5OpJwDX+SfDjgx1wACQeJG1aChP9K/IMmdZ8DtESV1WyP3Bt4MwM6sj4NMxMYiqUWHQu4KYA/SYkIjOsm3BXYWMKFDwU2khjCQ4ELJUJ4SmClRArOCmSXGuKma0fYD5CbzHxFpCSGAhfAVSSUGDUk2BWZaff2g6GE15BsBQ9nwmpIGDiyHQddwNTMKkbZaf9fajXQca1EX44puJZUsnY0ObGmITE3GVLCbEhQUjGVt146j6oasWN+49Vph2w1pZ5EansNZqKBm1txbU57iRRcZ86RWMDdWtBJUHBHwoQPi1GV+JCbntmvok7iTX4/Up9mgyTc/FJYDTcndgH/AA5A/CHsyEkVAAAAAElFTkSuQmCC);\r\n \t\t\t}\r\n \t\t\t.reveal .preview-link-overlay header a.external .icon {\r\n \t\t\t\tbackground-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAcElEQVRYR+2WSQoAIQwEzf8f7XiOMkUQxUPlGkM3hVmiQfQR9GYnH1SsAQlI4DiBqkCMoNb9y2e90IAEJPAcgdznU9+engMaeJ7Azh5Y1U67gAho4DqBqmB1buAf0MB1AlVBek83ZPkmJMGc1wAR+AAqod/B97TRpQAAAABJRU5ErkJggg==);\r\n \t\t\t}\r\n\r\n \t.reveal .preview-link-overlay .viewport {\r\n \t\tposition: absolute;\r\n \t\ttop: 40px;\r\n \t\tright: 0;\r\n \t\tbottom: 0;\r\n \t\tleft: 0;\r\n \t}\r\n\r\n \t.reveal .preview-link-overlay .viewport iframe {\r\n \t\twidth: 100%;\r\n \t\theight: 100%;\r\n \t\tmax-width: 100%;\r\n \t\tmax-height: 100%;\r\n \t\tborder: 0;\r\n\r\n \t\topacity: 0;\r\n \t\tvisibility: hidden;\r\n\r\n \t\t-webkit-transition: all 0.3s ease;\r\n \t\t   -moz-transition: all 0.3s ease;\r\n \t\t    -ms-transition: all 0.3s ease;\r\n \t\t        transition: all 0.3s ease;\r\n \t}\r\n\r\n \t.reveal .preview-link-overlay.loaded .viewport iframe {\r\n \t\topacity: 1;\r\n \t\tvisibility: visible;\r\n \t}\r\n\r\n \t.reveal .preview-link-overlay.loaded .spinner {\r\n \t\topacity: 0;\r\n \t\tvisibility: hidden;\r\n\r\n \t\t-webkit-transform: scale(0.2);\r\n \t\t   -moz-transform: scale(0.2);\r\n \t\t    -ms-transform: scale(0.2);\r\n \t\t        transform: scale(0.2);\r\n \t}\r\n\r\n\r\n\r\n/*********************************************\r\n * PLAYBACK COMPONENT\r\n *********************************************/\r\n\r\n.reveal .playback {\r\n\tposition: fixed;\r\n\tleft: 15px;\r\n\tbottom: 15px;\r\n\tz-index: 30;\r\n\tcursor: pointer;\r\n\r\n\t-webkit-transition: all 400ms ease;\r\n\t   -moz-transition: all 400ms ease;\r\n\t    -ms-transition: all 400ms ease;\r\n\t        transition: all 400ms ease;\r\n}\r\n\r\n.reveal.overview .playback {\r\n\topacity: 0;\r\n\tvisibility: hidden;\r\n}\r\n\r\n\r\n/*********************************************\r\n * ROLLING LINKS\r\n *********************************************/\r\n\r\n.reveal .roll {\r\n\tdisplay: inline-block;\r\n\tline-height: 1.2;\r\n\toverflow: hidden;\r\n\r\n\tvertical-align: top;\r\n\r\n\t-webkit-perspective: 400px;\r\n\t   -moz-perspective: 400px;\r\n\t    -ms-perspective: 400px;\r\n\t        perspective: 400px;\r\n\r\n\t-webkit-perspective-origin: 50% 50%;\r\n\t   -moz-perspective-origin: 50% 50%;\r\n\t    -ms-perspective-origin: 50% 50%;\r\n\t        perspective-origin: 50% 50%;\r\n}\r\n\t.reveal .roll:hover {\r\n\t\tbackground: none;\r\n\t\ttext-shadow: none;\r\n\t}\r\n.reveal .roll span {\r\n\tdisplay: block;\r\n\tposition: relative;\r\n\tpadding: 0 2px;\r\n\r\n\tpointer-events: none;\r\n\r\n\t-webkit-transition: all 400ms ease;\r\n\t   -moz-transition: all 400ms ease;\r\n\t    -ms-transition: all 400ms ease;\r\n\t        transition: all 400ms ease;\r\n\r\n\t-webkit-transform-origin: 50% 0%;\r\n\t   -moz-transform-origin: 50% 0%;\r\n\t    -ms-transform-origin: 50% 0%;\r\n\t        transform-origin: 50% 0%;\r\n\r\n\t-webkit-transform-style: preserve-3d;\r\n\t   -moz-transform-style: preserve-3d;\r\n\t    -ms-transform-style: preserve-3d;\r\n\t        transform-style: preserve-3d;\r\n\r\n\t-webkit-backface-visibility: hidden;\r\n\t   -moz-backface-visibility: hidden;\r\n\t        backface-visibility: hidden;\r\n}\r\n\t.reveal .roll:hover span {\r\n\t    background: rgba(0,0,0,0.5);\r\n\r\n\t    -webkit-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\r\n\t       -moz-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\r\n\t        -ms-transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\r\n\t            transform: translate3d( 0px, 0px, -45px ) rotateX( 90deg );\r\n\t}\r\n.reveal .roll span:after {\r\n\tcontent: attr(data-title);\r\n\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tleft: 0;\r\n\ttop: 0;\r\n\tpadding: 0 2px;\r\n\r\n\t-webkit-backface-visibility: hidden;\r\n\t   -moz-backface-visibility: hidden;\r\n\t        backface-visibility: hidden;\r\n\r\n\t-webkit-transform-origin: 50% 0%;\r\n\t   -moz-transform-origin: 50% 0%;\r\n\t    -ms-transform-origin: 50% 0%;\r\n\t        transform-origin: 50% 0%;\r\n\r\n\t-webkit-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\r\n\t   -moz-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\r\n\t    -ms-transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\r\n\t        transform: translate3d( 0px, 110%, 0px ) rotateX( -90deg );\r\n}\r\n\r\n\r\n/*********************************************\r\n * SPEAKER NOTES\r\n *********************************************/\r\n\r\n.reveal aside.notes {\r\n\tdisplay: none;\r\n}\r\n\r\n\r\n/*********************************************\r\n * ZOOM PLUGIN\r\n *********************************************/\r\n\r\n.zoomed .reveal *,\r\n.zoomed .reveal *:before,\r\n.zoomed .reveal *:after {\r\n\t-webkit-transform: none !important;\r\n\t   -moz-transform: none !important;\r\n\t    -ms-transform: none !important;\r\n\t        transform: none !important;\r\n\r\n\t-webkit-backface-visibility: visible !important;\r\n\t   -moz-backface-visibility: visible !important;\r\n\t    -ms-backface-visibility: visible !important;\r\n\t        backface-visibility: visible !important;\r\n}\r\n\r\n.zoomed .reveal .progress,\r\n.zoomed .reveal .controls {\r\n\topacity: 0;\r\n}\r\n\r\n.zoomed .reveal .roll span {\r\n\tbackground: none;\r\n}\r\n\r\n.zoomed .reveal .roll span:after {\r\n\tvisibility: hidden;\r\n}\r\n\r\n\r\n", ""]);
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(19);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(22)(content);
-	// Hot Module Replacement
-	if(true) {
-		// When the styles change, update the <style> tags
-		module.hot.accept(19, function() {
-			var newContent = __webpack_require__(19);
-			if(typeof newContent === 'string') newContent = [module.id, newContent, ''];
-			update(newContent);
-		});
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(24)();
-	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Lato:300,700,300italic,700italic);", ""]);
-	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,700,300italic,700italic);", ""]);
-	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Abril+Fatface);", ""]);
-	exports.push([module.id, "\n\n\n/**\r\n * Default theme for reveal.js.\r\n *\r\n * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se\r\n */\n@font-face {\n  font-family: 'Lato';\n  weight: normal;\n  font-style: normal; }\n\n/*********************************************\r\n * GLOBAL STYLES\r\n *********************************************/\nbody {\n  background: #2b2b2b;\n  background-color: #2b2b2b; }\n\n.reveal {\n  font-family: 'Open Sans', sans-serif;\n  font-size: 34px;\n  font-weight: normal;\n  letter-spacing: -0.02em;\n  color: #eee; }\n\n::selection {\n  color: #fff;\n  background: #FF5E99;\n  text-shadow: none; }\n\n/*********************************************\r\n * HEADERS\r\n *********************************************/\n.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {\n  margin: 10px 0 5px 0;\n  color: #eee;\n  font-family: 'Abril Fatface', serif;\n  line-height: 0.9em;\n  letter-spacing: 0.02em;\n  text-transform: none;\n  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2); }\n\n.reveal h1 {\n  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2); }\n\n/*********************************************\r\n * LINKS\r\n *********************************************/\n.reveal a:not(.image) {\n  color: #13DAEC;\n  text-decoration: none;\n  -webkit-transition: color 0.15s ease;\n  -moz-transition: color 0.15s ease;\n  -ms-transition: color 0.15s ease;\n  -o-transition: color 0.15s ease;\n  transition: color 0.15s ease; }\n\n.reveal a:not(.image):hover {\n  color: #71e9f4;\n  text-shadow: none;\n  border: none; }\n\n.reveal .roll span:after {\n  color: #fff;\n  background: #0d99a5; }\n\n/*********************************************\r\n * IMAGES\r\n *********************************************/\n.reveal section img {\n  margin: 15px 0px;\n  background: rgba(255, 255, 255, 0.12);\n  border: 4px solid #eee;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);\n  -webkit-transition: all 0.2s linear;\n  -moz-transition: all 0.2s linear;\n  -ms-transition: all 0.2s linear;\n  -o-transition: all 0.2s linear;\n  transition: all 0.2s linear; }\n\n.reveal a:hover img {\n  background: rgba(255, 255, 255, 0.2);\n  border-color: #13DAEC;\n  box-shadow: 0 0 20px rgba(0, 0, 0, 0.55); }\n\n/*********************************************\r\n * NAVIGATION CONTROLS\r\n *********************************************/\n.reveal .controls div.navigate-left, .reveal .controls div.navigate-left.enabled {\n  border-right-color: #13DAEC; }\n\n.reveal .controls div.navigate-right, .reveal .controls div.navigate-right.enabled {\n  border-left-color: #13DAEC; }\n\n.reveal .controls div.navigate-up, .reveal .controls div.navigate-up.enabled {\n  border-bottom-color: #13DAEC; }\n\n.reveal .controls div.navigate-down, .reveal .controls div.navigate-down.enabled {\n  border-top-color: #13DAEC; }\n\n.reveal .controls div.navigate-left.enabled:hover {\n  border-right-color: #71e9f4; }\n\n.reveal .controls div.navigate-right.enabled:hover {\n  border-left-color: #71e9f4; }\n\n.reveal .controls div.navigate-up.enabled:hover {\n  border-bottom-color: #71e9f4; }\n\n.reveal .controls div.navigate-down.enabled:hover {\n  border-top-color: #71e9f4; }\n\n/*********************************************\r\n * PROGRESS BAR\r\n *********************************************/\n.reveal .progress {\n  background: rgba(0, 0, 0, 0.2); }\n\n.reveal .progress span {\n  background: #13DAEC;\n  -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -ms-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -o-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985); }\n\n/*********************************************\r\n * SLIDE NUMBER\r\n *********************************************/\n.reveal .slide-number {\n  color: #13DAEC; }\n\n.reveal .slides {\n  text-align: left;\n  letter-spacing: 0; }\n  .reveal .slides h1 {\n    margin-bottom: 40px; }\n  .reveal .slides h2, .reveal .slides h3 {\n    margin: 0 0 130px 0; }\n  .reveal .slides li, .reveal .slides p, .reveal .slides blockquote {\n    padding-bottom: 40px; }\n  .reveal .slides li {\n    list-style-type: disc;\n    list-style-position: inside;\n    text-indent: -1em;\n    padding-left: 1em; }\n  .reveal .slides pre code {\n    margin-top: 50px;\n    margin-bottom: 50px;\n    max-height: 650px;\n    font-size: 24px;\n    line-height: 30px; }\n  .reveal .slides [data-state=\"white-background\"] h2, .reveal .slides [data-state=\"white-background\"] h3, .reveal .slides [data-state=\"white-background\"] h4, .reveal .slides [data-state=\"white-background\"] p {\n    color: #3B3B3B; }\n\n.white-background .state-background {\n  background-color: #EDEDED; }\n", ""]);
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(21);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(22)(content);
-	// Hot Module Replacement
-	if(true) {
-		// When the styles change, update the <style> tags
-		module.hot.accept(21, function() {
-			var newContent = __webpack_require__(21);
-			if(typeof newContent === 'string') newContent = [module.id, newContent, ''];
-			update(newContent);
-		});
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(24)();
-	exports.push([module.id, "/*\r\n\r\nZenburn style from voldmar.ru (c) Vladimir Epifanov <voldmar@voldmar.ru>\r\nbased on dark.css by Ivan Sagalaev\r\n\r\n*/\r\n\r\npre code {\r\n  display: block; padding: 0.5em;\r\n  background: #3F3F3F;\r\n  color: #DCDCDC;\r\n}\r\n\r\npre .keyword,\r\npre .tag,\r\npre .css .class,\r\npre .css .id,\r\npre .lisp .title,\r\npre .nginx .title,\r\npre .request,\r\npre .status,\r\npre .clojure .attribute {\r\n  color: #E3CEAB;\r\n}\r\n\r\npre .django .template_tag,\r\npre .django .variable,\r\npre .django .filter .argument {\r\n  color: #DCDCDC;\r\n}\r\n\r\npre .number,\r\npre .date {\r\n  color: #8CD0D3;\r\n}\r\n\r\npre .dos .envvar,\r\npre .dos .stream,\r\npre .variable,\r\npre .apache .sqbracket {\r\n  color: #EFDCBC;\r\n}\r\n\r\npre .dos .flow,\r\npre .diff .change,\r\npre .python .exception,\r\npre .python .built_in,\r\npre .literal,\r\npre .tex .special {\r\n  color: #EFEFAF;\r\n}\r\n\r\npre .diff .chunk,\r\npre .subst {\r\n  color: #8F8F8F;\r\n}\r\n\r\npre .dos .keyword,\r\npre .python .decorator,\r\npre .title,\r\npre .haskell .type,\r\npre .diff .header,\r\npre .ruby .class .parent,\r\npre .apache .tag,\r\npre .nginx .built_in,\r\npre .tex .command,\r\npre .prompt {\r\n    color: #efef8f;\r\n}\r\n\r\npre .dos .winutils,\r\npre .ruby .symbol,\r\npre .ruby .symbol .string,\r\npre .ruby .string {\r\n  color: #DCA3A3;\r\n}\r\n\r\npre .diff .deletion,\r\npre .string,\r\npre .tag .value,\r\npre .preprocessor,\r\npre .built_in,\r\npre .sql .aggregate,\r\npre .javadoc,\r\npre .smalltalk .class,\r\npre .smalltalk .localvars,\r\npre .smalltalk .array,\r\npre .css .rules .value,\r\npre .attr_selector,\r\npre .pseudo,\r\npre .apache .cbracket,\r\npre .tex .formula {\r\n  color: #CC9393;\r\n}\r\n\r\npre .shebang,\r\npre .diff .addition,\r\npre .comment,\r\npre .java .annotation,\r\npre .template_comment,\r\npre .pi,\r\npre .doctype {\r\n  color: #7F9F7F;\r\n}\r\n\r\npre .coffeescript .javascript,\r\npre .javascript .xml,\r\npre .tex .formula,\r\npre .xml .javascript,\r\npre .xml .vbscript,\r\npre .xml .css,\r\npre .xml .cdata {\r\n  opacity: 0.5;\r\n}", ""]);
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {};
-
-	module.exports = function(list) {
+	module.exports = function(list, options) {
 		if(false) {
 			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
 		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		// By default, add <style> tags to the bottom of <head>.
+		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
 		var styles = listToStyles(list);
-		addStylesToDom(styles);
+		addStylesToDom(styles, options);
+
 		return function update(newList) {
 			var mayRemove = [];
 			for(var i = 0; i < styles.length; i++) {
@@ -932,7 +806,7 @@
 			}
 			if(newList) {
 				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles);
+				addStylesToDom(newStyles, options);
 			}
 			for(var i = 0; i < mayRemove.length; i++) {
 				var domStyle = mayRemove[i];
@@ -945,7 +819,7 @@
 		};
 	}
 
-	function addStylesToDom(styles) {
+	function addStylesToDom(styles, options) {
 		for(var i = 0; i < styles.length; i++) {
 			var item = styles[i];
 			var domStyle = stylesInDom[item.id];
@@ -955,12 +829,12 @@
 					domStyle.parts[j](item.parts[j]);
 				}
 				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j]));
+					domStyle.parts.push(addStyle(item.parts[j], options));
 				}
 			} else {
 				var parts = [];
 				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j]));
+					parts.push(addStyle(item.parts[j], options));
 				}
 				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
 			}
@@ -975,8 +849,8 @@
 			var id = item[0];
 			var css = item[1];
 			var media = item[2];
-			// var sourceMap = item[3];
-			var part = {css: css, media: media/*, sourceMap: sourceMap*/};
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
 			if(!newStyles[id])
 				styles.push(newStyles[id] = {id: id, parts: [part]});
 			else
@@ -985,38 +859,124 @@
 		return styles;
 	}
 
-	function addStyle(obj) {
-		var styleElement = document.createElement("style");
-		var head = document.head || document.getElementsByTagName("head")[0];
-		styleElement.type = "text/css";
-		head.appendChild(styleElement);
-		applyToTag(styleElement, obj);
-		return function(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media /*&& newObj.sourceMap === obj.sourceMap*/)
-					return;
-				applyToTag(styleElement, obj = newObj);
+	function insertStyleElement(options, styleElement) {
+		var head = getHeadElement();
+		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+		if (options.insertAt === "top") {
+			if(!lastStyleElementInsertedAtTop) {
+				head.insertBefore(styleElement, head.firstChild);
+			} else if(lastStyleElementInsertedAtTop.nextSibling) {
+				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
 			} else {
-				head.removeChild(styleElement);
+				head.appendChild(styleElement);
+			}
+			styleElementsInsertedAtTop.push(styleElement);
+		} else if (options.insertAt === "bottom") {
+			head.appendChild(styleElement);
+		} else {
+			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+		}
+	}
+
+	function removeStyleElement(styleElement) {
+		styleElement.parentNode.removeChild(styleElement);
+		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+		if(idx >= 0) {
+			styleElementsInsertedAtTop.splice(idx, 1);
+		}
+	}
+
+	function createStyleElement(options) {
+		var styleElement = document.createElement("style");
+		styleElement.type = "text/css";
+		insertStyleElement(options, styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement(options) {
+		var linkElement = document.createElement("link");
+		linkElement.rel = "stylesheet";
+		insertStyleElement(options, linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement(options));
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement(options);
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement(options);
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
 			}
 		};
-	};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
 
 	function applyToTag(styleElement, obj) {
 		var css = obj.css;
 		var media = obj.media;
-		// var sourceMap = obj.sourceMap;
 
-		// No browser support
-		// if(sourceMap && typeof btoa === "function") {
-			// try {
-				// css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(JSON.stringify(sourceMap)) + " */";
-			// } catch(e) {}
-		// }
 		if(media) {
 			styleElement.setAttribute("media", media)
 		}
-		if (styleElement.styleSheet) {
+
+		if(styleElement.styleSheet) {
 			styleElement.styleSheet.cssText = css;
 		} else {
 			while(styleElement.firstChild) {
@@ -1024,3924 +984,224 @@
 			}
 			styleElement.appendChild(document.createTextNode(css));
 		}
+	}
 
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
 	}
 
 
 /***/ },
-/* 23 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(27);
+	// style-loader: Adds some css to the DOM by adding a <style> tag
 
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function() {
-		var list = [];
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-		return list;
+	// load the styles
+	var content = __webpack_require__(7);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(5)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(7, function() {
+				var newContent = __webpack_require__(7);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
 	}
 
 /***/ },
-/* 25 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "4bcdb425cc2cbe8b8a0ad97184feb188.png"
+	exports = module.exports = __webpack_require__(4)();
+	// imports
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Lato:300,700,300italic,700italic);", ""]);
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,700,300italic,700italic);", ""]);
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Abril+Fatface);", ""]);
+
+	// module
+	exports.push([module.id, "/**\n * Default theme for reveal.js.\n *\n * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se\n */\n@font-face {\n  font-family: 'Lato';\n  weight: normal;\n  font-style: normal;\n}\n\n/*********************************************\n * GLOBAL STYLES\n *********************************************/\nbody {\n  background: #2b2b2b;\n  background-color: #2b2b2b;\n}\n\n.reveal {\n  font-family: \"Lato\", sans-serif;\n  font-size: 36px;\n  font-weight: normal;\n  letter-spacing: -0.02em;\n  color: #eee;\n}\n\n::selection {\n  color: #fff;\n  background: #FF5E99;\n  text-shadow: none;\n}\n\n/*********************************************\n * HEADERS\n *********************************************/\n.reveal h1,\n.reveal h2,\n.reveal h3,\n.reveal h4,\n.reveal h5,\n.reveal h6 {\n  margin: 0 0 20px 0;\n  color: #eee;\n  font-family: \"League Gothic\", Impact, sans-serif;\n  line-height: 0.9em;\n  letter-spacing: 0.02em;\n  text-transform: uppercase;\n  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);\n}\n\n.reveal h1 {\n  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);\n}\n\n/*********************************************\n * LINKS\n *********************************************/\n.reveal a:not(.image) {\n  color: #13DAEC;\n  text-decoration: none;\n  -webkit-transition: color .15s ease;\n  -moz-transition: color .15s ease;\n  -ms-transition: color .15s ease;\n  -o-transition: color .15s ease;\n  transition: color .15s ease;\n}\n\n.reveal a:not(.image):hover {\n  color: #71e9f4;\n  text-shadow: none;\n  border: none;\n}\n\n.reveal .roll span:after {\n  color: #fff;\n  background: #0d99a5;\n}\n\n/*********************************************\n * IMAGES\n *********************************************/\n.reveal section img {\n  margin: 15px 0px;\n  background: rgba(255, 255, 255, 0.12);\n  border: 4px solid #eee;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);\n  -webkit-transition: all .2s linear;\n  -moz-transition: all .2s linear;\n  -ms-transition: all .2s linear;\n  -o-transition: all .2s linear;\n  transition: all .2s linear;\n}\n\n.reveal a:hover img {\n  background: rgba(255, 255, 255, 0.2);\n  border-color: #13DAEC;\n  box-shadow: 0 0 20px rgba(0, 0, 0, 0.55);\n}\n\n/*********************************************\n * NAVIGATION CONTROLS\n *********************************************/\n.reveal .controls div.navigate-left,\n.reveal .controls div.navigate-left.enabled {\n  border-right-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-right,\n.reveal .controls div.navigate-right.enabled {\n  border-left-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-up,\n.reveal .controls div.navigate-up.enabled {\n  border-bottom-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-down,\n.reveal .controls div.navigate-down.enabled {\n  border-top-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-left.enabled:hover {\n  border-right-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-right.enabled:hover {\n  border-left-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-up.enabled:hover {\n  border-bottom-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-down.enabled:hover {\n  border-top-color: #71e9f4;\n}\n\n/*********************************************\n * PROGRESS BAR\n *********************************************/\n.reveal .progress {\n  background: rgba(0, 0, 0, 0.2);\n}\n\n.reveal .progress span {\n  background: #13DAEC;\n  -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -ms-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -o-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n}\n\n/*********************************************\n * SLIDE NUMBER\n *********************************************/\n.reveal .slide-number {\n  color: #13DAEC;\n}\n\n.reveal .slides {\n  text-align: left;\n  letter-spacing: 0;\n}\n\n.reveal .slides h1 {\n  margin-bottom: 40px;\n}\n\n.reveal .slides h2, .reveal .slides h3 {\n  margin: 0 0 130px 0;\n}\n\n.reveal .slides li, .reveal .slides p, .reveal .slides blockquote {\n  padding-bottom: 40px;\n}\n\n.reveal .slides li {\n  list-style-type: disc;\n  list-style-position: inside;\n  text-indent: -1em;\n  padding-left: 1em;\n}\n\n.reveal .slides pre code {\n  margin-top: 50px;\n  margin-bottom: 50px;\n  max-height: 650px;\n  font-size: 24px;\n  line-height: 30px;\n}\n\n.reveal .slides [data-state=\"white-background\"] h2, .reveal .slides [data-state=\"white-background\"] h3, .reveal .slides [data-state=\"white-background\"] h4, .reveal .slides [data-state=\"white-background\"] p {\n  color: #3B3B3B;\n}\n\n.white-background .state-background {\n  background-color: #EDEDED;\n}\n", ""]);
+
+	// exports
+
 
 /***/ },
-/* 26 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<section><h1>Webpack</h1><h3>The cool kids' Javascript bundler</h3></section><section><h2>Agenda</h2><ul><li>Why do we need bundlers and what should they be capable of?</li><li>Review of the main competitors of Webpack</li><li>Why Webpack and how do you use it?</li><li>Live Demo</li></ul></section><section><h2>About me</h2><h5>Name</h5><p>Reto Schläpfer</p><h5>Work</h5><p>React.js/Flux & Finance related backend stuff in Python at <i>Bluevalor AG</i></p><h5>Blog</h5><p>www.code-experience.com</p><h5>Twitter</h5><p><i>@Retolements</i></p><h5>GitHub</h5><p><i>Retozi</i></p><aside>blabla\n\n</aside></section><section><h2>Why do we need a bundler?</h2><div class=\"fragment\"><p>Because modules should be small, and loading many modules through HTTP-Requests is slow.</p><p>Bundling modules reduces the amount of necessary HTTP-Requests to load our app.</p></div></section><section><h2>Requirements for a good bundler</h2></section><section><h2>For production</h2><p><i>A bundling strategy that makes your app load quickly:</i></p><p>-> Deliver modules that are needed at the same time in one HTTP-Request.</p><p>-> Deliver independent modules seperately.</p><p>-> Optimize size of bundles and their caching.</p></section><section><h2>For Development</h2><p>Deliver changes to modules instantly.</p><p>Importing dependencies into your modules should be easy.</p><p>Minimal configuration / processing scripts.</p></section><section><h2>RequireJS vs Browserify</h2></section><section><h2>RequireJS</h2><p>AMD style modules</p><pre><code class=\"hljs javascript\">define([\n  'jquery',\n  'underscore',\n  'backbone',\n  'router',\n], function($, _, Backbone, Router){\n  var initialize = function(){\n    Router.initialize();\n  }\n\n  return {\n    initialize: initialize\n  };\n});\n</code></pre></section><section><h2>RequireJS: The Good</h2><ul><li>Battle proven</li><li>Asynchronous loading in the core (default in dev-mode)</li></ul></section><section><h2>RequireJS: The Bad</h2><ul><li>AMD is out, CommonJS is in (npm EVERYTHING)</li><li>A lot is possible, but everything requires massive configuration</li><li>Dev-mode doesn't scale</li></ul></section><section><h2>Browserify</h2><p>CommonJS style modules</p><pre><code class=\"hjs javascript\">var $ = require('jquery');\nvar _ = require('lodash');\nvar backbone = require('backbone');\nvar router = require('Router');\n\n  var initialize = function(){\n    Router.initialize();\n  }\n\nmodule.exports = initialize;\n</code></pre></section><section><h2>Browserify: The Good</h2><li>Use npm / node.js libraries</li><li>Plays well with Gulp/Grunt. => powerful processing strategies.\n</li><li>CommonJS syntax is better</li></section><section><h2>Browserify: The Bad</h2><li>you need Gulp/Grunt and plugins for instant dev rebuilds.</li><li>Default: bundling into a single file. Async loading & multiple bundles\npossible, but must be done manually.\n\n</li></section><section><h2>Conclusion</h2><p>Internet Consensus: Browserify > RequireJS for most of the cases</p><p>Both solutions get the job done well, but there are rough edges here\nand there.\n\n</p></section><section><h2>Webpack</h2><p>Instagram/Facebook hypes it, Yahoo uses it as well.</p></section><section><h2>Definition style agnostic</h2><p>Supports AMD, CommonJS and even ES6 modules</p></section><section><h2>Everything is a module</h2><p>Why do other bundlers only care about Javascript modules?</p><p>There are other assets that need bundling! Webpack enables you to do that.</p></section><section data-state=\"white-background\"><p>Take the full dependency graph of all assets, and bundle them to your liking</p><img id=\"what-is-webpack\"/></section><section><h2>Bundling into one file is not enough</h2><p>If our app is big, you would like to split the assets into multiple files:</p><p>Webpack will offer you powerful bundling strategies with minimal configuration</p></section><section><h2>Dev experience is great</h2><p>Webpack ships awesome dev-tools that provide instant rebuilds with\nhot reload.\n\n</p></section><section><h2>How to use Webpack</h2><pre><code class=\"hjs javascript\">// ------------------\n// webpack.config.js\n// ------------------\n\nmodule.exports = {\n    entry: ['./src/app.js'],\n    output: {\n        path: __dirname + '/build/js',\n        filename: 'bundle.js',\n        publicPath: '/js/'\n    }\n};\n</code></pre><pre><code class=\"bash\">bash:~$ webpack\n</code></pre></section><section><h2>How the hell do I bundle pngs and css?</h2><pre><code class=\"hljs javascript\">//yes, we require sass!\nrequire('./mySassForThisModule.scss');\n\nvar _ = require('lodash');\nvar FooComponent = require('./FooComponent.jsx');\n\n//yes, we require png!\nvar imageLink = require('../../img/myImage.png');\n\n// do something with imageLink, FooComponent and lodash\n\nmodule.exports = ThisModule;\n</code></pre><p>If you bundle this with webpack, all the assets will be automagically\navailable when you include your bundle into your html document.\n\n</p></section><section><h2>Loaders</h2><blockquote cite=\"http://webpack.github.io/docs/loaders.html\">Loaders are transformations that are applied on files. They preprocess files.\nFor instance they can transform CoffeeScript to JavaScript.\n\n</blockquote></section><section><h2>Lots of Loaders (via npm)</h2><ul><li>inlining stylesheets</li><li>various preprocessors (jsx, CoffeeScript, es6)</li><li>templates</li><li>files, jsons, source-maps</li><li>promises, webworkers</li></ul></section><section><h2>Loader Configuration</h2><pre><code class=\"hljs javascript\">// ------------------\n// webpack.config.js\n// ------------------\n...,\nmodule: {\n    loaders: [\n        {\n            test: /\\.js.{0,1}$/,\n            loader: 'jsx?harmony'\n        },{\n            test: /\\.scss$/,\n            loader: \"style!css!sass?outputStyle=expanded&includePaths[]=\" + __dirname + '/src/scss'\n        }, {\n            test: /\\.css$/,\n            loader: \"style!css\"\n        }\n    ],\n},\n...\n\n</code></pre></section><section><h2>Loaders are awesome</h2><p>requiring and inlining stylesheets is super helpful.</p><p>you get all the freedom you need with preprocessors.</p><p>you can do cool stuff like inlining small pngs or json files.</p><p>bye bye Grunt/Gulp.</p></section><section><h2>So your project is big...</h2></section><section><h2>Load on Demand</h2><p>Create splitpoints</p><pre><code class=\"hljs javascript\">require.ensure([\"./otherPart.js\"], function (otherPart) {\n    // now you can use otherPart\n});\n</code></pre><p>This will create two files (called chunks by Webpack).\nOne is your entrypoint, the other gets loaded on demand.\n\n</p></section><section><h2>Multiple Entrypoints</h2><p>Run the CommonsChunkPlugin to split code up</p><pre><code class=\"hljs javascript\">{\n    entry: { a: \"./a\", b: \"./b\" },\n    output: { filename: \"[name].js\" },\n    plugins: [ new webpack.CommonsChunkPlugin(\"common.js\") ]\n}\n\n</code></pre></section><section><h2>Caching</h2><p>Add hashes to your filenames</p><pre><code class=\"hljs javascript\">output: {\n    path: path.join(__dirname, \"assets\", \"[hash]\"),\n    publicPath: \"assets/[hash]/\",\n    filename: \"output.[hash].bundle.js\",\n    chunkFilename: \"[id].[hash].bundle.js\"\n}\n\n</code></pre></section><section><h2>There is more</h2><ul><li>uglify</li><li>dedupe</li><li>various chunk optimizations (max chunk count, min chunk size)</li><li>gulp/grunt</li><li>target various runtimes</li></ul></section><section><h2>Development productivity</h2></section><section><h2>webpack-dev-server</h2><p>Incremental (=instant) rebuilds</p><p>hot reload without plugins</p></section><section><h2>dev-server setup</h2><pre><code class=\"hljs javascript\">// ------------------\n// server.js\n// ------------------\n\"use strict\";\nvar webpack = require('webpack');\nvar WebpackDevServer = require('webpack-dev-server');\nvar config = require('./webpack.config');\n\nvar server = new WebpackDevServer(webpack(config), {\n    // webpack-dev-server options\n    hot: true,\n    contentBase: __dirname,\n    quiet: false,\n    noInfo: false,\n    publicPath: '/js/',\n    stats: { colors: true }\n});\n\nserver.listen(8081, \"localhost\", function() {});\n</code></pre></section><section><h2>dev-server setup (2)</h2><pre><code class=\"hljs javascript\">// ------------------\n// webpack.config.js\n// ------------------\nentry: [\n    './slides-loader.js',\n    'webpack/hot/dev-server',\n    'webpack-dev-server/client?http://localhost:8081'\n],\nplugins: [new webpack.HotModuleReplacementPlugin()],\n</code></pre></section><section><h2>Live Demo!</h2></section><section><h2>Further Reading</h2><li><a href=\"http://webpack.github.io/docs/\">http://webpack.github.io/docs/</a><span> (especially list of tutorials)</span></li><li><a href=\"https://github.com/petehunt/webpack-howto\">https://github.com/petehunt/webpack-howto</a></li></section><section><h2>Wrap-Up</h2><li>Good bundling is important (and easier than server-side rendering)</li><li>Webpack combines the strengths of RequireJS and Browserify</li><li>Webpack is a bundler for everbody</li><li>It is easy to migrate</li><li>Webpack is well supported (because of the cool kids)</li></section>";
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(9);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(5)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(9, function() {
+				var newContent = __webpack_require__(9);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
 
 /***/ },
-/* 27 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {/*! Socket.IO.js build:0.9.10, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+	exports = module.exports = __webpack_require__(4)();
+	// imports
 
-	var io = (false ? {} : module.exports);
-	(function() {
 
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
+	// module
+	exports.push([module.id, "/*\n\nZenburn style from voldmar.ru (c) Vladimir Epifanov <voldmar@voldmar.ru>\nbased on dark.css by Ivan Sagalaev\n\n*/\n\npre code {\n  display: block; padding: 0.5em;\n  background: #3F3F3F;\n  color: #DCDCDC;\n}\n\npre .keyword,\npre .tag,\npre .css .class,\npre .css .id,\npre .lisp .title,\npre .nginx .title,\npre .request,\npre .status,\npre .clojure .attribute {\n  color: #E3CEAB;\n}\n\npre .django .template_tag,\npre .django .variable,\npre .django .filter .argument {\n  color: #DCDCDC;\n}\n\npre .number,\npre .date {\n  color: #8CD0D3;\n}\n\npre .dos .envvar,\npre .dos .stream,\npre .variable,\npre .apache .sqbracket {\n  color: #EFDCBC;\n}\n\npre .dos .flow,\npre .diff .change,\npre .python .exception,\npre .python .built_in,\npre .literal,\npre .tex .special {\n  color: #EFEFAF;\n}\n\npre .diff .chunk,\npre .subst {\n  color: #8F8F8F;\n}\n\npre .dos .keyword,\npre .python .decorator,\npre .title,\npre .haskell .type,\npre .diff .header,\npre .ruby .class .parent,\npre .apache .tag,\npre .nginx .built_in,\npre .tex .command,\npre .prompt {\n    color: #efef8f;\n}\n\npre .dos .winutils,\npre .ruby .symbol,\npre .ruby .symbol .string,\npre .ruby .string {\n  color: #DCA3A3;\n}\n\npre .diff .deletion,\npre .string,\npre .tag .value,\npre .preprocessor,\npre .built_in,\npre .sql .aggregate,\npre .javadoc,\npre .smalltalk .class,\npre .smalltalk .localvars,\npre .smalltalk .array,\npre .css .rules .value,\npre .attr_selector,\npre .pseudo,\npre .apache .cbracket,\npre .tex .formula {\n  color: #CC9393;\n}\n\npre .shebang,\npre .diff .addition,\npre .comment,\npre .java .annotation,\npre .template_comment,\npre .pi,\npre .doctype {\n  color: #7F9F7F;\n}\n\npre .coffeescript .javascript,\npre .javascript .xml,\npre .tex .formula,\npre .xml .javascript,\npre .xml .vbscript,\npre .xml .css,\npre .xml .cdata {\n  opacity: 0.5;\n}", ""]);
 
-	(function (exports, global) {
+	// exports
 
-	  /**
-	   * IO namespace.
-	   *
-	   * @namespace
-	   */
 
-	  var io = exports;
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
 
-	  /**
-	   * Socket.IO version
-	   *
-	   * @api public
-	   */
+	__webpack_require__(11)(__webpack_require__(12))
 
-	  io.version = '0.9.10';
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
 
-	  /**
-	   * Protocol implemented.
-	   *
-	   * @api public
-	   */
-
-	  io.protocol = 1;
-
-	  /**
-	   * Available transports, these will be populated with the available transports
-	   *
-	   * @api public
-	   */
-
-	  io.transports = [];
-
-	  /**
-	   * Keep track of jsonp callbacks.
-	   *
-	   * @api private
-	   */
-
-	  io.j = [];
-
-	  /**
-	   * Keep track of our io.Sockets
-	   *
-	   * @api private
-	   */
-	  io.sockets = {};
-
-
-	  /**
-	   * Manages connections to hosts.
-	   *
-	   * @param {String} uri
-	   * @Param {Boolean} force creation of new socket (defaults to false)
-	   * @api public
-	   */
-
-	  io.connect = function (host, details) {
-	    var uri = io.util.parseUri(host)
-	      , uuri
-	      , socket;
-
-	    if (global && global.location) {
-	      uri.protocol = uri.protocol || global.location.protocol.slice(0, -1);
-	      uri.host = uri.host || (global.document
-	        ? global.document.domain : global.location.hostname);
-	      uri.port = uri.port || global.location.port;
-	    }
-
-	    uuri = io.util.uniqueUri(uri);
-
-	    var options = {
-	        host: uri.host
-	      , secure: 'https' == uri.protocol
-	      , port: uri.port || ('https' == uri.protocol ? 443 : 80)
-	      , query: uri.query || ''
-	    };
-
-	    io.util.merge(options, details);
-
-	    if (options['force new connection'] || !io.sockets[uuri]) {
-	      socket = new io.Socket(options);
-	    }
-
-	    if (!options['force new connection'] && socket) {
-	      io.sockets[uuri] = socket;
-	    }
-
-	    socket = socket || io.sockets[uuri];
-
-	    // if path is different from '' or /
-	    return socket.of(uri.path.length > 1 ? uri.path : '');
-	  };
-
-	})(true ? module.exports : (this.io = {}), this);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, global) {
-
-	  /**
-	   * Utilities namespace.
-	   *
-	   * @namespace
-	   */
-
-	  var util = exports.util = {};
-
-	  /**
-	   * Parses an URI
-	   *
-	   * @author Steven Levithan <stevenlevithan.com> (MIT license)
-	   * @api public
-	   */
-
-	  var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-	  var parts = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password',
-	               'host', 'port', 'relative', 'path', 'directory', 'file', 'query',
-	               'anchor'];
-
-	  util.parseUri = function (str) {
-	    var m = re.exec(str || '')
-	      , uri = {}
-	      , i = 14;
-
-	    while (i--) {
-	      uri[parts[i]] = m[i] || '';
-	    }
-
-	    return uri;
-	  };
-
-	  /**
-	   * Produces a unique url that identifies a Socket.IO connection.
-	   *
-	   * @param {Object} uri
-	   * @api public
-	   */
-
-	  util.uniqueUri = function (uri) {
-	    var protocol = uri.protocol
-	      , host = uri.host
-	      , port = uri.port;
-
-	    if ('document' in global) {
-	      host = host || document.domain;
-	      port = port || (protocol == 'https'
-	        && document.location.protocol !== 'https:' ? 443 : document.location.port);
-	    } else {
-	      host = host || 'localhost';
-
-	      if (!port && protocol == 'https') {
-	        port = 443;
-	      }
-	    }
-
-	    return (protocol || 'http') + '://' + host + ':' + (port || 80);
-	  };
-
-	  /**
-	   * Mergest 2 query strings in to once unique query string
-	   *
-	   * @param {String} base
-	   * @param {String} addition
-	   * @api public
-	   */
-
-	  util.query = function (base, addition) {
-	    var query = util.chunkQuery(base || '')
-	      , components = [];
-
-	    util.merge(query, util.chunkQuery(addition || ''));
-	    for (var part in query) {
-	      if (query.hasOwnProperty(part)) {
-	        components.push(part + '=' + query[part]);
-	      }
-	    }
-
-	    return components.length ? '?' + components.join('&') : '';
-	  };
-
-	  /**
-	   * Transforms a querystring in to an object
-	   *
-	   * @param {String} qs
-	   * @api public
-	   */
-
-	  util.chunkQuery = function (qs) {
-	    var query = {}
-	      , params = qs.split('&')
-	      , i = 0
-	      , l = params.length
-	      , kv;
-
-	    for (; i < l; ++i) {
-	      kv = params[i].split('=');
-	      if (kv[0]) {
-	        query[kv[0]] = kv[1];
-	      }
-	    }
-
-	    return query;
-	  };
-
-	  /**
-	   * Executes the given function when the page is loaded.
-	   *
-	   *     io.util.load(function () { console.log('page loaded'); });
-	   *
-	   * @param {Function} fn
-	   * @api public
-	   */
-
-	  var pageLoaded = false;
-
-	  util.load = function (fn) {
-	    if ('document' in global && document.readyState === 'complete' || pageLoaded) {
-	      return fn();
-	    }
-
-	    util.on(global, 'load', fn, false);
-	  };
-
-	  /**
-	   * Adds an event.
-	   *
-	   * @api private
-	   */
-
-	  util.on = function (element, event, fn, capture) {
-	    if (element.attachEvent) {
-	      element.attachEvent('on' + event, fn);
-	    } else if (element.addEventListener) {
-	      element.addEventListener(event, fn, capture);
-	    }
-	  };
-
-	  /**
-	   * Generates the correct `XMLHttpRequest` for regular and cross domain requests.
-	   *
-	   * @param {Boolean} [xdomain] Create a request that can be used cross domain.
-	   * @returns {XMLHttpRequest|false} If we can create a XMLHttpRequest.
-	   * @api private
-	   */
-
-	  util.request = function (xdomain) {
-
-	    if (xdomain && 'undefined' != typeof XDomainRequest) {
-	      return new XDomainRequest();
-	    }
-
-	    if ('undefined' != typeof XMLHttpRequest && (!xdomain || util.ua.hasCORS)) {
-	      return new XMLHttpRequest();
-	    }
-
-	    if (!xdomain) {
-	      try {
-	        return new window[(['Active'].concat('Object').join('X'))]('Microsoft.XMLHTTP');
-	      } catch(e) { }
-	    }
-
-	    return null;
-	  };
-
-	  /**
-	   * XHR based transport constructor.
-	   *
-	   * @constructor
-	   * @api public
-	   */
-
-	  /**
-	   * Change the internal pageLoaded value.
-	   */
-
-	  if ('undefined' != typeof window) {
-	    util.load(function () {
-	      pageLoaded = true;
-	    });
-	  }
-
-	  /**
-	   * Defers a function to ensure a spinner is not displayed by the browser
-	   *
-	   * @param {Function} fn
-	   * @api public
-	   */
-
-	  util.defer = function (fn) {
-	    if (!util.ua.webkit || 'undefined' != typeof importScripts) {
-	      return fn();
-	    }
-
-	    util.load(function () {
-	      setTimeout(fn, 100);
-	    });
-	  };
-
-	  /**
-	   * Merges two objects.
-	   *
-	   * @api public
-	   */
-	  
-	  util.merge = function merge (target, additional, deep, lastseen) {
-	    var seen = lastseen || []
-	      , depth = typeof deep == 'undefined' ? 2 : deep
-	      , prop;
-
-	    for (prop in additional) {
-	      if (additional.hasOwnProperty(prop) && util.indexOf(seen, prop) < 0) {
-	        if (typeof target[prop] !== 'object' || !depth) {
-	          target[prop] = additional[prop];
-	          seen.push(additional[prop]);
-	        } else {
-	          util.merge(target[prop], additional[prop], depth - 1, seen);
-	        }
-	      }
-	    }
-
-	    return target;
-	  };
-
-	  /**
-	   * Merges prototypes from objects
-	   *
-	   * @api public
-	   */
-	  
-	  util.mixin = function (ctor, ctor2) {
-	    util.merge(ctor.prototype, ctor2.prototype);
-	  };
-
-	  /**
-	   * Shortcut for prototypical and static inheritance.
-	   *
-	   * @api private
-	   */
-
-	  util.inherit = function (ctor, ctor2) {
-	    function f() {};
-	    f.prototype = ctor2.prototype;
-	    ctor.prototype = new f;
-	  };
-
-	  /**
-	   * Checks if the given object is an Array.
-	   *
-	   *     io.util.isArray([]); // true
-	   *     io.util.isArray({}); // false
-	   *
-	   * @param Object obj
-	   * @api public
-	   */
-
-	  util.isArray = Array.isArray || function (obj) {
-	    return Object.prototype.toString.call(obj) === '[object Array]';
-	  };
-
-	  /**
-	   * Intersects values of two arrays into a third
-	   *
-	   * @api public
-	   */
-
-	  util.intersect = function (arr, arr2) {
-	    var ret = []
-	      , longest = arr.length > arr2.length ? arr : arr2
-	      , shortest = arr.length > arr2.length ? arr2 : arr;
-
-	    for (var i = 0, l = shortest.length; i < l; i++) {
-	      if (~util.indexOf(longest, shortest[i]))
-	        ret.push(shortest[i]);
-	    }
-
-	    return ret;
-	  }
-
-	  /**
-	   * Array indexOf compatibility.
-	   *
-	   * @see bit.ly/a5Dxa2
-	   * @api public
-	   */
-
-	  util.indexOf = function (arr, o, i) {
-	    
-	    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
-	         i < j && arr[i] !== o; i++) {}
-
-	    return j <= i ? -1 : i;
-	  };
-
-	  /**
-	   * Converts enumerables to array.
-	   *
-	   * @api public
-	   */
-
-	  util.toArray = function (enu) {
-	    var arr = [];
-
-	    for (var i = 0, l = enu.length; i < l; i++)
-	      arr.push(enu[i]);
-
-	    return arr;
-	  };
-
-	  /**
-	   * UA / engines detection namespace.
-	   *
-	   * @namespace
-	   */
-
-	  util.ua = {};
-
-	  /**
-	   * Whether the UA supports CORS for XHR.
-	   *
-	   * @api public
-	   */
-
-	  util.ua.hasCORS = 'undefined' != typeof XMLHttpRequest && (function () {
-	    try {
-	      var a = new XMLHttpRequest();
-	    } catch (e) {
-	      return false;
-	    }
-
-	    return a.withCredentials != undefined;
-	  })();
-
-	  /**
-	   * Detect webkit.
-	   *
-	   * @api public
-	   */
-
-	  util.ua.webkit = 'undefined' != typeof navigator
-	    && /webkit/i.test(navigator.userAgent);
-
-	   /**
-	   * Detect iPad/iPhone/iPod.
-	   *
-	   * @api public
-	   */
-
-	  util.ua.iDevice = 'undefined' != typeof navigator
-	      && /iPad|iPhone|iPod/i.test(navigator.userAgent);
-
-	})('undefined' != typeof io ? io : module.exports, this);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.EventEmitter = EventEmitter;
-
-	  /**
-	   * Event emitter constructor.
-	   *
-	   * @api public.
-	   */
-
-	  function EventEmitter () {};
-
-	  /**
-	   * Adds a listener
-	   *
-	   * @api public
-	   */
-
-	  EventEmitter.prototype.on = function (name, fn) {
-	    if (!this.$events) {
-	      this.$events = {};
-	    }
-
-	    if (!this.$events[name]) {
-	      this.$events[name] = fn;
-	    } else if (io.util.isArray(this.$events[name])) {
-	      this.$events[name].push(fn);
-	    } else {
-	      this.$events[name] = [this.$events[name], fn];
-	    }
-
-	    return this;
-	  };
-
-	  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-	  /**
-	   * Adds a volatile listener.
-	   *
-	   * @api public
-	   */
-
-	  EventEmitter.prototype.once = function (name, fn) {
-	    var self = this;
-
-	    function on () {
-	      self.removeListener(name, on);
-	      fn.apply(this, arguments);
-	    };
-
-	    on.listener = fn;
-	    this.on(name, on);
-
-	    return this;
-	  };
-
-	  /**
-	   * Removes a listener.
-	   *
-	   * @api public
-	   */
-
-	  EventEmitter.prototype.removeListener = function (name, fn) {
-	    if (this.$events && this.$events[name]) {
-	      var list = this.$events[name];
-
-	      if (io.util.isArray(list)) {
-	        var pos = -1;
-
-	        for (var i = 0, l = list.length; i < l; i++) {
-	          if (list[i] === fn || (list[i].listener && list[i].listener === fn)) {
-	            pos = i;
-	            break;
-	          }
-	        }
-
-	        if (pos < 0) {
-	          return this;
-	        }
-
-	        list.splice(pos, 1);
-
-	        if (!list.length) {
-	          delete this.$events[name];
-	        }
-	      } else if (list === fn || (list.listener && list.listener === fn)) {
-	        delete this.$events[name];
-	      }
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Removes all listeners for an event.
-	   *
-	   * @api public
-	   */
-
-	  EventEmitter.prototype.removeAllListeners = function (name) {
-	    if (name === undefined) {
-	      this.$events = {};
-	      return this;
-	    }
-
-	    if (this.$events && this.$events[name]) {
-	      this.$events[name] = null;
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Gets all listeners for a certain event.
-	   *
-	   * @api publci
-	   */
-
-	  EventEmitter.prototype.listeners = function (name) {
-	    if (!this.$events) {
-	      this.$events = {};
-	    }
-
-	    if (!this.$events[name]) {
-	      this.$events[name] = [];
-	    }
-
-	    if (!io.util.isArray(this.$events[name])) {
-	      this.$events[name] = [this.$events[name]];
-	    }
-
-	    return this.$events[name];
-	  };
-
-	  /**
-	   * Emits an event.
-	   *
-	   * @api public
-	   */
-
-	  EventEmitter.prototype.emit = function (name) {
-	    if (!this.$events) {
-	      return false;
-	    }
-
-	    var handler = this.$events[name];
-
-	    if (!handler) {
-	      return false;
-	    }
-
-	    var args = Array.prototype.slice.call(arguments, 1);
-
-	    if ('function' == typeof handler) {
-	      handler.apply(this, args);
-	    } else if (io.util.isArray(handler)) {
-	      var listeners = handler.slice();
-
-	      for (var i = 0, l = listeners.length; i < l; i++) {
-	        listeners[i].apply(this, args);
-	      }
-	    } else {
-	      return false;
-	    }
-
-	    return true;
-	  };
-
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	/**
-	 * Based on JSON2 (http://www.JSON.org/js.html).
-	 */
-
-	(function (exports, nativeJSON) {
-	  "use strict";
-
-	  // use native JSON if it's available
-	  if (nativeJSON && nativeJSON.parse){
-	    return exports.JSON = {
-	      parse: nativeJSON.parse
-	    , stringify: nativeJSON.stringify
-	    }
-	  }
-
-	  var JSON = exports.JSON = {};
-
-	  function f(n) {
-	      // Format integers to have at least two digits.
-	      return n < 10 ? '0' + n : n;
-	  }
-
-	  function date(d, key) {
-	    return isFinite(d.valueOf()) ?
-	        d.getUTCFullYear()     + '-' +
-	        f(d.getUTCMonth() + 1) + '-' +
-	        f(d.getUTCDate())      + 'T' +
-	        f(d.getUTCHours())     + ':' +
-	        f(d.getUTCMinutes())   + ':' +
-	        f(d.getUTCSeconds())   + 'Z' : null;
-	  };
-
-	  var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	      escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	      gap,
-	      indent,
-	      meta = {    // table of character substitutions
-	          '\b': '\\b',
-	          '\t': '\\t',
-	          '\n': '\\n',
-	          '\f': '\\f',
-	          '\r': '\\r',
-	          '"' : '\\"',
-	          '\\': '\\\\'
-	      },
-	      rep;
-
-
-	  function quote(string) {
-
-	// If the string contains no control characters, no quote characters, and no
-	// backslash characters, then we can safely slap some quotes around it.
-	// Otherwise we must also replace the offending characters with safe escape
-	// sequences.
-
-	      escapable.lastIndex = 0;
-	      return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-	          var c = meta[a];
-	          return typeof c === 'string' ? c :
-	              '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	      }) + '"' : '"' + string + '"';
-	  }
-
-
-	  function str(key, holder) {
-
-	// Produce a string from holder[key].
-
-	      var i,          // The loop counter.
-	          k,          // The member key.
-	          v,          // The member value.
-	          length,
-	          mind = gap,
-	          partial,
-	          value = holder[key];
-
-	// If the value has a toJSON method, call it to obtain a replacement value.
-
-	      if (value instanceof Date) {
-	          value = date(key);
-	      }
-
-	// If we were called with a replacer function, then call the replacer to
-	// obtain a replacement value.
-
-	      if (typeof rep === 'function') {
-	          value = rep.call(holder, key, value);
-	      }
-
-	// What happens next depends on the value's type.
-
-	      switch (typeof value) {
-	      case 'string':
-	          return quote(value);
-
-	      case 'number':
-
-	// JSON numbers must be finite. Encode non-finite numbers as null.
-
-	          return isFinite(value) ? String(value) : 'null';
-
-	      case 'boolean':
-	      case 'null':
-
-	// If the value is a boolean or null, convert it to a string. Note:
-	// typeof null does not produce 'null'. The case is included here in
-	// the remote chance that this gets fixed someday.
-
-	          return String(value);
-
-	// If the type is 'object', we might be dealing with an object or an array or
-	// null.
-
-	      case 'object':
-
-	// Due to a specification blunder in ECMAScript, typeof null is 'object',
-	// so watch out for that case.
-
-	          if (!value) {
-	              return 'null';
-	          }
-
-	// Make an array to hold the partial results of stringifying this object value.
-
-	          gap += indent;
-	          partial = [];
-
-	// Is the value an array?
-
-	          if (Object.prototype.toString.apply(value) === '[object Array]') {
-
-	// The value is an array. Stringify every element. Use null as a placeholder
-	// for non-JSON values.
-
-	              length = value.length;
-	              for (i = 0; i < length; i += 1) {
-	                  partial[i] = str(i, value) || 'null';
-	              }
-
-	// Join all of the elements together, separated with commas, and wrap them in
-	// brackets.
-
-	              v = partial.length === 0 ? '[]' : gap ?
-	                  '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' :
-	                  '[' + partial.join(',') + ']';
-	              gap = mind;
-	              return v;
-	          }
-
-	// If the replacer is an array, use it to select the members to be stringified.
-
-	          if (rep && typeof rep === 'object') {
-	              length = rep.length;
-	              for (i = 0; i < length; i += 1) {
-	                  if (typeof rep[i] === 'string') {
-	                      k = rep[i];
-	                      v = str(k, value);
-	                      if (v) {
-	                          partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                      }
-	                  }
-	              }
-	          } else {
-
-	// Otherwise, iterate through all of the keys in the object.
-
-	              for (k in value) {
-	                  if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                      v = str(k, value);
-	                      if (v) {
-	                          partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                      }
-	                  }
-	              }
-	          }
-
-	// Join all of the member texts together, separated with commas,
-	// and wrap them in braces.
-
-	          v = partial.length === 0 ? '{}' : gap ?
-	              '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' :
-	              '{' + partial.join(',') + '}';
-	          gap = mind;
-	          return v;
-	      }
-	  }
-
-	// If the JSON object does not yet have a stringify method, give it one.
-
-	  JSON.stringify = function (value, replacer, space) {
-
-	// The stringify method takes a value and an optional replacer, and an optional
-	// space parameter, and returns a JSON text. The replacer can be a function
-	// that can replace values, or an array of strings that will select the keys.
-	// A default replacer method can be provided. Use of the space parameter can
-	// produce text that is more easily readable.
-
-	      var i;
-	      gap = '';
-	      indent = '';
-
-	// If the space parameter is a number, make an indent string containing that
-	// many spaces.
-
-	      if (typeof space === 'number') {
-	          for (i = 0; i < space; i += 1) {
-	              indent += ' ';
-	          }
-
-	// If the space parameter is a string, it will be used as the indent string.
-
-	      } else if (typeof space === 'string') {
-	          indent = space;
-	      }
-
-	// If there is a replacer, it must be a function or an array.
-	// Otherwise, throw an error.
-
-	      rep = replacer;
-	      if (replacer && typeof replacer !== 'function' &&
-	              (typeof replacer !== 'object' ||
-	              typeof replacer.length !== 'number')) {
-	          throw new Error('JSON.stringify');
-	      }
-
-	// Make a fake root object containing our value under the key of ''.
-	// Return the result of stringifying the value.
-
-	      return str('', {'': value});
-	  };
-
-	// If the JSON object does not yet have a parse method, give it one.
-
-	  JSON.parse = function (text, reviver) {
-	  // The parse method takes a text and an optional reviver function, and returns
-	  // a JavaScript value if the text is a valid JSON text.
-
-	      var j;
-
-	      function walk(holder, key) {
-
-	  // The walk method is used to recursively walk the resulting structure so
-	  // that modifications can be made.
-
-	          var k, v, value = holder[key];
-	          if (value && typeof value === 'object') {
-	              for (k in value) {
-	                  if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                      v = walk(value, k);
-	                      if (v !== undefined) {
-	                          value[k] = v;
-	                      } else {
-	                          delete value[k];
-	                      }
-	                  }
-	              }
-	          }
-	          return reviver.call(holder, key, value);
-	      }
-
-
-	  // Parsing happens in four stages. In the first stage, we replace certain
-	  // Unicode characters with escape sequences. JavaScript handles many characters
-	  // incorrectly, either silently deleting them, or treating them as line endings.
-
-	      text = String(text);
-	      cx.lastIndex = 0;
-	      if (cx.test(text)) {
-	          text = text.replace(cx, function (a) {
-	              return '\\u' +
-	                  ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	          });
-	      }
-
-	  // In the second stage, we run the text against regular expressions that look
-	  // for non-JSON patterns. We are especially concerned with '()' and 'new'
-	  // because they can cause invocation, and '=' because it can cause mutation.
-	  // But just to be safe, we want to reject all unexpected forms.
-
-	  // We split the second stage into 4 regexp operations in order to work around
-	  // crippling inefficiencies in IE's and Safari's regexp engines. First we
-	  // replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
-	  // replace all simple value tokens with ']' characters. Third, we delete all
-	  // open brackets that follow a colon or comma or that begin the text. Finally,
-	  // we look to see that the remaining characters are only whitespace or ']' or
-	  // ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
-
-	      if (/^[\],:{}\s]*$/
-	              .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
-	                  .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-	                  .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-
-	  // In the third stage we use the eval function to compile the text into a
-	  // JavaScript structure. The '{' operator is subject to a syntactic ambiguity
-	  // in JavaScript: it can begin a block or an object literal. We wrap the text
-	  // in parens to eliminate the ambiguity.
-
-	          j = eval('(' + text + ')');
-
-	  // In the optional fourth stage, we recursively walk the new structure, passing
-	  // each name/value pair to a reviver function for possible transformation.
-
-	          return typeof reviver === 'function' ?
-	              walk({'': j}, '') : j;
-	      }
-
-	  // If the text is not JSON parseable, then a SyntaxError is thrown.
-
-	      throw new SyntaxError('JSON.parse');
-	  };
-
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , typeof JSON !== 'undefined' ? JSON : undefined
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Parser namespace.
-	   *
-	   * @namespace
-	   */
-
-	  var parser = exports.parser = {};
-
-	  /**
-	   * Packet types.
-	   */
-
-	  var packets = parser.packets = [
-	      'disconnect'
-	    , 'connect'
-	    , 'heartbeat'
-	    , 'message'
-	    , 'json'
-	    , 'event'
-	    , 'ack'
-	    , 'error'
-	    , 'noop'
-	  ];
-
-	  /**
-	   * Errors reasons.
-	   */
-
-	  var reasons = parser.reasons = [
-	      'transport not supported'
-	    , 'client not handshaken'
-	    , 'unauthorized'
-	  ];
-
-	  /**
-	   * Errors advice.
-	   */
-
-	  var advice = parser.advice = [
-	      'reconnect'
-	  ];
-
-	  /**
-	   * Shortcuts.
-	   */
-
-	  var JSON = io.JSON
-	    , indexOf = io.util.indexOf;
-
-	  /**
-	   * Encodes a packet.
-	   *
-	   * @api private
-	   */
-
-	  parser.encodePacket = function (packet) {
-	    var type = indexOf(packets, packet.type)
-	      , id = packet.id || ''
-	      , endpoint = packet.endpoint || ''
-	      , ack = packet.ack
-	      , data = null;
-
-	    switch (packet.type) {
-	      case 'error':
-	        var reason = packet.reason ? indexOf(reasons, packet.reason) : ''
-	          , adv = packet.advice ? indexOf(advice, packet.advice) : '';
-
-	        if (reason !== '' || adv !== '')
-	          data = reason + (adv !== '' ? ('+' + adv) : '');
-
-	        break;
-
-	      case 'message':
-	        if (packet.data !== '')
-	          data = packet.data;
-	        break;
-
-	      case 'event':
-	        var ev = { name: packet.name };
-
-	        if (packet.args && packet.args.length) {
-	          ev.args = packet.args;
-	        }
-
-	        data = JSON.stringify(ev);
-	        break;
-
-	      case 'json':
-	        data = JSON.stringify(packet.data);
-	        break;
-
-	      case 'connect':
-	        if (packet.qs)
-	          data = packet.qs;
-	        break;
-
-	      case 'ack':
-	        data = packet.ackId
-	          + (packet.args && packet.args.length
-	              ? '+' + JSON.stringify(packet.args) : '');
-	        break;
-	    }
-
-	    // construct packet with required fragments
-	    var encoded = [
-	        type
-	      , id + (ack == 'data' ? '+' : '')
-	      , endpoint
-	    ];
-
-	    // data fragment is optional
-	    if (data !== null && data !== undefined)
-	      encoded.push(data);
-
-	    return encoded.join(':');
-	  };
-
-	  /**
-	   * Encodes multiple messages (payload).
-	   *
-	   * @param {Array} messages
-	   * @api private
-	   */
-
-	  parser.encodePayload = function (packets) {
-	    var decoded = '';
-
-	    if (packets.length == 1)
-	      return packets[0];
-
-	    for (var i = 0, l = packets.length; i < l; i++) {
-	      var packet = packets[i];
-	      decoded += '\ufffd' + packet.length + '\ufffd' + packets[i];
-	    }
-
-	    return decoded;
-	  };
-
-	  /**
-	   * Decodes a packet
-	   *
-	   * @api private
-	   */
-
-	  var regexp = /([^:]+):([0-9]+)?(\+)?:([^:]+)?:?([\s\S]*)?/;
-
-	  parser.decodePacket = function (data) {
-	    var pieces = data.match(regexp);
-
-	    if (!pieces) return {};
-
-	    var id = pieces[2] || ''
-	      , data = pieces[5] || ''
-	      , packet = {
-	            type: packets[pieces[1]]
-	          , endpoint: pieces[4] || ''
-	        };
-
-	    // whether we need to acknowledge the packet
-	    if (id) {
-	      packet.id = id;
-	      if (pieces[3])
-	        packet.ack = 'data';
-	      else
-	        packet.ack = true;
-	    }
-
-	    // handle different packet types
-	    switch (packet.type) {
-	      case 'error':
-	        var pieces = data.split('+');
-	        packet.reason = reasons[pieces[0]] || '';
-	        packet.advice = advice[pieces[1]] || '';
-	        break;
-
-	      case 'message':
-	        packet.data = data || '';
-	        break;
-
-	      case 'event':
-	        try {
-	          var opts = JSON.parse(data);
-	          packet.name = opts.name;
-	          packet.args = opts.args;
-	        } catch (e) { }
-
-	        packet.args = packet.args || [];
-	        break;
-
-	      case 'json':
-	        try {
-	          packet.data = JSON.parse(data);
-	        } catch (e) { }
-	        break;
-
-	      case 'connect':
-	        packet.qs = data || '';
-	        break;
-
-	      case 'ack':
-	        var pieces = data.match(/^([0-9]+)(\+)?(.*)/);
-	        if (pieces) {
-	          packet.ackId = pieces[1];
-	          packet.args = [];
-
-	          if (pieces[3]) {
-	            try {
-	              packet.args = pieces[3] ? JSON.parse(pieces[3]) : [];
-	            } catch (e) { }
-	          }
-	        }
-	        break;
-
-	      case 'disconnect':
-	      case 'heartbeat':
-	        break;
-	    };
-
-	    return packet;
-	  };
-
-	  /**
-	   * Decodes data payload. Detects multiple messages
-	   *
-	   * @return {Array} messages
-	   * @api public
-	   */
-
-	  parser.decodePayload = function (data) {
-	    // IE doesn't like data[i] for unicode chars, charAt works fine
-	    if (data.charAt(0) == '\ufffd') {
-	      var ret = [];
-
-	      for (var i = 1, length = ''; i < data.length; i++) {
-	        if (data.charAt(i) == '\ufffd') {
-	          ret.push(parser.decodePacket(data.substr(i + 1).substr(0, length)));
-	          i += Number(length) + 1;
-	          length = '';
-	        } else {
-	          length += data.charAt(i);
-	        }
-	      }
-
-	      return ret;
-	    } else {
-	      return [parser.decodePacket(data)];
-	    }
-	  };
-
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.Transport = Transport;
-
-	  /**
-	   * This is the transport template for all supported transport methods.
-	   *
-	   * @constructor
-	   * @api public
-	   */
-
-	  function Transport (socket, sessid) {
-	    this.socket = socket;
-	    this.sessid = sessid;
-	  };
-
-	  /**
-	   * Apply EventEmitter mixin.
-	   */
-
-	  io.util.mixin(Transport, io.EventEmitter);
-
-
-	  /**
-	   * Indicates whether heartbeats is enabled for this transport
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.heartbeats = function () {
-	    return true;
-	  }
-
-	  /**
-	   * Handles the response from the server. When a new response is received
-	   * it will automatically update the timeout, decode the message and
-	   * forwards the response to the onMessage function for further processing.
-	   *
-	   * @param {String} data Response from the server.
-	   * @api private
-	   */
-
-	  Transport.prototype.onData = function (data) {
-	    this.clearCloseTimeout();
-	    
-	    // If the connection in currently open (or in a reopening state) reset the close 
-	    // timeout since we have just received data. This check is necessary so
-	    // that we don't reset the timeout on an explicitly disconnected connection.
-	    if (this.socket.connected || this.socket.connecting || this.socket.reconnecting) {
-	      this.setCloseTimeout();
-	    }
-
-	    if (data !== '') {
-	      // todo: we should only do decodePayload for xhr transports
-	      var msgs = io.parser.decodePayload(data);
-
-	      if (msgs && msgs.length) {
-	        for (var i = 0, l = msgs.length; i < l; i++) {
-	          this.onPacket(msgs[i]);
-	        }
-	      }
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Handles packets.
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.onPacket = function (packet) {
-	    this.socket.setHeartbeatTimeout();
-
-	    if (packet.type == 'heartbeat') {
-	      return this.onHeartbeat();
-	    }
-
-	    if (packet.type == 'connect' && packet.endpoint == '') {
-	      this.onConnect();
-	    }
-
-	    if (packet.type == 'error' && packet.advice == 'reconnect') {
-	      this.isOpen = false;
-	    }
-
-	    this.socket.onPacket(packet);
-
-	    return this;
-	  };
-
-	  /**
-	   * Sets close timeout
-	   *
-	   * @api private
-	   */
-	  
-	  Transport.prototype.setCloseTimeout = function () {
-	    if (!this.closeTimeout) {
-	      var self = this;
-
-	      this.closeTimeout = setTimeout(function () {
-	        self.onDisconnect();
-	      }, this.socket.closeTimeout);
-	    }
-	  };
-
-	  /**
-	   * Called when transport disconnects.
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.onDisconnect = function () {
-	    if (this.isOpen) this.close();
-	    this.clearTimeouts();
-	    this.socket.onDisconnect();
-	    return this;
-	  };
-
-	  /**
-	   * Called when transport connects
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.onConnect = function () {
-	    this.socket.onConnect();
-	    return this;
-	  }
-
-	  /**
-	   * Clears close timeout
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.clearCloseTimeout = function () {
-	    if (this.closeTimeout) {
-	      clearTimeout(this.closeTimeout);
-	      this.closeTimeout = null;
-	    }
-	  };
-
-	  /**
-	   * Clear timeouts
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.clearTimeouts = function () {
-	    this.clearCloseTimeout();
-
-	    if (this.reopenTimeout) {
-	      clearTimeout(this.reopenTimeout);
-	    }
-	  };
-
-	  /**
-	   * Sends a packet
-	   *
-	   * @param {Object} packet object.
-	   * @api private
-	   */
-
-	  Transport.prototype.packet = function (packet) {
-	    this.send(io.parser.encodePacket(packet));
-	  };
-
-	  /**
-	   * Send the received heartbeat message back to server. So the server
-	   * knows we are still connected.
-	   *
-	   * @param {String} heartbeat Heartbeat response from the server.
-	   * @api private
-	   */
-
-	  Transport.prototype.onHeartbeat = function (heartbeat) {
-	    this.packet({ type: 'heartbeat' });
-	  };
-	 
-	  /**
-	   * Called when the transport opens.
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.onOpen = function () {
-	    this.isOpen = true;
-	    this.clearCloseTimeout();
-	    this.socket.onOpen();
-	  };
-
-	  /**
-	   * Notifies the base when the connection with the Socket.IO server
-	   * has been disconnected.
-	   *
-	   * @api private
-	   */
-
-	  Transport.prototype.onClose = function () {
-	    var self = this;
-
-	    /* FIXME: reopen delay causing a infinit loop
-	    this.reopenTimeout = setTimeout(function () {
-	      self.open();
-	    }, this.socket.options['reopen delay']);*/
-
-	    this.isOpen = false;
-	    this.socket.onClose();
-	    this.onDisconnect();
-	  };
-
-	  /**
-	   * Generates a connection url based on the Socket.IO URL Protocol.
-	   * See <https://github.com/learnboost/socket.io-node/> for more details.
-	   *
-	   * @returns {String} Connection url
-	   * @api private
-	   */
-
-	  Transport.prototype.prepareUrl = function () {
-	    var options = this.socket.options;
-
-	    return this.scheme() + '://'
-	      + options.host + ':' + options.port + '/'
-	      + options.resource + '/' + io.protocol
-	      + '/' + this.name + '/' + this.sessid;
-	  };
-
-	  /**
-	   * Checks if the transport is ready to start a connection.
-	   *
-	   * @param {Socket} socket The socket instance that needs a transport
-	   * @param {Function} fn The callback
-	   * @api private
-	   */
-
-	  Transport.prototype.ready = function (socket, fn) {
-	    fn.call(this);
-	  };
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io, global) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.Socket = Socket;
-
-	  /**
-	   * Create a new `Socket.IO client` which can establish a persistent
-	   * connection with a Socket.IO enabled server.
-	   *
-	   * @api public
-	   */
-
-	  function Socket (options) {
-	    this.options = {
-	        port: 80
-	      , secure: false
-	      , document: 'document' in global ? document : false
-	      , resource: 'socket.io'
-	      , transports: io.transports
-	      , 'connect timeout': 10000
-	      , 'try multiple transports': true
-	      , 'reconnect': true
-	      , 'reconnection delay': 500
-	      , 'reconnection limit': Infinity
-	      , 'reopen delay': 3000
-	      , 'max reconnection attempts': 10
-	      , 'sync disconnect on unload': false
-	      , 'auto connect': true
-	      , 'flash policy port': 10843
-	      , 'manualFlush': false
-	    };
-
-	    io.util.merge(this.options, options);
-
-	    this.connected = false;
-	    this.open = false;
-	    this.connecting = false;
-	    this.reconnecting = false;
-	    this.namespaces = {};
-	    this.buffer = [];
-	    this.doBuffer = false;
-
-	    if (this.options['sync disconnect on unload'] &&
-	        (!this.isXDomain() || io.util.ua.hasCORS)) {
-	      var self = this;
-	      io.util.on(global, 'beforeunload', function () {
-	        self.disconnectSync();
-	      }, false);
-	    }
-
-	    if (this.options['auto connect']) {
-	      this.connect();
-	    }
-	};
-
-	  /**
-	   * Apply EventEmitter mixin.
-	   */
-
-	  io.util.mixin(Socket, io.EventEmitter);
-
-	  /**
-	   * Returns a namespace listener/emitter for this socket
-	   *
-	   * @api public
-	   */
-
-	  Socket.prototype.of = function (name) {
-	    if (!this.namespaces[name]) {
-	      this.namespaces[name] = new io.SocketNamespace(this, name);
-
-	      if (name !== '') {
-	        this.namespaces[name].packet({ type: 'connect' });
-	      }
-	    }
-
-	    return this.namespaces[name];
-	  };
-
-	  /**
-	   * Emits the given event to the Socket and all namespaces
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.publish = function () {
-	    this.emit.apply(this, arguments);
-
-	    var nsp;
-
-	    for (var i in this.namespaces) {
-	      if (this.namespaces.hasOwnProperty(i)) {
-	        nsp = this.of(i);
-	        nsp.$emit.apply(nsp, arguments);
-	      }
-	    }
-	  };
-
-	  /**
-	   * Performs the handshake
-	   *
-	   * @api private
-	   */
-
-	  function empty () { };
-
-	  Socket.prototype.handshake = function (fn) {
-	    var self = this
-	      , options = this.options;
-
-	    function complete (data) {
-	      if (data instanceof Error) {
-	        self.connecting = false;
-	        self.onError(data.message);
-	      } else {
-	        fn.apply(null, data.split(':'));
-	      }
-	    };
-
-	    var url = [
-	          'http' + (options.secure ? 's' : '') + ':/'
-	        , options.host + ':' + options.port
-	        , options.resource
-	        , io.protocol
-	        , io.util.query(this.options.query, 't=' + +new Date)
-	      ].join('/');
-
-	    if (this.isXDomain() && !io.util.ua.hasCORS) {
-	      var insertAt = document.getElementsByTagName('script')[0]
-	        , script = document.createElement('script');
-
-	      script.src = url + '&jsonp=' + io.j.length;
-	      insertAt.parentNode.insertBefore(script, insertAt);
-
-	      io.j.push(function (data) {
-	        complete(data);
-	        script.parentNode.removeChild(script);
-	      });
-	    } else {
-	      var xhr = io.util.request();
-
-	      xhr.open('GET', url, true);
-	      if (this.isXDomain()) {
-	        xhr.withCredentials = true;
-	      }
-	      xhr.onreadystatechange = function () {
-	        if (xhr.readyState == 4) {
-	          xhr.onreadystatechange = empty;
-
-	          if (xhr.status == 200) {
-	            complete(xhr.responseText);
-	          } else if (xhr.status == 403) {
-	            self.onError(xhr.responseText);
-	          } else {
-	            self.connecting = false;            
-	            !self.reconnecting && self.onError(xhr.responseText);
-	          }
-	        }
-	      };
-	      xhr.send(null);
-	    }
-	  };
-
-	  /**
-	   * Find an available transport based on the options supplied in the constructor.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.getTransport = function (override) {
-	    var transports = override || this.transports, match;
-
-	    for (var i = 0, transport; transport = transports[i]; i++) {
-	      if (io.Transport[transport]
-	        && io.Transport[transport].check(this)
-	        && (!this.isXDomain() || io.Transport[transport].xdomainCheck(this))) {
-	        return new io.Transport[transport](this, this.sessionid);
-	      }
-	    }
-
-	    return null;
-	  };
-
-	  /**
-	   * Connects to the server.
-	   *
-	   * @param {Function} [fn] Callback.
-	   * @returns {io.Socket}
-	   * @api public
-	   */
-
-	  Socket.prototype.connect = function (fn) {
-	    if (this.connecting) {
-	      return this;
-	    }
-
-	    var self = this;
-	    self.connecting = true;
-	    
-	    this.handshake(function (sid, heartbeat, close, transports) {
-	      self.sessionid = sid;
-	      self.closeTimeout = close * 1000;
-	      self.heartbeatTimeout = heartbeat * 1000;
-	      if(!self.transports)
-	          self.transports = self.origTransports = (transports ? io.util.intersect(
-	              transports.split(',')
-	            , self.options.transports
-	          ) : self.options.transports);
-
-	      self.setHeartbeatTimeout();
-
-	      function connect (transports){
-	        if (self.transport) self.transport.clearTimeouts();
-
-	        self.transport = self.getTransport(transports);
-	        if (!self.transport) return self.publish('connect_failed');
-
-	        // once the transport is ready
-	        self.transport.ready(self, function () {
-	          self.connecting = true;
-	          self.publish('connecting', self.transport.name);
-	          self.transport.open();
-
-	          if (self.options['connect timeout']) {
-	            self.connectTimeoutTimer = setTimeout(function () {
-	              if (!self.connected) {
-	                self.connecting = false;
-
-	                if (self.options['try multiple transports']) {
-	                  var remaining = self.transports;
-
-	                  while (remaining.length > 0 && remaining.splice(0,1)[0] !=
-	                         self.transport.name) {}
-
-	                    if (remaining.length){
-	                      connect(remaining);
-	                    } else {
-	                      self.publish('connect_failed');
-	                    }
-	                }
-	              }
-	            }, self.options['connect timeout']);
-	          }
-	        });
-	      }
-
-	      connect(self.transports);
-
-	      self.once('connect', function (){
-	        clearTimeout(self.connectTimeoutTimer);
-
-	        fn && typeof fn == 'function' && fn();
-	      });
-	    });
-
-	    return this;
-	  };
-
-	  /**
-	   * Clears and sets a new heartbeat timeout using the value given by the
-	   * server during the handshake.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.setHeartbeatTimeout = function () {
-	    clearTimeout(this.heartbeatTimeoutTimer);
-	    if(this.transport && !this.transport.heartbeats()) return;
-
-	    var self = this;
-	    this.heartbeatTimeoutTimer = setTimeout(function () {
-	      self.transport.onClose();
-	    }, this.heartbeatTimeout);
-	  };
-
-	  /**
-	   * Sends a message.
-	   *
-	   * @param {Object} data packet.
-	   * @returns {io.Socket}
-	   * @api public
-	   */
-
-	  Socket.prototype.packet = function (data) {
-	    if (this.connected && !this.doBuffer) {
-	      this.transport.packet(data);
-	    } else {
-	      this.buffer.push(data);
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Sets buffer state
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.setBuffer = function (v) {
-	    this.doBuffer = v;
-
-	    if (!v && this.connected && this.buffer.length) {
-	      if (!this.options['manualFlush']) {
-	        this.flushBuffer();
-	      }
-	    }
-	  };
-
-	  /**
-	   * Flushes the buffer data over the wire.
-	   * To be invoked manually when 'manualFlush' is set to true.
-	   *
-	   * @api public
-	   */
-
-	  Socket.prototype.flushBuffer = function() {
-	    this.transport.payload(this.buffer);
-	    this.buffer = [];
-	  };
-	  
-
-	  /**
-	   * Disconnect the established connect.
-	   *
-	   * @returns {io.Socket}
-	   * @api public
-	   */
-
-	  Socket.prototype.disconnect = function () {
-	    if (this.connected || this.connecting) {
-	      if (this.open) {
-	        this.of('').packet({ type: 'disconnect' });
-	      }
-
-	      // handle disconnection immediately
-	      this.onDisconnect('booted');
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Disconnects the socket with a sync XHR.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.disconnectSync = function () {
-	    // ensure disconnection
-	    var xhr = io.util.request();
-	    var uri = [
-	        'http' + (this.options.secure ? 's' : '') + ':/'
-	      , this.options.host + ':' + this.options.port
-	      , this.options.resource
-	      , io.protocol
-	      , ''
-	      , this.sessionid
-	    ].join('/') + '/?disconnect=1';
-
-	    xhr.open('GET', uri, false);
-	    xhr.send(null);
-
-	    // handle disconnection immediately
-	    this.onDisconnect('booted');
-	  };
-
-	  /**
-	   * Check if we need to use cross domain enabled transports. Cross domain would
-	   * be a different port or different domain name.
-	   *
-	   * @returns {Boolean}
-	   * @api private
-	   */
-
-	  Socket.prototype.isXDomain = function () {
-
-	    var port = global.location.port ||
-	      ('https:' == global.location.protocol ? 443 : 80);
-
-	    return this.options.host !== global.location.hostname 
-	      || this.options.port != port;
-	  };
-
-	  /**
-	   * Called upon handshake.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.onConnect = function () {
-	    if (!this.connected) {
-	      this.connected = true;
-	      this.connecting = false;
-	      if (!this.doBuffer) {
-	        // make sure to flush the buffer
-	        this.setBuffer(false);
-	      }
-	      this.emit('connect');
-	    }
-	  };
-
-	  /**
-	   * Called when the transport opens
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.onOpen = function () {
-	    this.open = true;
-	  };
-
-	  /**
-	   * Called when the transport closes.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.onClose = function () {
-	    this.open = false;
-	    clearTimeout(this.heartbeatTimeoutTimer);
-	  };
-
-	  /**
-	   * Called when the transport first opens a connection
-	   *
-	   * @param text
-	   */
-
-	  Socket.prototype.onPacket = function (packet) {
-	    this.of(packet.endpoint).onPacket(packet);
-	  };
-
-	  /**
-	   * Handles an error.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.onError = function (err) {
-	    if (err && err.advice) {
-	      if (err.advice === 'reconnect' && (this.connected || this.connecting)) {
-	        this.disconnect();
-	        if (this.options.reconnect) {
-	          this.reconnect();
-	        }
-	      }
-	    }
-
-	    this.publish('error', err && err.reason ? err.reason : err);
-	  };
-
-	  /**
-	   * Called when the transport disconnects.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.onDisconnect = function (reason) {
-	    var wasConnected = this.connected
-	      , wasConnecting = this.connecting;
-
-	    this.connected = false;
-	    this.connecting = false;
-	    this.open = false;
-
-	    if (wasConnected || wasConnecting) {
-	      this.transport.close();
-	      this.transport.clearTimeouts();
-	      if (wasConnected) {
-	        this.publish('disconnect', reason);
-
-	        if ('booted' != reason && this.options.reconnect && !this.reconnecting) {
-	          this.reconnect();
-	        }
-	      }
-	    }
-	  };
-
-	  /**
-	   * Called upon reconnection.
-	   *
-	   * @api private
-	   */
-
-	  Socket.prototype.reconnect = function () {
-	    this.reconnecting = true;
-	    this.reconnectionAttempts = 0;
-	    this.reconnectionDelay = this.options['reconnection delay'];
-
-	    var self = this
-	      , maxAttempts = this.options['max reconnection attempts']
-	      , tryMultiple = this.options['try multiple transports']
-	      , limit = this.options['reconnection limit'];
-
-	    function reset () {
-	      if (self.connected) {
-	        for (var i in self.namespaces) {
-	          if (self.namespaces.hasOwnProperty(i) && '' !== i) {
-	              self.namespaces[i].packet({ type: 'connect' });
-	          }
-	        }
-	        self.publish('reconnect', self.transport.name, self.reconnectionAttempts);
-	      }
-
-	      clearTimeout(self.reconnectionTimer);
-
-	      self.removeListener('connect_failed', maybeReconnect);
-	      self.removeListener('connect', maybeReconnect);
-
-	      self.reconnecting = false;
-
-	      delete self.reconnectionAttempts;
-	      delete self.reconnectionDelay;
-	      delete self.reconnectionTimer;
-	      delete self.redoTransports;
-
-	      self.options['try multiple transports'] = tryMultiple;
-	    };
-
-	    function maybeReconnect () {
-	      if (!self.reconnecting) {
-	        return;
-	      }
-
-	      if (self.connected) {
-	        return reset();
-	      };
-
-	      if (self.connecting && self.reconnecting) {
-	        return self.reconnectionTimer = setTimeout(maybeReconnect, 1000);
-	      }
-
-	      if (self.reconnectionAttempts++ >= maxAttempts) {
-	        if (!self.redoTransports) {
-	          self.on('connect_failed', maybeReconnect);
-	          self.options['try multiple transports'] = true;
-	          self.transports = self.origTransports;
-	          self.transport = self.getTransport();
-	          self.redoTransports = true;
-	          self.connect();
-	        } else {
-	          self.publish('reconnect_failed');
-	          reset();
-	        }
-	      } else {
-	        if (self.reconnectionDelay < limit) {
-	          self.reconnectionDelay *= 2; // exponential back off
-	        }
-
-	        self.connect();
-	        self.publish('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
-	        self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
-	      }
-	    };
-
-	    this.options['try multiple transports'] = false;
-	    this.reconnectionTimer = setTimeout(maybeReconnect, this.reconnectionDelay);
-
-	    this.on('connect', maybeReconnect);
-	  };
-
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	  , this
-	);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.SocketNamespace = SocketNamespace;
-
-	  /**
-	   * Socket namespace constructor.
-	   *
-	   * @constructor
-	   * @api public
-	   */
-
-	  function SocketNamespace (socket, name) {
-	    this.socket = socket;
-	    this.name = name || '';
-	    this.flags = {};
-	    this.json = new Flag(this, 'json');
-	    this.ackPackets = 0;
-	    this.acks = {};
-	  };
-
-	  /**
-	   * Apply EventEmitter mixin.
-	   */
-
-	  io.util.mixin(SocketNamespace, io.EventEmitter);
-
-	  /**
-	   * Copies emit since we override it
-	   *
-	   * @api private
-	   */
-
-	  SocketNamespace.prototype.$emit = io.EventEmitter.prototype.emit;
-
-	  /**
-	   * Creates a new namespace, by proxying the request to the socket. This
-	   * allows us to use the synax as we do on the server.
-	   *
-	   * @api public
-	   */
-
-	  SocketNamespace.prototype.of = function () {
-	    return this.socket.of.apply(this.socket, arguments);
-	  };
-
-	  /**
-	   * Sends a packet.
-	   *
-	   * @api private
-	   */
-
-	  SocketNamespace.prototype.packet = function (packet) {
-	    packet.endpoint = this.name;
-	    this.socket.packet(packet);
-	    this.flags = {};
-	    return this;
-	  };
-
-	  /**
-	   * Sends a message
-	   *
-	   * @api public
-	   */
-
-	  SocketNamespace.prototype.send = function (data, fn) {
-	    var packet = {
-	        type: this.flags.json ? 'json' : 'message'
-	      , data: data
-	    };
-
-	    if ('function' == typeof fn) {
-	      packet.id = ++this.ackPackets;
-	      packet.ack = true;
-	      this.acks[packet.id] = fn;
-	    }
-
-	    return this.packet(packet);
-	  };
-
-	  /**
-	   * Emits an event
-	   *
-	   * @api public
-	   */
-	  
-	  SocketNamespace.prototype.emit = function (name) {
-	    var args = Array.prototype.slice.call(arguments, 1)
-	      , lastArg = args[args.length - 1]
-	      , packet = {
-	            type: 'event'
-	          , name: name
-	        };
-
-	    if ('function' == typeof lastArg) {
-	      packet.id = ++this.ackPackets;
-	      packet.ack = 'data';
-	      this.acks[packet.id] = lastArg;
-	      args = args.slice(0, args.length - 1);
-	    }
-
-	    packet.args = args;
-
-	    return this.packet(packet);
-	  };
-
-	  /**
-	   * Disconnects the namespace
-	   *
-	   * @api private
-	   */
-
-	  SocketNamespace.prototype.disconnect = function () {
-	    if (this.name === '') {
-	      this.socket.disconnect();
-	    } else {
-	      this.packet({ type: 'disconnect' });
-	      this.$emit('disconnect');
-	    }
-
-	    return this;
-	  };
-
-	  /**
-	   * Handles a packet
-	   *
-	   * @api private
-	   */
-
-	  SocketNamespace.prototype.onPacket = function (packet) {
-	    var self = this;
-
-	    function ack () {
-	      self.packet({
-	          type: 'ack'
-	        , args: io.util.toArray(arguments)
-	        , ackId: packet.id
-	      });
-	    };
-
-	    switch (packet.type) {
-	      case 'connect':
-	        this.$emit('connect');
-	        break;
-
-	      case 'disconnect':
-	        if (this.name === '') {
-	          this.socket.onDisconnect(packet.reason || 'booted');
-	        } else {
-	          this.$emit('disconnect', packet.reason);
-	        }
-	        break;
-
-	      case 'message':
-	      case 'json':
-	        var params = ['message', packet.data];
-
-	        if (packet.ack == 'data') {
-	          params.push(ack);
-	        } else if (packet.ack) {
-	          this.packet({ type: 'ack', ackId: packet.id });
-	        }
-
-	        this.$emit.apply(this, params);
-	        break;
-
-	      case 'event':
-	        var params = [packet.name].concat(packet.args);
-
-	        if (packet.ack == 'data')
-	          params.push(ack);
-
-	        this.$emit.apply(this, params);
-	        break;
-
-	      case 'ack':
-	        if (this.acks[packet.ackId]) {
-	          this.acks[packet.ackId].apply(this, packet.args);
-	          delete this.acks[packet.ackId];
-	        }
-	        break;
-
-	      case 'error':
-	        if (packet.advice){
-	          this.socket.onError(packet);
-	        } else {
-	          if (packet.reason == 'unauthorized') {
-	            this.$emit('connect_failed', packet.reason);
-	          } else {
-	            this.$emit('error', packet.reason);
-	          }
-	        }
-	        break;
-	    }
-	  };
-
-	  /**
-	   * Flag interface.
-	   *
-	   * @api private
-	   */
-
-	  function Flag (nsp, name) {
-	    this.namespace = nsp;
-	    this.name = name;
-	  };
-
-	  /**
-	   * Send a message
-	   *
-	   * @api public
-	   */
-
-	  Flag.prototype.send = function () {
-	    this.namespace.flags[this.name] = true;
-	    this.namespace.send.apply(this.namespace, arguments);
-	  };
-
-	  /**
-	   * Emit an event
-	   *
-	   * @api public
-	   */
-
-	  Flag.prototype.emit = function () {
-	    this.namespace.flags[this.name] = true;
-	    this.namespace.emit.apply(this.namespace, arguments);
-	  };
-
-	})(
-	    'undefined' != typeof io ? io : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io, global) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.websocket = WS;
-
-	  /**
-	   * The WebSocket transport uses the HTML5 WebSocket API to establish an
-	   * persistent connection with the Socket.IO server. This transport will also
-	   * be inherited by the FlashSocket fallback as it provides a API compatible
-	   * polyfill for the WebSockets.
-	   *
-	   * @constructor
-	   * @extends {io.Transport}
-	   * @api public
-	   */
-
-	  function WS (socket) {
-	    io.Transport.apply(this, arguments);
-	  };
-
-	  /**
-	   * Inherits from Transport.
-	   */
-
-	  io.util.inherit(WS, io.Transport);
-
-	  /**
-	   * Transport name
-	   *
-	   * @api public
-	   */
-
-	  WS.prototype.name = 'websocket';
-
-	  /**
-	   * Initializes a new `WebSocket` connection with the Socket.IO server. We attach
-	   * all the appropriate listeners to handle the responses from the server.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  WS.prototype.open = function () {
-	    var query = io.util.query(this.socket.options.query)
-	      , self = this
-	      , Socket
-
-
-	    if (!Socket) {
-	      Socket = global.MozWebSocket || global.WebSocket;
-	    }
-
-	    this.websocket = new Socket(this.prepareUrl() + query);
-
-	    this.websocket.onopen = function () {
-	      self.onOpen();
-	      self.socket.setBuffer(false);
-	    };
-	    this.websocket.onmessage = function (ev) {
-	      self.onData(ev.data);
-	    };
-	    this.websocket.onclose = function () {
-	      self.onClose();
-	      self.socket.setBuffer(true);
-	    };
-	    this.websocket.onerror = function (e) {
-	      self.onError(e);
-	    };
-
-	    return this;
-	  };
-
-	  /**
-	   * Send a message to the Socket.IO server. The message will automatically be
-	   * encoded in the correct message format.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  // Do to a bug in the current IDevices browser, we need to wrap the send in a 
-	  // setTimeout, when they resume from sleeping the browser will crash if 
-	  // we don't allow the browser time to detect the socket has been closed
-	  if (io.util.ua.iDevice) {
-	    WS.prototype.send = function (data) {
-	      var self = this;
-	      setTimeout(function() {
-	         self.websocket.send(data);
-	      },0);
-	      return this;
-	    };
-	  } else {
-	    WS.prototype.send = function (data) {
-	      this.websocket.send(data);
-	      return this;
-	    };
-	  }
-
-	  /**
-	   * Payload
-	   *
-	   * @api private
-	   */
-
-	  WS.prototype.payload = function (arr) {
-	    for (var i = 0, l = arr.length; i < l; i++) {
-	      this.packet(arr[i]);
-	    }
-	    return this;
-	  };
-
-	  /**
-	   * Disconnect the established `WebSocket` connection.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  WS.prototype.close = function () {
-	    this.websocket.close();
-	    return this;
-	  };
-
-	  /**
-	   * Handle the errors that `WebSocket` might be giving when we
-	   * are attempting to connect or send messages.
-	   *
-	   * @param {Error} e The error.
-	   * @api private
-	   */
-
-	  WS.prototype.onError = function (e) {
-	    this.socket.onError(e);
-	  };
-
-	  /**
-	   * Returns the appropriate scheme for the URI generation.
-	   *
-	   * @api private
-	   */
-	  WS.prototype.scheme = function () {
-	    return this.socket.options.secure ? 'wss' : 'ws';
-	  };
-
-	  /**
-	   * Checks if the browser has support for native `WebSockets` and that
-	   * it's not the polyfill created for the FlashSocket transport.
-	   *
-	   * @return {Boolean}
-	   * @api public
-	   */
-
-	  WS.check = function () {
-	    return ('WebSocket' in global && !('__addTask' in WebSocket))
-	          || 'MozWebSocket' in global;
-	  };
-
-	  /**
-	   * Check if the `WebSocket` transport support cross domain communications.
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  WS.xdomainCheck = function () {
-	    return true;
-	  };
-
-	  /**
-	   * Add the transport to your public io.transports array.
-	   *
-	   * @api private
-	   */
-
-	  io.transports.push('websocket');
-
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	  , this
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.flashsocket = Flashsocket;
-
-	  /**
-	   * The FlashSocket transport. This is a API wrapper for the HTML5 WebSocket
-	   * specification. It uses a .swf file to communicate with the server. If you want
-	   * to serve the .swf file from a other server than where the Socket.IO script is
-	   * coming from you need to use the insecure version of the .swf. More information
-	   * about this can be found on the github page.
-	   *
-	   * @constructor
-	   * @extends {io.Transport.websocket}
-	   * @api public
-	   */
-
-	  function Flashsocket () {
-	    io.Transport.websocket.apply(this, arguments);
-	  };
-
-	  /**
-	   * Inherits from Transport.
-	   */
-
-	  io.util.inherit(Flashsocket, io.Transport.websocket);
-
-	  /**
-	   * Transport name
-	   *
-	   * @api public
-	   */
-
-	  Flashsocket.prototype.name = 'flashsocket';
-
-	  /**
-	   * Disconnect the established `FlashSocket` connection. This is done by adding a 
-	   * new task to the FlashSocket. The rest will be handled off by the `WebSocket` 
-	   * transport.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  Flashsocket.prototype.open = function () {
-	    var self = this
-	      , args = arguments;
-
-	    WebSocket.__addTask(function () {
-	      io.Transport.websocket.prototype.open.apply(self, args);
-	    });
-	    return this;
-	  };
-	  
-	  /**
-	   * Sends a message to the Socket.IO server. This is done by adding a new
-	   * task to the FlashSocket. The rest will be handled off by the `WebSocket` 
-	   * transport.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  Flashsocket.prototype.send = function () {
-	    var self = this, args = arguments;
-	    WebSocket.__addTask(function () {
-	      io.Transport.websocket.prototype.send.apply(self, args);
-	    });
-	    return this;
-	  };
-
-	  /**
-	   * Disconnects the established `FlashSocket` connection.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  Flashsocket.prototype.close = function () {
-	    WebSocket.__tasks.length = 0;
-	    io.Transport.websocket.prototype.close.call(this);
-	    return this;
-	  };
-
-	  /**
-	   * The WebSocket fall back needs to append the flash container to the body
-	   * element, so we need to make sure we have access to it. Or defer the call
-	   * until we are sure there is a body element.
-	   *
-	   * @param {Socket} socket The socket instance that needs a transport
-	   * @param {Function} fn The callback
-	   * @api private
-	   */
-
-	  Flashsocket.prototype.ready = function (socket, fn) {
-	    function init () {
-	      var options = socket.options
-	        , port = options['flash policy port']
-	        , path = [
-	              'http' + (options.secure ? 's' : '') + ':/'
-	            , options.host + ':' + options.port
-	            , options.resource
-	            , 'static/flashsocket'
-	            , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
-	          ];
-
-	      // Only start downloading the swf file when the checked that this browser
-	      // actually supports it
-	      if (!Flashsocket.loaded) {
-	        if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
-	          // Set the correct file based on the XDomain settings
-	          WEB_SOCKET_SWF_LOCATION = path.join('/');
-	        }
-
-	        if (port !== 843) {
-	          WebSocket.loadFlashPolicyFile('xmlsocket://' + options.host + ':' + port);
-	        }
-
-	        WebSocket.__initialize();
-	        Flashsocket.loaded = true;
-	      }
-
-	      fn.call(self);
-	    }
-
-	    var self = this;
-	    if (document.body) return init();
-
-	    io.util.load(init);
-	  };
-
-	  /**
-	   * Check if the FlashSocket transport is supported as it requires that the Adobe
-	   * Flash Player plug-in version `10.0.0` or greater is installed. And also check if
-	   * the polyfill is correctly loaded.
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  Flashsocket.check = function () {
-	    if (
-	        typeof WebSocket == 'undefined'
-	      || !('__initialize' in WebSocket) || !swfobject
-	    ) return false;
-
-	    return swfobject.getFlashPlayerVersion().major >= 10;
-	  };
-
-	  /**
-	   * Check if the FlashSocket transport can be used as cross domain / cross origin 
-	   * transport. Because we can't see which type (secure or insecure) of .swf is used
-	   * we will just return true.
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  Flashsocket.xdomainCheck = function () {
-	    return true;
-	  };
-
-	  /**
-	   * Disable AUTO_INITIALIZATION
-	   */
-
-	  if (typeof window != 'undefined') {
-	    WEB_SOCKET_DISABLE_AUTO_INITIALIZATION = true;
-	  }
-
-	  /**
-	   * Add the transport to your public io.transports array.
-	   *
-	   * @api private
-	   */
-
-	  io.transports.push('flashsocket');
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-	/*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
-		is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
 	*/
-	if ('undefined' != typeof window) {
-	var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="ShockwaveFlash.ShockwaveFlash",q="application/x-shockwave-flash",R="SWFObjectExprInst",x="onreadystatechange",O=window,j=document,t=navigator,T=false,U=[h],o=[],N=[],I=[],l,Q,E,B,J=false,a=false,n,G,m=true,M=function(){var aa=typeof j.getElementById!=D&&typeof j.getElementsByTagName!=D&&typeof j.createElement!=D,ah=t.userAgent.toLowerCase(),Y=t.platform.toLowerCase(),ae=Y?/win/.test(Y):/win/.test(ah),ac=Y?/mac/.test(Y):/mac/.test(ah),af=/webkit/.test(ah)?parseFloat(ah.replace(/^.*webkit\/(\d+(\.\d+)?).*$/,"$1")):false,X=!+"\v1",ag=[0,0,0],ab=null;if(typeof t.plugins!=D&&typeof t.plugins[S]==r){ab=t.plugins[S].description;if(ab&&!(typeof t.mimeTypes!=D&&t.mimeTypes[q]&&!t.mimeTypes[q].enabledPlugin)){T=true;X=false;ab=ab.replace(/^.*\s+(\S+\s+\S+$)/,"$1");ag[0]=parseInt(ab.replace(/^(.*)\..*$/,"$1"),10);ag[1]=parseInt(ab.replace(/^.*\.(.*)\s.*$/,"$1"),10);ag[2]=/[a-zA-Z]/.test(ab)?parseInt(ab.replace(/^.*[a-zA-Z]+(.*)$/,"$1"),10):0}}else{if(typeof O[(['Active'].concat('Object').join('X'))]!=D){try{var ad=new window[(['Active'].concat('Object').join('X'))](W);if(ad){ab=ad.GetVariable("$version");if(ab){X=true;ab=ab.split(" ")[1].split(",");ag=[parseInt(ab[0],10),parseInt(ab[1],10),parseInt(ab[2],10)]}}}catch(Z){}}}return{w3:aa,pv:ag,wk:af,ie:X,win:ae,mac:ac}}(),k=function(){if(!M.w3){return}if((typeof j.readyState!=D&&j.readyState=="complete")||(typeof j.readyState==D&&(j.getElementsByTagName("body")[0]||j.body))){f()}if(!J){if(typeof j.addEventListener!=D){j.addEventListener("DOMContentLoaded",f,false)}if(M.ie&&M.win){j.attachEvent(x,function(){if(j.readyState=="complete"){j.detachEvent(x,arguments.callee);f()}});if(O==top){(function(){if(J){return}try{j.documentElement.doScroll("left")}catch(X){setTimeout(arguments.callee,0);return}f()})()}}if(M.wk){(function(){if(J){return}if(!/loaded|complete/.test(j.readyState)){setTimeout(arguments.callee,0);return}f()})()}s(f)}}();function f(){if(J){return}try{var Z=j.getElementsByTagName("body")[0].appendChild(C("span"));Z.parentNode.removeChild(Z)}catch(aa){return}J=true;var X=U.length;for(var Y=0;Y<X;Y++){U[Y]()}}function K(X){if(J){X()}else{U[U.length]=X}}function s(Y){if(typeof O.addEventListener!=D){O.addEventListener("load",Y,false)}else{if(typeof j.addEventListener!=D){j.addEventListener("load",Y,false)}else{if(typeof O.attachEvent!=D){i(O,"onload",Y)}else{if(typeof O.onload=="function"){var X=O.onload;O.onload=function(){X();Y()}}else{O.onload=Y}}}}}function h(){if(T){V()}else{H()}}function V(){var X=j.getElementsByTagName("body")[0];var aa=C(r);aa.setAttribute("type",q);var Z=X.appendChild(aa);if(Z){var Y=0;(function(){if(typeof Z.GetVariable!=D){var ab=Z.GetVariable("$version");if(ab){ab=ab.split(" ")[1].split(",");M.pv=[parseInt(ab[0],10),parseInt(ab[1],10),parseInt(ab[2],10)]}}else{if(Y<10){Y++;setTimeout(arguments.callee,10);return}}X.removeChild(aa);Z=null;H()})()}else{H()}}function H(){var ag=o.length;if(ag>0){for(var af=0;af<ag;af++){var Y=o[af].id;var ab=o[af].callbackFn;var aa={success:false,id:Y};if(M.pv[0]>0){var ae=c(Y);if(ae){if(F(o[af].swfVersion)&&!(M.wk&&M.wk<312)){w(Y,true);if(ab){aa.success=true;aa.ref=z(Y);ab(aa)}}else{if(o[af].expressInstall&&A()){var ai={};ai.data=o[af].expressInstall;ai.width=ae.getAttribute("width")||"0";ai.height=ae.getAttribute("height")||"0";if(ae.getAttribute("class")){ai.styleclass=ae.getAttribute("class")}if(ae.getAttribute("align")){ai.align=ae.getAttribute("align")}var ah={};var X=ae.getElementsByTagName("param");var ac=X.length;for(var ad=0;ad<ac;ad++){if(X[ad].getAttribute("name").toLowerCase()!="movie"){ah[X[ad].getAttribute("name")]=X[ad].getAttribute("value")}}P(ai,ah,Y,ab)}else{p(ae);if(ab){ab(aa)}}}}}else{w(Y,true);if(ab){var Z=z(Y);if(Z&&typeof Z.SetVariable!=D){aa.success=true;aa.ref=Z}ab(aa)}}}}}function z(aa){var X=null;var Y=c(aa);if(Y&&Y.nodeName=="OBJECT"){if(typeof Y.SetVariable!=D){X=Y}else{var Z=Y.getElementsByTagName(r)[0];if(Z){X=Z}}}return X}function A(){return !a&&F("6.0.65")&&(M.win||M.mac)&&!(M.wk&&M.wk<312)}function P(aa,ab,X,Z){a=true;E=Z||null;B={success:false,id:X};var ae=c(X);if(ae){if(ae.nodeName=="OBJECT"){l=g(ae);Q=null}else{l=ae;Q=X}aa.id=R;if(typeof aa.width==D||(!/%$/.test(aa.width)&&parseInt(aa.width,10)<310)){aa.width="310"}if(typeof aa.height==D||(!/%$/.test(aa.height)&&parseInt(aa.height,10)<137)){aa.height="137"}j.title=j.title.slice(0,47)+" - Flash Player Installation";var ad=M.ie&&M.win?(['Active'].concat('').join('X')):"PlugIn",ac="MMredirectURL="+O.location.toString().replace(/&/g,"%26")+"&MMplayerType="+ad+"&MMdoctitle="+j.title;if(typeof ab.flashvars!=D){ab.flashvars+="&"+ac}else{ab.flashvars=ac}if(M.ie&&M.win&&ae.readyState!=4){var Y=C("div");X+="SWFObjectNew";Y.setAttribute("id",X);ae.parentNode.insertBefore(Y,ae);ae.style.display="none";(function(){if(ae.readyState==4){ae.parentNode.removeChild(ae)}else{setTimeout(arguments.callee,10)}})()}u(aa,ab,X)}}function p(Y){if(M.ie&&M.win&&Y.readyState!=4){var X=C("div");Y.parentNode.insertBefore(X,Y);X.parentNode.replaceChild(g(Y),X);Y.style.display="none";(function(){if(Y.readyState==4){Y.parentNode.removeChild(Y)}else{setTimeout(arguments.callee,10)}})()}else{Y.parentNode.replaceChild(g(Y),Y)}}function g(ab){var aa=C("div");if(M.win&&M.ie){aa.innerHTML=ab.innerHTML}else{var Y=ab.getElementsByTagName(r)[0];if(Y){var ad=Y.childNodes;if(ad){var X=ad.length;for(var Z=0;Z<X;Z++){if(!(ad[Z].nodeType==1&&ad[Z].nodeName=="PARAM")&&!(ad[Z].nodeType==8)){aa.appendChild(ad[Z].cloneNode(true))}}}}}return aa}function u(ai,ag,Y){var X,aa=c(Y);if(M.wk&&M.wk<312){return X}if(aa){if(typeof ai.id==D){ai.id=Y}if(M.ie&&M.win){var ah="";for(var ae in ai){if(ai[ae]!=Object.prototype[ae]){if(ae.toLowerCase()=="data"){ag.movie=ai[ae]}else{if(ae.toLowerCase()=="styleclass"){ah+=' class="'+ai[ae]+'"'}else{if(ae.toLowerCase()!="classid"){ah+=" "+ae+'="'+ai[ae]+'"'}}}}}var af="";for(var ad in ag){if(ag[ad]!=Object.prototype[ad]){af+='<param name="'+ad+'" value="'+ag[ad]+'" />'}}aa.outerHTML='<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+ah+">"+af+"</object>";N[N.length]=ai.id;X=c(ai.id)}else{var Z=C(r);Z.setAttribute("type",q);for(var ac in ai){if(ai[ac]!=Object.prototype[ac]){if(ac.toLowerCase()=="styleclass"){Z.setAttribute("class",ai[ac])}else{if(ac.toLowerCase()!="classid"){Z.setAttribute(ac,ai[ac])}}}}for(var ab in ag){if(ag[ab]!=Object.prototype[ab]&&ab.toLowerCase()!="movie"){e(Z,ab,ag[ab])}}aa.parentNode.replaceChild(Z,aa);X=Z}}return X}function e(Z,X,Y){var aa=C("param");aa.setAttribute("name",X);aa.setAttribute("value",Y);Z.appendChild(aa)}function y(Y){var X=c(Y);if(X&&X.nodeName=="OBJECT"){if(M.ie&&M.win){X.style.display="none";(function(){if(X.readyState==4){b(Y)}else{setTimeout(arguments.callee,10)}})()}else{X.parentNode.removeChild(X)}}}function b(Z){var Y=c(Z);if(Y){for(var X in Y){if(typeof Y[X]=="function"){Y[X]=null}}Y.parentNode.removeChild(Y)}}function c(Z){var X=null;try{X=j.getElementById(Z)}catch(Y){}return X}function C(X){return j.createElement(X)}function i(Z,X,Y){Z.attachEvent(X,Y);I[I.length]=[Z,X,Y]}function F(Z){var Y=M.pv,X=Z.split(".");X[0]=parseInt(X[0],10);X[1]=parseInt(X[1],10)||0;X[2]=parseInt(X[2],10)||0;return(Y[0]>X[0]||(Y[0]==X[0]&&Y[1]>X[1])||(Y[0]==X[0]&&Y[1]==X[1]&&Y[2]>=X[2]))?true:false}function v(ac,Y,ad,ab){if(M.ie&&M.mac){return}var aa=j.getElementsByTagName("head")[0];if(!aa){return}var X=(ad&&typeof ad=="string")?ad:"screen";if(ab){n=null;G=null}if(!n||G!=X){var Z=C("style");Z.setAttribute("type","text/css");Z.setAttribute("media",X);n=aa.appendChild(Z);if(M.ie&&M.win&&typeof j.styleSheets!=D&&j.styleSheets.length>0){n=j.styleSheets[j.styleSheets.length-1]}G=X}if(M.ie&&M.win){if(n&&typeof n.addRule==r){n.addRule(ac,Y)}}else{if(n&&typeof j.createTextNode!=D){n.appendChild(j.createTextNode(ac+" {"+Y+"}"))}}}function w(Z,X){if(!m){return}var Y=X?"visible":"hidden";if(J&&c(Z)){c(Z).style.visibility=Y}else{v("#"+Z,"visibility:"+Y)}}function L(Y){var Z=/[\\\"<>\.;]/;var X=Z.exec(Y)!=null;return X&&typeof encodeURIComponent!=D?encodeURIComponent(Y):Y}var d=function(){if(M.ie&&M.win){window.attachEvent("onunload",function(){var ac=I.length;for(var ab=0;ab<ac;ab++){I[ab][0].detachEvent(I[ab][1],I[ab][2])}var Z=N.length;for(var aa=0;aa<Z;aa++){y(N[aa])}for(var Y in M){M[Y]=null}M=null;for(var X in swfobject){swfobject[X]=null}swfobject=null})}}();return{registerObject:function(ab,X,aa,Z){if(M.w3&&ab&&X){var Y={};Y.id=ab;Y.swfVersion=X;Y.expressInstall=aa;Y.callbackFn=Z;o[o.length]=Y;w(ab,false)}else{if(Z){Z({success:false,id:ab})}}},getObjectById:function(X){if(M.w3){return z(X)}},embedSWF:function(ab,ah,ae,ag,Y,aa,Z,ad,af,ac){var X={success:false,id:ah};if(M.w3&&!(M.wk&&M.wk<312)&&ab&&ah&&ae&&ag&&Y){w(ah,false);K(function(){ae+="";ag+="";var aj={};if(af&&typeof af===r){for(var al in af){aj[al]=af[al]}}aj.data=ab;aj.width=ae;aj.height=ag;var am={};if(ad&&typeof ad===r){for(var ak in ad){am[ak]=ad[ak]}}if(Z&&typeof Z===r){for(var ai in Z){if(typeof am.flashvars!=D){am.flashvars+="&"+ai+"="+Z[ai]}else{am.flashvars=ai+"="+Z[ai]}}}if(F(Y)){var an=u(aj,am,ah);if(aj.id==ah){w(ah,true)}X.success=true;X.ref=an}else{if(aa&&A()){aj.data=aa;P(aj,am,ah,ac);return}else{w(ah,true)}}if(ac){ac(X)}})}else{if(ac){ac(X)}}},switchOffAutoHideShow:function(){m=false},ua:M,getFlashPlayerVersion:function(){return{major:M.pv[0],minor:M.pv[1],release:M.pv[2]}},hasFlashPlayerVersion:F,createSWF:function(Z,Y,X){if(M.w3){return u(Z,Y,X)}else{return undefined}},showExpressInstall:function(Z,aa,X,Y){if(M.w3&&A()){P(Z,aa,X,Y)}},removeSWF:function(X){if(M.w3){y(X)}},createCSS:function(aa,Z,Y,X){if(M.w3){v(aa,Z,Y,X)}},addDomLoadEvent:K,addLoadEvent:s,getQueryParamValue:function(aa){var Z=j.location.search||j.location.hash;if(Z){if(/\?/.test(Z)){Z=Z.split("?")[1]}if(aa==null){return L(Z)}var Y=Z.split("&");for(var X=0;X<Y.length;X++){if(Y[X].substring(0,Y[X].indexOf("="))==aa){return L(Y[X].substring((Y[X].indexOf("=")+1)))}}}return""},expressInstallCallback:function(){if(a){var X=c(R);if(X&&l){X.parentNode.replaceChild(l,X);if(Q){w(Q,true);if(M.ie&&M.win){l.style.display="block"}}if(E){E(B)}}a=false}}}}();
+	module.exports = function(src) {
+		if (typeof execScript === "function")
+			execScript(src);
+		else
+			eval.call(null, src);
 	}
-	// Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
-	// License: New BSD License
-	// Reference: http://dev.w3.org/html5/websockets/
-	// Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol
-
-	(function() {
-	  
-	  if ('undefined' == typeof window || window.WebSocket) return;
-
-	  var console = window.console;
-	  if (!console || !console.log || !console.error) {
-	    console = {log: function(){ }, error: function(){ }};
-	  }
-	  
-	  if (!swfobject.hasFlashPlayerVersion("10.0.0")) {
-	    console.error("Flash Player >= 10.0.0 is required.");
-	    return;
-	  }
-	  if (location.protocol == "file:") {
-	    console.error(
-	      "WARNING: web-socket-js doesn't work in file:///... URL " +
-	      "unless you set Flash Security Settings properly. " +
-	      "Open the page via Web server i.e. http://...");
-	  }
-
-	  /**
-	   * This class represents a faux web socket.
-	   * @param {string} url
-	   * @param {array or string} protocols
-	   * @param {string} proxyHost
-	   * @param {int} proxyPort
-	   * @param {string} headers
-	   */
-	  WebSocket = function(url, protocols, proxyHost, proxyPort, headers) {
-	    var self = this;
-	    self.__id = WebSocket.__nextId++;
-	    WebSocket.__instances[self.__id] = self;
-	    self.readyState = WebSocket.CONNECTING;
-	    self.bufferedAmount = 0;
-	    self.__events = {};
-	    if (!protocols) {
-	      protocols = [];
-	    } else if (typeof protocols == "string") {
-	      protocols = [protocols];
-	    }
-	    // Uses setTimeout() to make sure __createFlash() runs after the caller sets ws.onopen etc.
-	    // Otherwise, when onopen fires immediately, onopen is called before it is set.
-	    setTimeout(function() {
-	      WebSocket.__addTask(function() {
-	        WebSocket.__flash.create(
-	            self.__id, url, protocols, proxyHost || null, proxyPort || 0, headers || null);
-	      });
-	    }, 0);
-	  };
-
-	  /**
-	   * Send data to the web socket.
-	   * @param {string} data  The data to send to the socket.
-	   * @return {boolean}  True for success, false for failure.
-	   */
-	  WebSocket.prototype.send = function(data) {
-	    if (this.readyState == WebSocket.CONNECTING) {
-	      throw "INVALID_STATE_ERR: Web Socket connection has not been established";
-	    }
-	    // We use encodeURIComponent() here, because FABridge doesn't work if
-	    // the argument includes some characters. We don't use escape() here
-	    // because of this:
-	    // https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Functions#escape_and_unescape_Functions
-	    // But it looks decodeURIComponent(encodeURIComponent(s)) doesn't
-	    // preserve all Unicode characters either e.g. "\uffff" in Firefox.
-	    // Note by wtritch: Hopefully this will not be necessary using ExternalInterface.  Will require
-	    // additional testing.
-	    var result = WebSocket.__flash.send(this.__id, encodeURIComponent(data));
-	    if (result < 0) { // success
-	      return true;
-	    } else {
-	      this.bufferedAmount += result;
-	      return false;
-	    }
-	  };
-
-	  /**
-	   * Close this web socket gracefully.
-	   */
-	  WebSocket.prototype.close = function() {
-	    if (this.readyState == WebSocket.CLOSED || this.readyState == WebSocket.CLOSING) {
-	      return;
-	    }
-	    this.readyState = WebSocket.CLOSING;
-	    WebSocket.__flash.close(this.__id);
-	  };
-
-	  /**
-	   * Implementation of {@link <a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration">DOM 2 EventTarget Interface</a>}
-	   *
-	   * @param {string} type
-	   * @param {function} listener
-	   * @param {boolean} useCapture
-	   * @return void
-	   */
-	  WebSocket.prototype.addEventListener = function(type, listener, useCapture) {
-	    if (!(type in this.__events)) {
-	      this.__events[type] = [];
-	    }
-	    this.__events[type].push(listener);
-	  };
-
-	  /**
-	   * Implementation of {@link <a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration">DOM 2 EventTarget Interface</a>}
-	   *
-	   * @param {string} type
-	   * @param {function} listener
-	   * @param {boolean} useCapture
-	   * @return void
-	   */
-	  WebSocket.prototype.removeEventListener = function(type, listener, useCapture) {
-	    if (!(type in this.__events)) return;
-	    var events = this.__events[type];
-	    for (var i = events.length - 1; i >= 0; --i) {
-	      if (events[i] === listener) {
-	        events.splice(i, 1);
-	        break;
-	      }
-	    }
-	  };
-
-	  /**
-	   * Implementation of {@link <a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration">DOM 2 EventTarget Interface</a>}
-	   *
-	   * @param {Event} event
-	   * @return void
-	   */
-	  WebSocket.prototype.dispatchEvent = function(event) {
-	    var events = this.__events[event.type] || [];
-	    for (var i = 0; i < events.length; ++i) {
-	      events[i](event);
-	    }
-	    var handler = this["on" + event.type];
-	    if (handler) handler(event);
-	  };
-
-	  /**
-	   * Handles an event from Flash.
-	   * @param {Object} flashEvent
-	   */
-	  WebSocket.prototype.__handleEvent = function(flashEvent) {
-	    if ("readyState" in flashEvent) {
-	      this.readyState = flashEvent.readyState;
-	    }
-	    if ("protocol" in flashEvent) {
-	      this.protocol = flashEvent.protocol;
-	    }
-	    
-	    var jsEvent;
-	    if (flashEvent.type == "open" || flashEvent.type == "error") {
-	      jsEvent = this.__createSimpleEvent(flashEvent.type);
-	    } else if (flashEvent.type == "close") {
-	      // TODO implement jsEvent.wasClean
-	      jsEvent = this.__createSimpleEvent("close");
-	    } else if (flashEvent.type == "message") {
-	      var data = decodeURIComponent(flashEvent.message);
-	      jsEvent = this.__createMessageEvent("message", data);
-	    } else {
-	      throw "unknown event type: " + flashEvent.type;
-	    }
-	    
-	    this.dispatchEvent(jsEvent);
-	  };
-	  
-	  WebSocket.prototype.__createSimpleEvent = function(type) {
-	    if (document.createEvent && window.Event) {
-	      var event = document.createEvent("Event");
-	      event.initEvent(type, false, false);
-	      return event;
-	    } else {
-	      return {type: type, bubbles: false, cancelable: false};
-	    }
-	  };
-	  
-	  WebSocket.prototype.__createMessageEvent = function(type, data) {
-	    if (document.createEvent && window.MessageEvent && !window.opera) {
-	      var event = document.createEvent("MessageEvent");
-	      event.initMessageEvent("message", false, false, data, null, null, window, null);
-	      return event;
-	    } else {
-	      // IE and Opera, the latter one truncates the data parameter after any 0x00 bytes.
-	      return {type: type, data: data, bubbles: false, cancelable: false};
-	    }
-	  };
-	  
-	  /**
-	   * Define the WebSocket readyState enumeration.
-	   */
-	  WebSocket.CONNECTING = 0;
-	  WebSocket.OPEN = 1;
-	  WebSocket.CLOSING = 2;
-	  WebSocket.CLOSED = 3;
-
-	  WebSocket.__flash = null;
-	  WebSocket.__instances = {};
-	  WebSocket.__tasks = [];
-	  WebSocket.__nextId = 0;
-	  
-	  /**
-	   * Load a new flash security policy file.
-	   * @param {string} url
-	   */
-	  WebSocket.loadFlashPolicyFile = function(url){
-	    WebSocket.__addTask(function() {
-	      WebSocket.__flash.loadManualPolicyFile(url);
-	    });
-	  };
-
-	  /**
-	   * Loads WebSocketMain.swf and creates WebSocketMain object in Flash.
-	   */
-	  WebSocket.__initialize = function() {
-	    if (WebSocket.__flash) return;
-	    
-	    if (WebSocket.__swfLocation) {
-	      // For backword compatibility.
-	      window.WEB_SOCKET_SWF_LOCATION = WebSocket.__swfLocation;
-	    }
-	    if (!window.WEB_SOCKET_SWF_LOCATION) {
-	      console.error("[WebSocket] set WEB_SOCKET_SWF_LOCATION to location of WebSocketMain.swf");
-	      return;
-	    }
-	    var container = document.createElement("div");
-	    container.id = "webSocketContainer";
-	    // Hides Flash box. We cannot use display: none or visibility: hidden because it prevents
-	    // Flash from loading at least in IE. So we move it out of the screen at (-100, -100).
-	    // But this even doesn't work with Flash Lite (e.g. in Droid Incredible). So with Flash
-	    // Lite, we put it at (0, 0). This shows 1x1 box visible at left-top corner but this is
-	    // the best we can do as far as we know now.
-	    container.style.position = "absolute";
-	    if (WebSocket.__isFlashLite()) {
-	      container.style.left = "0px";
-	      container.style.top = "0px";
-	    } else {
-	      container.style.left = "-100px";
-	      container.style.top = "-100px";
-	    }
-	    var holder = document.createElement("div");
-	    holder.id = "webSocketFlash";
-	    container.appendChild(holder);
-	    document.body.appendChild(container);
-	    // See this article for hasPriority:
-	    // http://help.adobe.com/en_US/as3/mobile/WS4bebcd66a74275c36cfb8137124318eebc6-7ffd.html
-	    swfobject.embedSWF(
-	      WEB_SOCKET_SWF_LOCATION,
-	      "webSocketFlash",
-	      "1" /* width */,
-	      "1" /* height */,
-	      "10.0.0" /* SWF version */,
-	      null,
-	      null,
-	      {hasPriority: true, swliveconnect : true, allowScriptAccess: "always"},
-	      null,
-	      function(e) {
-	        if (!e.success) {
-	          console.error("[WebSocket] swfobject.embedSWF failed");
-	        }
-	      });
-	  };
-	  
-	  /**
-	   * Called by Flash to notify JS that it's fully loaded and ready
-	   * for communication.
-	   */
-	  WebSocket.__onFlashInitialized = function() {
-	    // We need to set a timeout here to avoid round-trip calls
-	    // to flash during the initialization process.
-	    setTimeout(function() {
-	      WebSocket.__flash = document.getElementById("webSocketFlash");
-	      WebSocket.__flash.setCallerUrl(location.href);
-	      WebSocket.__flash.setDebug(!!window.WEB_SOCKET_DEBUG);
-	      for (var i = 0; i < WebSocket.__tasks.length; ++i) {
-	        WebSocket.__tasks[i]();
-	      }
-	      WebSocket.__tasks = [];
-	    }, 0);
-	  };
-	  
-	  /**
-	   * Called by Flash to notify WebSockets events are fired.
-	   */
-	  WebSocket.__onFlashEvent = function() {
-	    setTimeout(function() {
-	      try {
-	        // Gets events using receiveEvents() instead of getting it from event object
-	        // of Flash event. This is to make sure to keep message order.
-	        // It seems sometimes Flash events don't arrive in the same order as they are sent.
-	        var events = WebSocket.__flash.receiveEvents();
-	        for (var i = 0; i < events.length; ++i) {
-	          WebSocket.__instances[events[i].webSocketId].__handleEvent(events[i]);
-	        }
-	      } catch (e) {
-	        console.error(e);
-	      }
-	    }, 0);
-	    return true;
-	  };
-	  
-	  // Called by Flash.
-	  WebSocket.__log = function(message) {
-	    console.log(decodeURIComponent(message));
-	  };
-	  
-	  // Called by Flash.
-	  WebSocket.__error = function(message) {
-	    console.error(decodeURIComponent(message));
-	  };
-	  
-	  WebSocket.__addTask = function(task) {
-	    if (WebSocket.__flash) {
-	      task();
-	    } else {
-	      WebSocket.__tasks.push(task);
-	    }
-	  };
-	  
-	  /**
-	   * Test if the browser is running flash lite.
-	   * @return {boolean} True if flash lite is running, false otherwise.
-	   */
-	  WebSocket.__isFlashLite = function() {
-	    if (!window.navigator || !window.navigator.mimeTypes) {
-	      return false;
-	    }
-	    var mimeType = window.navigator.mimeTypes["application/x-shockwave-flash"];
-	    if (!mimeType || !mimeType.enabledPlugin || !mimeType.enabledPlugin.filename) {
-	      return false;
-	    }
-	    return mimeType.enabledPlugin.filename.match(/flashlite/i) ? true : false;
-	  };
-	  
-	  if (!window.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION) {
-	    if (window.addEventListener) {
-	      window.addEventListener("load", function(){
-	        WebSocket.__initialize();
-	      }, false);
-	    } else {
-	      window.attachEvent("onload", function(){
-	        WebSocket.__initialize();
-	      });
-	    }
-	  }
-	  
-	})();
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io, global) {
-
-	  /**
-	   * Expose constructor.
-	   *
-	   * @api public
-	   */
-
-	  exports.XHR = XHR;
-
-	  /**
-	   * XHR constructor
-	   *
-	   * @costructor
-	   * @api public
-	   */
-
-	  function XHR (socket) {
-	    if (!socket) return;
-
-	    io.Transport.apply(this, arguments);
-	    this.sendBuffer = [];
-	  };
-
-	  /**
-	   * Inherits from Transport.
-	   */
-
-	  io.util.inherit(XHR, io.Transport);
-
-	  /**
-	   * Establish a connection
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  XHR.prototype.open = function () {
-	    this.socket.setBuffer(false);
-	    this.onOpen();
-	    this.get();
-
-	    // we need to make sure the request succeeds since we have no indication
-	    // whether the request opened or not until it succeeded.
-	    this.setCloseTimeout();
-
-	    return this;
-	  };
-
-	  /**
-	   * Check if we need to send data to the Socket.IO server, if we have data in our
-	   * buffer we encode it and forward it to the `post` method.
-	   *
-	   * @api private
-	   */
-
-	  XHR.prototype.payload = function (payload) {
-	    var msgs = [];
-
-	    for (var i = 0, l = payload.length; i < l; i++) {
-	      msgs.push(io.parser.encodePacket(payload[i]));
-	    }
-
-	    this.send(io.parser.encodePayload(msgs));
-	  };
-
-	  /**
-	   * Send data to the Socket.IO server.
-	   *
-	   * @param data The message
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  XHR.prototype.send = function (data) {
-	    this.post(data);
-	    return this;
-	  };
-
-	  /**
-	   * Posts a encoded message to the Socket.IO server.
-	   *
-	   * @param {String} data A encoded message.
-	   * @api private
-	   */
-
-	  function empty () { };
-
-	  XHR.prototype.post = function (data) {
-	    var self = this;
-	    this.socket.setBuffer(true);
-
-	    function stateChange () {
-	      if (this.readyState == 4) {
-	        this.onreadystatechange = empty;
-	        self.posting = false;
-
-	        if (this.status == 200){
-	          self.socket.setBuffer(false);
-	        } else {
-	          self.onClose();
-	        }
-	      }
-	    }
-
-	    function onload () {
-	      this.onload = empty;
-	      self.socket.setBuffer(false);
-	    };
-
-	    this.sendXHR = this.request('POST');
-
-	    if (global.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
-	      this.sendXHR.onload = this.sendXHR.onerror = onload;
-	    } else {
-	      this.sendXHR.onreadystatechange = stateChange;
-	    }
-
-	    this.sendXHR.send(data);
-	  };
-
-	  /**
-	   * Disconnects the established `XHR` connection.
-	   *
-	   * @returns {Transport}
-	   * @api public
-	   */
-
-	  XHR.prototype.close = function () {
-	    this.onClose();
-	    return this;
-	  };
-
-	  /**
-	   * Generates a configured XHR request
-	   *
-	   * @param {String} url The url that needs to be requested.
-	   * @param {String} method The method the request should use.
-	   * @returns {XMLHttpRequest}
-	   * @api private
-	   */
-
-	  XHR.prototype.request = function (method) {
-	    var req = io.util.request(this.socket.isXDomain())
-	      , query = io.util.query(this.socket.options.query, 't=' + +new Date);
-
-	    req.open(method || 'GET', this.prepareUrl() + query, true);
-
-	    if (method == 'POST') {
-	      try {
-	        if (req.setRequestHeader) {
-	          req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
-	        } else {
-	          // XDomainRequest
-	          req.contentType = 'text/plain';
-	        }
-	      } catch (e) {}
-	    }
-
-	    return req;
-	  };
-
-	  /**
-	   * Returns the scheme to use for the transport URLs.
-	   *
-	   * @api private
-	   */
-
-	  XHR.prototype.scheme = function () {
-	    return this.socket.options.secure ? 'https' : 'http';
-	  };
-
-	  /**
-	   * Check if the XHR transports are supported
-	   *
-	   * @param {Boolean} xdomain Check if we support cross domain requests.
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  XHR.check = function (socket, xdomain) {
-	    try {
-	      var request = io.util.request(xdomain),
-	          usesXDomReq = (global.XDomainRequest && request instanceof XDomainRequest),
-	          socketProtocol = (socket && socket.options && socket.options.secure ? 'https:' : 'http:'),
-	          isXProtocol = (socketProtocol != global.location.protocol);
-	      if (request && !(usesXDomReq && isXProtocol)) {
-	        return true;
-	      }
-	    } catch(e) {}
-
-	    return false;
-	  };
-
-	  /**
-	   * Check if the XHR transport supports cross domain requests.
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  XHR.xdomainCheck = function (socket) {
-	    return XHR.check(socket, true);
-	  };
-
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	  , this
-	);
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports.htmlfile = HTMLFile;
-
-	  /**
-	   * The HTMLFile transport creates a `forever iframe` based transport
-	   * for Internet Explorer. Regular forever iframe implementations will 
-	   * continuously trigger the browsers buzy indicators. If the forever iframe
-	   * is created inside a `htmlfile` these indicators will not be trigged.
-	   *
-	   * @constructor
-	   * @extends {io.Transport.XHR}
-	   * @api public
-	   */
-
-	  function HTMLFile (socket) {
-	    io.Transport.XHR.apply(this, arguments);
-	  };
-
-	  /**
-	   * Inherits from XHR transport.
-	   */
-
-	  io.util.inherit(HTMLFile, io.Transport.XHR);
-
-	  /**
-	   * Transport name
-	   *
-	   * @api public
-	   */
-
-	  HTMLFile.prototype.name = 'htmlfile';
-
-	  /**
-	   * Creates a new Ac...eX `htmlfile` with a forever loading iframe
-	   * that can be used to listen to messages. Inside the generated
-	   * `htmlfile` a reference will be made to the HTMLFile transport.
-	   *
-	   * @api private
-	   */
-
-	  HTMLFile.prototype.get = function () {
-	    this.doc = new window[(['Active'].concat('Object').join('X'))]('htmlfile');
-	    this.doc.open();
-	    this.doc.write('<html></html>');
-	    this.doc.close();
-	    this.doc.parentWindow.s = this;
-
-	    var iframeC = this.doc.createElement('div');
-	    iframeC.className = 'socketio';
-
-	    this.doc.body.appendChild(iframeC);
-	    this.iframe = this.doc.createElement('iframe');
-
-	    iframeC.appendChild(this.iframe);
-
-	    var self = this
-	      , query = io.util.query(this.socket.options.query, 't='+ +new Date);
-
-	    this.iframe.src = this.prepareUrl() + query;
-
-	    io.util.on(window, 'unload', function () {
-	      self.destroy();
-	    });
-	  };
-
-	  /**
-	   * The Socket.IO server will write script tags inside the forever
-	   * iframe, this function will be used as callback for the incoming
-	   * information.
-	   *
-	   * @param {String} data The message
-	   * @param {document} doc Reference to the context
-	   * @api private
-	   */
-
-	  HTMLFile.prototype._ = function (data, doc) {
-	    this.onData(data);
-	    try {
-	      var script = doc.getElementsByTagName('script')[0];
-	      script.parentNode.removeChild(script);
-	    } catch (e) { }
-	  };
-
-	  /**
-	   * Destroy the established connection, iframe and `htmlfile`.
-	   * And calls the `CollectGarbage` function of Internet Explorer
-	   * to release the memory.
-	   *
-	   * @api private
-	   */
-
-	  HTMLFile.prototype.destroy = function () {
-	    if (this.iframe){
-	      try {
-	        this.iframe.src = 'about:blank';
-	      } catch(e){}
-
-	      this.doc = null;
-	      this.iframe.parentNode.removeChild(this.iframe);
-	      this.iframe = null;
-
-	      CollectGarbage();
-	    }
-	  };
-
-	  /**
-	   * Disconnects the established connection.
-	   *
-	   * @returns {Transport} Chaining.
-	   * @api public
-	   */
-
-	  HTMLFile.prototype.close = function () {
-	    this.destroy();
-	    return io.Transport.XHR.prototype.close.call(this);
-	  };
-
-	  /**
-	   * Checks if the browser supports this transport. The browser
-	   * must have an `Ac...eXObject` implementation.
-	   *
-	   * @return {Boolean}
-	   * @api public
-	   */
-
-	  HTMLFile.check = function (socket) {
-	    if (typeof window != "undefined" && (['Active'].concat('Object').join('X')) in window){
-	      try {
-	        var a = new window[(['Active'].concat('Object').join('X'))]('htmlfile');
-	        return a && io.Transport.XHR.check(socket);
-	      } catch(e){}
-	    }
-	    return false;
-	  };
-
-	  /**
-	   * Check if cross domain requests are supported.
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  HTMLFile.xdomainCheck = function () {
-	    // we can probably do handling for sub-domains, we should
-	    // test that it's cross domain but a subdomain here
-	    return false;
-	  };
-
-	  /**
-	   * Add the transport to your public io.transports array.
-	   *
-	   * @api private
-	   */
-
-	  io.transports.push('htmlfile');
-
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io, global) {
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports['xhr-polling'] = XHRPolling;
-
-	  /**
-	   * The XHR-polling transport uses long polling XHR requests to create a
-	   * "persistent" connection with the server.
-	   *
-	   * @constructor
-	   * @api public
-	   */
-
-	  function XHRPolling () {
-	    io.Transport.XHR.apply(this, arguments);
-	  };
-
-	  /**
-	   * Inherits from XHR transport.
-	   */
-
-	  io.util.inherit(XHRPolling, io.Transport.XHR);
-
-	  /**
-	   * Merge the properties from XHR transport
-	   */
-
-	  io.util.merge(XHRPolling, io.Transport.XHR);
-
-	  /**
-	   * Transport name
-	   *
-	   * @api public
-	   */
-
-	  XHRPolling.prototype.name = 'xhr-polling';
-
-	  /**
-	   * Indicates whether heartbeats is enabled for this transport
-	   *
-	   * @api private
-	   */
-
-	  XHRPolling.prototype.heartbeats = function () {
-	    return false;
-	  };
-
-	  /** 
-	   * Establish a connection, for iPhone and Android this will be done once the page
-	   * is loaded.
-	   *
-	   * @returns {Transport} Chaining.
-	   * @api public
-	   */
-
-	  XHRPolling.prototype.open = function () {
-	    var self = this;
-
-	    io.Transport.XHR.prototype.open.call(self);
-	    return false;
-	  };
-
-	  /**
-	   * Starts a XHR request to wait for incoming messages.
-	   *
-	   * @api private
-	   */
-
-	  function empty () {};
-
-	  XHRPolling.prototype.get = function () {
-	    if (!this.isOpen) return;
-
-	    var self = this;
-
-	    function stateChange () {
-	      if (this.readyState == 4) {
-	        this.onreadystatechange = empty;
-
-	        if (this.status == 200) {
-	          self.onData(this.responseText);
-	          self.get();
-	        } else {
-	          self.onClose();
-	        }
-	      }
-	    };
-
-	    function onload () {
-	      this.onload = empty;
-	      this.onerror = empty;
-	      self.onData(this.responseText);
-	      self.get();
-	    };
-
-	    function onerror () {
-	      self.onClose();
-	    };
-
-	    this.xhr = this.request();
-
-	    if (global.XDomainRequest && this.xhr instanceof XDomainRequest) {
-	      this.xhr.onload = onload;
-	      this.xhr.onerror = onerror;
-	    } else {
-	      this.xhr.onreadystatechange = stateChange;
-	    }
-
-	    this.xhr.send(null);
-	  };
-
-	  /**
-	   * Handle the unclean close behavior.
-	   *
-	   * @api private
-	   */
-
-	  XHRPolling.prototype.onClose = function () {
-	    io.Transport.XHR.prototype.onClose.call(this);
-
-	    if (this.xhr) {
-	      this.xhr.onreadystatechange = this.xhr.onload = this.xhr.onerror = empty;
-	      try {
-	        this.xhr.abort();
-	      } catch(e){}
-	      this.xhr = null;
-	    }
-	  };
-
-	  /**
-	   * Webkit based browsers show a infinit spinner when you start a XHR request
-	   * before the browsers onload event is called so we need to defer opening of
-	   * the transport until the onload event is called. Wrapping the cb in our
-	   * defer method solve this.
-	   *
-	   * @param {Socket} socket The socket instance that needs a transport
-	   * @param {Function} fn The callback
-	   * @api private
-	   */
-
-	  XHRPolling.prototype.ready = function (socket, fn) {
-	    var self = this;
-
-	    io.util.defer(function () {
-	      fn.call(self);
-	    });
-	  };
-
-	  /**
-	   * Add the transport to your public io.transports array.
-	   *
-	   * @api private
-	   */
-
-	  io.transports.push('xhr-polling');
-
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	  , this
-	);
-
-	/**
-	 * socket.io
-	 * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
-	 * MIT Licensed
-	 */
-
-	(function (exports, io, global) {
-	  /**
-	   * There is a way to hide the loading indicator in Firefox. If you create and
-	   * remove a iframe it will stop showing the current loading indicator.
-	   * Unfortunately we can't feature detect that and UA sniffing is evil.
-	   *
-	   * @api private
-	   */
-
-	  var indicator = global.document && "MozAppearance" in
-	    global.document.documentElement.style;
-
-	  /**
-	   * Expose constructor.
-	   */
-
-	  exports['jsonp-polling'] = JSONPPolling;
-
-	  /**
-	   * The JSONP transport creates an persistent connection by dynamically
-	   * inserting a script tag in the page. This script tag will receive the
-	   * information of the Socket.IO server. When new information is received
-	   * it creates a new script tag for the new data stream.
-	   *
-	   * @constructor
-	   * @extends {io.Transport.xhr-polling}
-	   * @api public
-	   */
-
-	  function JSONPPolling (socket) {
-	    io.Transport['xhr-polling'].apply(this, arguments);
-
-	    this.index = io.j.length;
-
-	    var self = this;
-
-	    io.j.push(function (msg) {
-	      self._(msg);
-	    });
-	  };
-
-	  /**
-	   * Inherits from XHR polling transport.
-	   */
-
-	  io.util.inherit(JSONPPolling, io.Transport['xhr-polling']);
-
-	  /**
-	   * Transport name
-	   *
-	   * @api public
-	   */
-
-	  JSONPPolling.prototype.name = 'jsonp-polling';
-
-	  /**
-	   * Posts a encoded message to the Socket.IO server using an iframe.
-	   * The iframe is used because script tags can create POST based requests.
-	   * The iframe is positioned outside of the view so the user does not
-	   * notice it's existence.
-	   *
-	   * @param {String} data A encoded message.
-	   * @api private
-	   */
-
-	  JSONPPolling.prototype.post = function (data) {
-	    var self = this
-	      , query = io.util.query(
-	             this.socket.options.query
-	          , 't='+ (+new Date) + '&i=' + this.index
-	        );
-
-	    if (!this.form) {
-	      var form = document.createElement('form')
-	        , area = document.createElement('textarea')
-	        , id = this.iframeId = 'socketio_iframe_' + this.index
-	        , iframe;
-
-	      form.className = 'socketio';
-	      form.style.position = 'absolute';
-	      form.style.top = '0px';
-	      form.style.left = '0px';
-	      form.style.display = 'none';
-	      form.target = id;
-	      form.method = 'POST';
-	      form.setAttribute('accept-charset', 'utf-8');
-	      area.name = 'd';
-	      form.appendChild(area);
-	      document.body.appendChild(form);
-
-	      this.form = form;
-	      this.area = area;
-	    }
-
-	    this.form.action = this.prepareUrl() + query;
-
-	    function complete () {
-	      initIframe();
-	      self.socket.setBuffer(false);
-	    };
-
-	    function initIframe () {
-	      if (self.iframe) {
-	        self.form.removeChild(self.iframe);
-	      }
-
-	      try {
-	        // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
-	        iframe = document.createElement('<iframe name="'+ self.iframeId +'">');
-	      } catch (e) {
-	        iframe = document.createElement('iframe');
-	        iframe.name = self.iframeId;
-	      }
-
-	      iframe.id = self.iframeId;
-
-	      self.form.appendChild(iframe);
-	      self.iframe = iframe;
-	    };
-
-	    initIframe();
-
-	    // we temporarily stringify until we figure out how to prevent
-	    // browsers from turning `\n` into `\r\n` in form inputs
-	    this.area.value = io.JSON.stringify(data);
-
-	    try {
-	      this.form.submit();
-	    } catch(e) {}
-
-	    if (this.iframe.attachEvent) {
-	      iframe.onreadystatechange = function () {
-	        if (self.iframe.readyState == 'complete') {
-	          complete();
-	        }
-	      };
-	    } else {
-	      this.iframe.onload = complete;
-	    }
-
-	    this.socket.setBuffer(true);
-	  };
-	  
-	  /**
-	   * Creates a new JSONP poll that can be used to listen
-	   * for messages from the Socket.IO server.
-	   *
-	   * @api private
-	   */
-
-	  JSONPPolling.prototype.get = function () {
-	    var self = this
-	      , script = document.createElement('script')
-	      , query = io.util.query(
-	             this.socket.options.query
-	          , 't='+ (+new Date) + '&i=' + this.index
-	        );
-
-	    if (this.script) {
-	      this.script.parentNode.removeChild(this.script);
-	      this.script = null;
-	    }
-
-	    script.async = true;
-	    script.src = this.prepareUrl() + query;
-	    script.onerror = function () {
-	      self.onClose();
-	    };
-
-	    var insertAt = document.getElementsByTagName('script')[0]
-	    insertAt.parentNode.insertBefore(script, insertAt);
-	    this.script = script;
-
-	    if (indicator) {
-	      setTimeout(function () {
-	        var iframe = document.createElement('iframe');
-	        document.body.appendChild(iframe);
-	        document.body.removeChild(iframe);
-	      }, 100);
-	    }
-	  };
-
-	  /**
-	   * Callback function for the incoming message stream from the Socket.IO server.
-	   *
-	   * @param {String} data The message
-	   * @api private
-	   */
-
-	  JSONPPolling.prototype._ = function (msg) {
-	    this.onData(msg);
-	    if (this.isOpen) {
-	      this.get();
-	    }
-	    return this;
-	  };
-
-	  /**
-	   * The indicator hack only works after onload
-	   *
-	   * @param {Socket} socket The socket instance that needs a transport
-	   * @param {Function} fn The callback
-	   * @api private
-	   */
-
-	  JSONPPolling.prototype.ready = function (socket, fn) {
-	    var self = this;
-	    if (!indicator) return fn.call(this);
-
-	    io.util.load(function () {
-	      fn.call(self);
-	    });
-	  };
-
-	  /**
-	   * Checks if browser supports this transport.
-	   *
-	   * @return {Boolean}
-	   * @api public
-	   */
-
-	  JSONPPolling.check = function () {
-	    return 'document' in global;
-	  };
-
-	  /**
-	   * Check if cross domain requests are supported
-	   *
-	   * @returns {Boolean}
-	   * @api public
-	   */
-
-	  JSONPPolling.xdomainCheck = function () {
-	    return true;
-	  };
-
-	  /**
-	   * Add the transport to your public io.transports array.
-	   *
-	   * @api private
-	   */
-
-	  io.transports.push('jsonp-polling');
-
-	})(
-	    'undefined' != typeof io ? io.Transport : module.exports
-	  , 'undefined' != typeof io ? io : module.parent.exports
-	  , this
-	);
-
-	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module)))
 
 /***/ },
-/* 28 */
+/* 12 */
+/***/ function(module, exports) {
+
+	module.exports = "/**\n    Head JS     The only script in your <HEAD>\n    Copyright   Tero Piirainen (tipiirai)\n    License     MIT / http://bit.ly/mit-license\n    Version     0.96\n\n    http://headjs.com\n*/(function(a){function z(){d||(d=!0,s(e,function(a){p(a)}))}function y(c,d){var e=a.createElement(\"script\");e.type=\"text/\"+(c.type||\"javascript\"),e.src=c.src||c,e.async=!1,e.onreadystatechange=e.onload=function(){var a=e.readyState;!d.done&&(!a||/loaded|complete/.test(a))&&(d.done=!0,d())},(a.body||b).appendChild(e)}function x(a,b){if(a.state==o)return b&&b();if(a.state==n)return k.ready(a.name,b);if(a.state==m)return a.onpreload.push(function(){x(a,b)});a.state=n,y(a.url,function(){a.state=o,b&&b(),s(g[a.name],function(a){p(a)}),u()&&d&&s(g.ALL,function(a){p(a)})})}function w(a,b){a.state===undefined&&(a.state=m,a.onpreload=[],y({src:a.url,type:\"cache\"},function(){v(a)}))}function v(a){a.state=l,s(a.onpreload,function(a){a.call()})}function u(a){a=a||h;var b;for(var c in a){if(a.hasOwnProperty(c)&&a[c].state!=o)return!1;b=!0}return b}function t(a){return Object.prototype.toString.call(a)==\"[object Function]\"}function s(a,b){if(!!a){typeof a==\"object\"&&(a=[].slice.call(a));for(var c=0;c<a.length;c++)b.call(a,a[c],c)}}function r(a){var b;if(typeof a==\"object\")for(var c in a)a[c]&&(b={name:c,url:a[c]});else b={name:q(a),url:a};var d=h[b.name];if(d&&d.url===b.url)return d;h[b.name]=b;return b}function q(a){var b=a.split(\"/\"),c=b[b.length-1],d=c.indexOf(\"?\");return d!=-1?c.substring(0,d):c}function p(a){a._done||(a(),a._done=1)}var b=a.documentElement,c,d,e=[],f=[],g={},h={},i=a.createElement(\"script\").async===!0||\"MozAppearance\"in a.documentElement.style||window.opera,j=window.head_conf&&head_conf.head||\"head\",k=window[j]=window[j]||function(){k.ready.apply(null,arguments)},l=1,m=2,n=3,o=4;i?k.js=function(){var a=arguments,b=a[a.length-1],c={};t(b)||(b=null),s(a,function(d,e){d!=b&&(d=r(d),c[d.name]=d,x(d,b&&e==a.length-2?function(){u(c)&&p(b)}:null))});return k}:k.js=function(){var a=arguments,b=[].slice.call(a,1),d=b[0];if(!c){f.push(function(){k.js.apply(null,a)});return k}d?(s(b,function(a){t(a)||w(r(a))}),x(r(a[0]),t(d)?d:function(){k.js.apply(null,b)})):x(r(a[0]));return k},k.ready=function(b,c){if(b==a){d?p(c):e.push(c);return k}t(b)&&(c=b,b=\"ALL\");if(typeof b!=\"string\"||!t(c))return k;var f=h[b];if(f&&f.state==o||b==\"ALL\"&&u()&&d){p(c);return k}var i=g[b];i?i.push(c):i=g[b]=[c];return k},k.ready(a,function(){u()&&s(g.ALL,function(a){p(a)}),k.feature&&k.feature(\"domloaded\",!0)});if(window.addEventListener)a.addEventListener(\"DOMContentLoaded\",z,!1),window.addEventListener(\"load\",z,!1);else if(window.attachEvent){a.attachEvent(\"onreadystatechange\",function(){a.readyState===\"complete\"&&z()});var A=1;try{A=window.frameElement}catch(B){}!A&&b.doScroll&&function(){try{b.doScroll(\"left\"),z()}catch(a){setTimeout(arguments.callee,1);return}}(),window.attachEvent(\"onload\",z)}!a.readyState&&a.addEventListener&&(a.readyState=\"loading\",a.addEventListener(\"DOMContentLoaded\",handler=function(){a.removeEventListener(\"DOMContentLoaded\",handler,!1),a.readyState=\"complete\"},!1)),setTimeout(function(){c=!0,s(f,function(a){a()})},300)})(document)"
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(11)(__webpack_require__(14))
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	module.exports = "/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/\nif(typeof document!==\"undefined\"&&!(\"classList\" in document.createElement(\"a\"))){(function(j){var a=\"classList\",f=\"prototype\",m=(j.HTMLElement||j.Element)[f],b=Object,k=String[f].trim||function(){return this.replace(/^\\s+|\\s+$/g,\"\")},c=Array[f].indexOf||function(q){var p=0,o=this.length;for(;p<o;p++){if(p in this&&this[p]===q){return p}}return -1},n=function(o,p){this.name=o;this.code=DOMException[o];this.message=p},g=function(p,o){if(o===\"\"){throw new n(\"SYNTAX_ERR\",\"An invalid or illegal string was specified\")}if(/\\s/.test(o)){throw new n(\"INVALID_CHARACTER_ERR\",\"String contains an invalid character\")}return c.call(p,o)},d=function(s){var r=k.call(s.className),q=r?r.split(/\\s+/):[],p=0,o=q.length;for(;p<o;p++){this.push(q[p])}this._updateClassName=function(){s.className=this.toString()}},e=d[f]=[],i=function(){return new d(this)};n[f]=Error[f];e.item=function(o){return this[o]||null};e.contains=function(o){o+=\"\";return g(this,o)!==-1};e.add=function(o){o+=\"\";if(g(this,o)===-1){this.push(o);this._updateClassName()}};e.remove=function(p){p+=\"\";var o=g(this,p);if(o!==-1){this.splice(o,1);this._updateClassName()}};e.toggle=function(o){o+=\"\";if(g(this,o)===-1){this.add(o)}else{this.remove(o)}};e.toString=function(){return this.join(\" \")};if(b.defineProperty){var l={get:i,enumerable:true,configurable:true};try{b.defineProperty(m,a,l)}catch(h){if(h.number===-2146823252){l.enumerable=false;b.defineProperty(m,a,l)}}}else{if(b[f].__defineGetter__){m.__defineGetter__(a,i)}}}(self))};"
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(11)(__webpack_require__(16))
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	module.exports = "/*!\n * reveal.js 2.6.1 (2014-03-13, 09:22)\n * http://lab.hakim.se/reveal-js\n * MIT licensed\n *\n * Copyright (C) 2014 Hakim El Hattab, http://hakim.se\n */\nvar Reveal=function(){\"use strict\";function a(a){if(b(),!ec.transforms2d&&!ec.transforms3d)return document.body.setAttribute(\"class\",\"no-transforms\"),void 0;window.addEventListener(\"load\",A,!1);var d=Reveal.getQueryHash();\"undefined\"!=typeof d.dependencies&&delete d.dependencies,k(_b,a),k(_b,d),r(),c()}function b(){ec.transforms3d=\"WebkitPerspective\"in document.body.style||\"MozPerspective\"in document.body.style||\"msPerspective\"in document.body.style||\"OPerspective\"in document.body.style||\"perspective\"in document.body.style,ec.transforms2d=\"WebkitTransform\"in document.body.style||\"MozTransform\"in document.body.style||\"msTransform\"in document.body.style||\"OTransform\"in document.body.style||\"transform\"in document.body.style,ec.requestAnimationFrameMethod=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame,ec.requestAnimationFrame=\"function\"==typeof ec.requestAnimationFrameMethod,ec.canvas=!!document.createElement(\"canvas\").getContext,Vb=navigator.userAgent.match(/(iphone|ipod|android)/gi)}function c(){function a(){e.length&&head.js.apply(null,e),d()}function b(b){head.ready(b.src.match(/([\\w\\d_\\-]*)\\.?js$|[^\\\\\\/]*$/i)[0],function(){\"function\"==typeof b.callback&&b.callback.apply(this),0===--f&&a()})}for(var c=[],e=[],f=0,g=0,h=_b.dependencies.length;h>g;g++){var i=_b.dependencies[g];(!i.condition||i.condition())&&(i.async?e.push(i.src):c.push(i.src),b(i))}c.length?(f=c.length,head.js.apply(null,c)):a()}function d(){e(),Q(),h(),cb(),X(!0),setTimeout(function(){dc.slides.classList.remove(\"no-transition\"),ac=!0,t(\"ready\",{indexh:Qb,indexv:Rb,currentSlide:Tb})},1)}function e(){dc.theme=document.querySelector(\"#theme\"),dc.wrapper=document.querySelector(\".reveal\"),dc.slides=document.querySelector(\".reveal .slides\"),dc.slides.classList.add(\"no-transition\"),dc.background=f(dc.wrapper,\"div\",\"backgrounds\",null),dc.progress=f(dc.wrapper,\"div\",\"progress\",\"<span></span>\"),dc.progressbar=dc.progress.querySelector(\"span\"),f(dc.wrapper,\"aside\",\"controls\",'<div class=\"navigate-left\"></div><div class=\"navigate-right\"></div><div class=\"navigate-up\"></div><div class=\"navigate-down\"></div>'),dc.slideNumber=f(dc.wrapper,\"div\",\"slide-number\",\"\"),f(dc.wrapper,\"div\",\"state-background\",null),f(dc.wrapper,\"div\",\"pause-overlay\",null),dc.controls=document.querySelector(\".reveal .controls\"),dc.controlsLeft=l(document.querySelectorAll(\".navigate-left\")),dc.controlsRight=l(document.querySelectorAll(\".navigate-right\")),dc.controlsUp=l(document.querySelectorAll(\".navigate-up\")),dc.controlsDown=l(document.querySelectorAll(\".navigate-down\")),dc.controlsPrev=l(document.querySelectorAll(\".navigate-prev\")),dc.controlsNext=l(document.querySelectorAll(\".navigate-next\"))}function f(a,b,c,d){var e=a.querySelector(\".\"+c);return e||(e=document.createElement(b),e.classList.add(c),null!==d&&(e.innerHTML=d),a.appendChild(e)),e}function g(){function a(a,b){var c={background:a.getAttribute(\"data-background\"),backgroundSize:a.getAttribute(\"data-background-size\"),backgroundImage:a.getAttribute(\"data-background-image\"),backgroundColor:a.getAttribute(\"data-background-color\"),backgroundRepeat:a.getAttribute(\"data-background-repeat\"),backgroundPosition:a.getAttribute(\"data-background-position\"),backgroundTransition:a.getAttribute(\"data-background-transition\")},d=document.createElement(\"div\");return d.className=\"slide-background\",c.background&&(/^(http|file|\\/\\/)/gi.test(c.background)||/\\.(svg|png|jpg|jpeg|gif|bmp)$/gi.test(c.background)?d.style.backgroundImage=\"url(\"+c.background+\")\":d.style.background=c.background),(c.background||c.backgroundColor||c.backgroundImage)&&d.setAttribute(\"data-background-hash\",c.background+c.backgroundSize+c.backgroundImage+c.backgroundColor+c.backgroundRepeat+c.backgroundPosition+c.backgroundTransition),c.backgroundSize&&(d.style.backgroundSize=c.backgroundSize),c.backgroundImage&&(d.style.backgroundImage='url(\"'+c.backgroundImage+'\")'),c.backgroundColor&&(d.style.backgroundColor=c.backgroundColor),c.backgroundRepeat&&(d.style.backgroundRepeat=c.backgroundRepeat),c.backgroundPosition&&(d.style.backgroundPosition=c.backgroundPosition),c.backgroundTransition&&d.setAttribute(\"data-background-transition\",c.backgroundTransition),b.appendChild(d),d}q()&&document.body.classList.add(\"print-pdf\"),dc.background.innerHTML=\"\",dc.background.classList.add(\"no-transition\"),l(document.querySelectorAll(Yb)).forEach(function(b){var c;c=q()?a(b,b):a(b,dc.background),l(b.querySelectorAll(\"section\")).forEach(function(b){q()?a(b,b):a(b,c)})}),_b.parallaxBackgroundImage?(dc.background.style.backgroundImage='url(\"'+_b.parallaxBackgroundImage+'\")',dc.background.style.backgroundSize=_b.parallaxBackgroundSize,setTimeout(function(){dc.wrapper.classList.add(\"has-parallax-background\")},1)):(dc.background.style.backgroundImage=\"\",dc.wrapper.classList.remove(\"has-parallax-background\"))}function h(a){var b=document.querySelectorAll(Xb).length;if(dc.wrapper.classList.remove(_b.transition),\"object\"==typeof a&&k(_b,a),ec.transforms3d===!1&&(_b.transition=\"linear\"),dc.wrapper.classList.add(_b.transition),dc.wrapper.setAttribute(\"data-transition-speed\",_b.transitionSpeed),dc.wrapper.setAttribute(\"data-background-transition\",_b.backgroundTransition),dc.controls.style.display=_b.controls?\"block\":\"none\",dc.progress.style.display=_b.progress?\"block\":\"none\",_b.rtl?dc.wrapper.classList.add(\"rtl\"):dc.wrapper.classList.remove(\"rtl\"),_b.center?dc.wrapper.classList.add(\"center\"):dc.wrapper.classList.remove(\"center\"),_b.mouseWheel?(document.addEventListener(\"DOMMouseScroll\",Bb,!1),document.addEventListener(\"mousewheel\",Bb,!1)):(document.removeEventListener(\"DOMMouseScroll\",Bb,!1),document.removeEventListener(\"mousewheel\",Bb,!1)),_b.rollingLinks?u():v(),_b.previewLinks?w():(x(),w(\"[data-preview-link]\")),b>1&&_b.autoSlide&&_b.autoSlideStoppable&&ec.canvas&&ec.requestAnimationFrame?(Wb=new Pb(dc.wrapper,function(){return Math.min(Math.max((Date.now()-mc)/kc,0),1)}),Wb.on(\"click\",Ob),nc=!1):Wb&&(Wb.destroy(),Wb=null),_b.theme&&dc.theme){var c=dc.theme.getAttribute(\"href\"),d=/[^\\/]*?(?=\\.css)/,e=c.match(d)[0];_b.theme!==e&&(c=c.replace(d,_b.theme),dc.theme.setAttribute(\"href\",c))}P()}function i(){if(jc=!0,window.addEventListener(\"hashchange\",Jb,!1),window.addEventListener(\"resize\",Kb,!1),_b.touch&&(dc.wrapper.addEventListener(\"touchstart\",vb,!1),dc.wrapper.addEventListener(\"touchmove\",wb,!1),dc.wrapper.addEventListener(\"touchend\",xb,!1),window.navigator.msPointerEnabled&&(dc.wrapper.addEventListener(\"MSPointerDown\",yb,!1),dc.wrapper.addEventListener(\"MSPointerMove\",zb,!1),dc.wrapper.addEventListener(\"MSPointerUp\",Ab,!1))),_b.keyboard&&document.addEventListener(\"keydown\",ub,!1),_b.progress&&dc.progress&&dc.progress.addEventListener(\"click\",Cb,!1),_b.focusBodyOnPageVisiblityChange){var a;\"hidden\"in document?a=\"visibilitychange\":\"msHidden\"in document?a=\"msvisibilitychange\":\"webkitHidden\"in document&&(a=\"webkitvisibilitychange\"),a&&document.addEventListener(a,Lb,!1)}[\"touchstart\",\"click\"].forEach(function(a){dc.controlsLeft.forEach(function(b){b.addEventListener(a,Db,!1)}),dc.controlsRight.forEach(function(b){b.addEventListener(a,Eb,!1)}),dc.controlsUp.forEach(function(b){b.addEventListener(a,Fb,!1)}),dc.controlsDown.forEach(function(b){b.addEventListener(a,Gb,!1)}),dc.controlsPrev.forEach(function(b){b.addEventListener(a,Hb,!1)}),dc.controlsNext.forEach(function(b){b.addEventListener(a,Ib,!1)})})}function j(){jc=!1,document.removeEventListener(\"keydown\",ub,!1),window.removeEventListener(\"hashchange\",Jb,!1),window.removeEventListener(\"resize\",Kb,!1),dc.wrapper.removeEventListener(\"touchstart\",vb,!1),dc.wrapper.removeEventListener(\"touchmove\",wb,!1),dc.wrapper.removeEventListener(\"touchend\",xb,!1),window.navigator.msPointerEnabled&&(dc.wrapper.removeEventListener(\"MSPointerDown\",yb,!1),dc.wrapper.removeEventListener(\"MSPointerMove\",zb,!1),dc.wrapper.removeEventListener(\"MSPointerUp\",Ab,!1)),_b.progress&&dc.progress&&dc.progress.removeEventListener(\"click\",Cb,!1),[\"touchstart\",\"click\"].forEach(function(a){dc.controlsLeft.forEach(function(b){b.removeEventListener(a,Db,!1)}),dc.controlsRight.forEach(function(b){b.removeEventListener(a,Eb,!1)}),dc.controlsUp.forEach(function(b){b.removeEventListener(a,Fb,!1)}),dc.controlsDown.forEach(function(b){b.removeEventListener(a,Gb,!1)}),dc.controlsPrev.forEach(function(b){b.removeEventListener(a,Hb,!1)}),dc.controlsNext.forEach(function(b){b.removeEventListener(a,Ib,!1)})})}function k(a,b){for(var c in b)a[c]=b[c]}function l(a){return Array.prototype.slice.call(a)}function m(a,b){var c=a.x-b.x,d=a.y-b.y;return Math.sqrt(c*c+d*d)}function n(a,b){a.style.WebkitTransform=b,a.style.MozTransform=b,a.style.msTransform=b,a.style.OTransform=b,a.style.transform=b}function o(a){var b=0;if(a){var c=0;l(a.childNodes).forEach(function(a){\"number\"==typeof a.offsetTop&&a.style&&(\"absolute\"===a.style.position&&(c+=1),b=Math.max(b,a.offsetTop+a.offsetHeight))}),0===c&&(b=a.offsetHeight)}return b}function p(a,b){if(b=b||0,a){var c=a.parentNode,d=c.childNodes;l(d).forEach(function(c){if(\"number\"==typeof c.offsetHeight&&c!==a){var d=window.getComputedStyle(c),e=parseInt(d.marginTop,10),f=parseInt(d.marginBottom,10);b-=c.offsetHeight+e+f}});var e=window.getComputedStyle(a);b-=parseInt(e.marginTop,10)+parseInt(e.marginBottom,10)}return b}function q(){return/print-pdf/gi.test(window.location.search)}function r(){_b.hideAddressBar&&Vb&&(window.addEventListener(\"load\",s,!1),window.addEventListener(\"orientationchange\",s,!1))}function s(){setTimeout(function(){window.scrollTo(0,1)},10)}function t(a,b){var c=document.createEvent(\"HTMLEvents\",1,2);c.initEvent(a,!0,!0),k(c,b),dc.wrapper.dispatchEvent(c)}function u(){if(ec.transforms3d&&!(\"msPerspective\"in document.body.style))for(var a=document.querySelectorAll(Xb+\" a:not(.image)\"),b=0,c=a.length;c>b;b++){var d=a[b];if(!(!d.textContent||d.querySelector(\"*\")||d.className&&d.classList.contains(d,\"roll\"))){var e=document.createElement(\"span\");e.setAttribute(\"data-title\",d.text),e.innerHTML=d.innerHTML,d.classList.add(\"roll\"),d.innerHTML=\"\",d.appendChild(e)}}}function v(){for(var a=document.querySelectorAll(Xb+\" a.roll\"),b=0,c=a.length;c>b;b++){var d=a[b],e=d.querySelector(\"span\");e&&(d.classList.remove(\"roll\"),d.innerHTML=e.innerHTML)}}function w(a){var b=l(document.querySelectorAll(a?a:\"a\"));b.forEach(function(a){/^(http|www)/gi.test(a.getAttribute(\"href\"))&&a.addEventListener(\"click\",Nb,!1)})}function x(){var a=l(document.querySelectorAll(\"a\"));a.forEach(function(a){/^(http|www)/gi.test(a.getAttribute(\"href\"))&&a.removeEventListener(\"click\",Nb,!1)})}function y(a){z(),dc.preview=document.createElement(\"div\"),dc.preview.classList.add(\"preview-link-overlay\"),dc.wrapper.appendChild(dc.preview),dc.preview.innerHTML=[\"<header>\",'<a class=\"close\" href=\"#\"><span class=\"icon\"></span></a>','<a class=\"external\" href=\"'+a+'\" target=\"_blank\"><span class=\"icon\"></span></a>',\"</header>\",'<div class=\"spinner\"></div>','<div class=\"viewport\">','<iframe src=\"'+a+'\"></iframe>',\"</div>\"].join(\"\"),dc.preview.querySelector(\"iframe\").addEventListener(\"load\",function(){dc.preview.classList.add(\"loaded\")},!1),dc.preview.querySelector(\".close\").addEventListener(\"click\",function(a){z(),a.preventDefault()},!1),dc.preview.querySelector(\".external\").addEventListener(\"click\",function(){z()},!1),setTimeout(function(){dc.preview.classList.add(\"visible\")},1)}function z(){dc.preview&&(dc.preview.setAttribute(\"src\",\"\"),dc.preview.parentNode.removeChild(dc.preview),dc.preview=null)}function A(){if(dc.wrapper&&!q()){var a=dc.wrapper.offsetWidth,b=dc.wrapper.offsetHeight;a-=b*_b.margin,b-=b*_b.margin;var c=_b.width,d=_b.height,e=20;B(_b.width,_b.height,e),\"string\"==typeof c&&/%$/.test(c)&&(c=parseInt(c,10)/100*a),\"string\"==typeof d&&/%$/.test(d)&&(d=parseInt(d,10)/100*b),dc.slides.style.width=c+\"px\",dc.slides.style.height=d+\"px\",cc=Math.min(a/c,b/d),cc=Math.max(cc,_b.minScale),cc=Math.min(cc,_b.maxScale),\"undefined\"==typeof dc.slides.style.zoom||navigator.userAgent.match(/(iphone|ipod|ipad|android)/gi)?n(dc.slides,\"translate(-50%, -50%) scale(\"+cc+\") translate(50%, 50%)\"):dc.slides.style.zoom=cc;for(var f=l(document.querySelectorAll(Xb)),g=0,h=f.length;h>g;g++){var i=f[g];\"none\"!==i.style.display&&(i.style.top=_b.center||i.classList.contains(\"center\")?i.classList.contains(\"stack\")?0:Math.max(-(o(i)/2)-e,-d/2)+\"px\":\"\")}U(),Y()}}function B(a,b,c){l(dc.slides.querySelectorAll(\"section > .stretch\")).forEach(function(d){var e=p(d,b-2*c);if(/(img|video)/gi.test(d.nodeName)){var f=d.naturalWidth||d.videoWidth,g=d.naturalHeight||d.videoHeight,h=Math.min(a/f,e/g);d.style.width=f*h+\"px\",d.style.height=g*h+\"px\"}else d.style.width=a+\"px\",d.style.height=e+\"px\"})}function C(a,b){\"object\"==typeof a&&\"function\"==typeof a.setAttribute&&a.setAttribute(\"data-previous-indexv\",b||0)}function D(a){if(\"object\"==typeof a&&\"function\"==typeof a.setAttribute&&a.classList.contains(\"stack\")){var b=a.hasAttribute(\"data-start-indexv\")?\"data-start-indexv\":\"data-previous-indexv\";return parseInt(a.getAttribute(b)||0,10)}return 0}function E(){if(_b.overview){kb();var a=dc.wrapper.classList.contains(\"overview\"),b=window.innerWidth<400?1e3:2500;dc.wrapper.classList.add(\"overview\"),dc.wrapper.classList.remove(\"overview-deactivating\"),clearTimeout(hc),clearTimeout(ic),hc=setTimeout(function(){for(var c=document.querySelectorAll(Yb),d=0,e=c.length;e>d;d++){var f=c[d],g=_b.rtl?-105:105;if(f.setAttribute(\"data-index-h\",d),n(f,\"translateZ(-\"+b+\"px) translate(\"+(d-Qb)*g+\"%, 0%)\"),f.classList.contains(\"stack\"))for(var h=f.querySelectorAll(\"section\"),i=0,j=h.length;j>i;i++){var k=d===Qb?Rb:D(f),l=h[i];l.setAttribute(\"data-index-h\",d),l.setAttribute(\"data-index-v\",i),n(l,\"translate(0%, \"+105*(i-k)+\"%)\"),l.addEventListener(\"click\",Mb,!0)}else f.addEventListener(\"click\",Mb,!0)}T(),A(),a||t(\"overviewshown\",{indexh:Qb,indexv:Rb,currentSlide:Tb})},10)}}function F(){_b.overview&&(clearTimeout(hc),clearTimeout(ic),dc.wrapper.classList.remove(\"overview\"),dc.wrapper.classList.add(\"overview-deactivating\"),ic=setTimeout(function(){dc.wrapper.classList.remove(\"overview-deactivating\")},1),l(document.querySelectorAll(Xb)).forEach(function(a){n(a,\"\"),a.removeEventListener(\"click\",Mb,!0)}),O(Qb,Rb),jb(),t(\"overviewhidden\",{indexh:Qb,indexv:Rb,currentSlide:Tb}))}function G(a){\"boolean\"==typeof a?a?E():F():H()?F():E()}function H(){return dc.wrapper.classList.contains(\"overview\")}function I(a){return a=a?a:Tb,a&&a.parentNode&&!!a.parentNode.nodeName.match(/section/i)}function J(){var a=document.body,b=a.requestFullScreen||a.webkitRequestFullscreen||a.webkitRequestFullScreen||a.mozRequestFullScreen||a.msRequestFullScreen;b&&b.apply(a)}function K(){var a=dc.wrapper.classList.contains(\"paused\");kb(),dc.wrapper.classList.add(\"paused\"),a===!1&&t(\"paused\")}function L(){var a=dc.wrapper.classList.contains(\"paused\");dc.wrapper.classList.remove(\"paused\"),jb(),a&&t(\"resumed\")}function M(){N()?L():K()}function N(){return dc.wrapper.classList.contains(\"paused\")}function O(a,b,c,d){Sb=Tb;var e=document.querySelectorAll(Yb);void 0===b&&(b=D(e[a])),Sb&&Sb.parentNode&&Sb.parentNode.classList.contains(\"stack\")&&C(Sb.parentNode,Rb);var f=bc.concat();bc.length=0;var g=Qb||0,h=Rb||0;Qb=S(Yb,void 0===a?Qb:a),Rb=S(Zb,void 0===b?Rb:b),T(),A();a:for(var i=0,j=bc.length;j>i;i++){for(var k=0;k<f.length;k++)if(f[k]===bc[i]){f.splice(k,1);continue a}document.documentElement.classList.add(bc[i]),t(bc[i])}for(;f.length;)document.documentElement.classList.remove(f.pop());H()&&E();var m=e[Qb],n=m.querySelectorAll(\"section\");Tb=n[Rb]||m,\"undefined\"!=typeof c&&gb(c);var o=Qb!==g||Rb!==h;o?t(\"slidechanged\",{indexh:Qb,indexv:Rb,previousSlide:Sb,currentSlide:Tb,origin:d}):Sb=null,Sb&&(Sb.classList.remove(\"present\"),document.querySelector($b).classList.contains(\"present\")&&setTimeout(function(){var a,b=l(document.querySelectorAll(Yb+\".stack\"));for(a in b)b[a]&&C(b[a],0)},0)),o&&(ab(Sb),_(Tb)),W(),U(),X(),Y(),V(),db(),jb()}function P(){j(),i(),A(),kc=_b.autoSlide,jb(),g(),R(),W(),U(),X(!0),V()}function Q(){var a=l(document.querySelectorAll(Yb));a.forEach(function(a){var b=l(a.querySelectorAll(\"section\"));b.forEach(function(a,b){b>0&&(a.classList.remove(\"present\"),a.classList.remove(\"past\"),a.classList.add(\"future\"))})})}function R(){var a=l(document.querySelectorAll(Yb));a.forEach(function(a){var b=l(a.querySelectorAll(\"section\"));b.forEach(function(a){fb(a.querySelectorAll(\".fragment\"))}),0===b.length&&fb(a.querySelectorAll(\".fragment\"))})}function S(a,b){var c=l(document.querySelectorAll(a)),d=c.length;if(d){_b.loop&&(b%=d,0>b&&(b=d+b)),b=Math.max(Math.min(b,d-1),0);for(var e=0;d>e;e++){var f=c[e],g=_b.rtl&&!I(f);if(f.classList.remove(\"past\"),f.classList.remove(\"present\"),f.classList.remove(\"future\"),f.setAttribute(\"hidden\",\"\"),b>e){f.classList.add(g?\"future\":\"past\");for(var h=l(f.querySelectorAll(\".fragment\"));h.length;){var i=h.pop();i.classList.add(\"visible\"),i.classList.remove(\"current-fragment\")}}else if(e>b){f.classList.add(g?\"past\":\"future\");for(var j=l(f.querySelectorAll(\".fragment.visible\"));j.length;){var k=j.pop();k.classList.remove(\"visible\"),k.classList.remove(\"current-fragment\")}}f.querySelector(\"section\")&&f.classList.add(\"stack\")}c[b].classList.add(\"present\"),c[b].removeAttribute(\"hidden\");var m=c[b].getAttribute(\"data-state\");m&&(bc=bc.concat(m.split(\" \")))}else b=0;return b}function T(){var a,b,c=l(document.querySelectorAll(Yb)),d=c.length;if(d){var e=H()?10:_b.viewDistance;Vb&&(e=H()?6:1);for(var f=0;d>f;f++){var g=c[f],h=l(g.querySelectorAll(\"section\")),i=h.length;if(a=Math.abs((Qb-f)%(d-e))||0,g.style.display=a>e?\"none\":\"block\",i)for(var j=D(g),k=0;i>k;k++){var m=h[k];b=f===Qb?Math.abs(Rb-k):Math.abs(k-j),m.style.display=a+b>e?\"none\":\"block\"}}}}function U(){if(_b.progress&&dc.progress){var a=l(document.querySelectorAll(Yb)),b=document.querySelectorAll(Xb+\":not(.stack)\").length,c=0;a:for(var d=0;d<a.length;d++){for(var e=a[d],f=l(e.querySelectorAll(\"section\")),g=0;g<f.length;g++){if(f[g].classList.contains(\"present\"))break a;c++}if(e.classList.contains(\"present\"))break;e.classList.contains(\"stack\")===!1&&c++}dc.progressbar.style.width=c/(b-1)*window.innerWidth+\"px\"}}function V(){if(_b.slideNumber&&dc.slideNumber){var a=Qb;Rb>0&&(a+=\" - \"+Rb),dc.slideNumber.innerHTML=a}}function W(){var a=Z(),b=$();dc.controlsLeft.concat(dc.controlsRight).concat(dc.controlsUp).concat(dc.controlsDown).concat(dc.controlsPrev).concat(dc.controlsNext).forEach(function(a){a.classList.remove(\"enabled\"),a.classList.remove(\"fragmented\")}),a.left&&dc.controlsLeft.forEach(function(a){a.classList.add(\"enabled\")}),a.right&&dc.controlsRight.forEach(function(a){a.classList.add(\"enabled\")}),a.up&&dc.controlsUp.forEach(function(a){a.classList.add(\"enabled\")}),a.down&&dc.controlsDown.forEach(function(a){a.classList.add(\"enabled\")}),(a.left||a.up)&&dc.controlsPrev.forEach(function(a){a.classList.add(\"enabled\")}),(a.right||a.down)&&dc.controlsNext.forEach(function(a){a.classList.add(\"enabled\")}),Tb&&(b.prev&&dc.controlsPrev.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsNext.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),I(Tb)?(b.prev&&dc.controlsUp.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsDown.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")})):(b.prev&&dc.controlsLeft.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")}),b.next&&dc.controlsRight.forEach(function(a){a.classList.add(\"fragmented\",\"enabled\")})))}function X(a){var b=null,c=_b.rtl?\"future\":\"past\",d=_b.rtl?\"past\":\"future\";if(l(dc.background.childNodes).forEach(function(e,f){Qb>f?e.className=\"slide-background \"+c:f>Qb?e.className=\"slide-background \"+d:(e.className=\"slide-background present\",b=e),(a||f===Qb)&&l(e.childNodes).forEach(function(a,c){Rb>c?a.className=\"slide-background past\":c>Rb?a.className=\"slide-background future\":(a.className=\"slide-background present\",f===Qb&&(b=a))})}),b){var e=Ub?Ub.getAttribute(\"data-background-hash\"):null,f=b.getAttribute(\"data-background-hash\");f&&f===e&&b!==Ub&&dc.background.classList.add(\"no-transition\"),Ub=b}setTimeout(function(){dc.background.classList.remove(\"no-transition\")},1)}function Y(){if(_b.parallaxBackgroundImage){var a,b,c=document.querySelectorAll(Yb),d=document.querySelectorAll(Zb),e=dc.background.style.backgroundSize.split(\" \");1===e.length?a=b=parseInt(e[0],10):(a=parseInt(e[0],10),b=parseInt(e[1],10));var f=dc.background.offsetWidth,g=c.length,h=-(a-f)/(g-1)*Qb,i=dc.background.offsetHeight,j=d.length,k=j>0?-(b-i)/(j-1)*Rb:0;dc.background.style.backgroundPosition=h+\"px \"+k+\"px\"}}function Z(){var a=document.querySelectorAll(Yb),b=document.querySelectorAll(Zb),c={left:Qb>0||_b.loop,right:Qb<a.length-1||_b.loop,up:Rb>0,down:Rb<b.length-1};if(_b.rtl){var d=c.left;c.left=c.right,c.right=d}return c}function $(){if(Tb&&_b.fragments){var a=Tb.querySelectorAll(\".fragment\"),b=Tb.querySelectorAll(\".fragment:not(.visible)\");return{prev:a.length-b.length>0,next:!!b.length}}return{prev:!1,next:!1}}function _(a){a&&!bb()&&(l(a.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&a.play()}),l(a.querySelectorAll(\"iframe\")).forEach(function(a){a.contentWindow.postMessage(\"slide:start\",\"*\")}),l(a.querySelectorAll('iframe[src*=\"youtube.com/embed/\"]')).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&a.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}',\"*\")}))}function ab(a){a&&(l(a.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-ignore\")||a.pause()}),l(a.querySelectorAll(\"iframe\")).forEach(function(a){a.contentWindow.postMessage(\"slide:stop\",\"*\")}),l(a.querySelectorAll('iframe[src*=\"youtube.com/embed/\"]')).forEach(function(a){a.hasAttribute(\"data-ignore\")||\"function\"!=typeof a.contentWindow.postMessage||a.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}',\"*\")}))}function bb(){return!!window.location.search.match(/receiver/gi)}function cb(){var a=window.location.hash,b=a.slice(2).split(\"/\"),c=a.replace(/#|\\//gi,\"\");if(isNaN(parseInt(b[0],10))&&c.length){var d=document.querySelector(\"#\"+c);if(d){var e=Reveal.getIndices(d);O(e.h,e.v)}else O(Qb||0,Rb||0)}else{var f=parseInt(b[0],10)||0,g=parseInt(b[1],10)||0;(f!==Qb||g!==Rb)&&O(f,g)}}function db(a){if(_b.history)if(clearTimeout(gc),\"number\"==typeof a)gc=setTimeout(db,a);else{var b=\"/\";Tb&&\"string\"==typeof Tb.getAttribute(\"id\")?b=\"/\"+Tb.getAttribute(\"id\"):((Qb>0||Rb>0)&&(b+=Qb),Rb>0&&(b+=\"/\"+Rb)),window.location.hash=b}}function eb(a){var b,c=Qb,d=Rb;if(a){var e=I(a),f=e?a.parentNode:a,g=l(document.querySelectorAll(Yb));c=Math.max(g.indexOf(f),0),e&&(d=Math.max(l(a.parentNode.querySelectorAll(\"section\")).indexOf(a),0))}if(!a&&Tb){var h=Tb.querySelectorAll(\".fragment\").length>0;if(h){var i=Tb.querySelectorAll(\".fragment.visible\");b=i.length-1}}return{h:c,v:d,f:b}}function fb(a){a=l(a);var b=[],c=[],d=[];a.forEach(function(a){if(a.hasAttribute(\"data-fragment-index\")){var d=parseInt(a.getAttribute(\"data-fragment-index\"),10);b[d]||(b[d]=[]),b[d].push(a)}else c.push([a])}),b=b.concat(c);var e=0;return b.forEach(function(a){a.forEach(function(a){d.push(a),a.setAttribute(\"data-fragment-index\",e)}),e++}),d}function gb(a,b){if(Tb&&_b.fragments){var c=fb(Tb.querySelectorAll(\".fragment\"));if(c.length){if(\"number\"!=typeof a){var d=fb(Tb.querySelectorAll(\".fragment.visible\")).pop();a=d?parseInt(d.getAttribute(\"data-fragment-index\")||0,10):-1}\"number\"==typeof b&&(a+=b);var e=[],f=[];return l(c).forEach(function(b,c){b.hasAttribute(\"data-fragment-index\")&&(c=parseInt(b.getAttribute(\"data-fragment-index\"),10)),a>=c?(b.classList.contains(\"visible\")||e.push(b),b.classList.add(\"visible\"),b.classList.remove(\"current-fragment\"),c===a&&b.classList.add(\"current-fragment\")):(b.classList.contains(\"visible\")&&f.push(b),b.classList.remove(\"visible\"),b.classList.remove(\"current-fragment\"))}),f.length&&t(\"fragmenthidden\",{fragment:f[0],fragments:f}),e.length&&t(\"fragmentshown\",{fragment:e[0],fragments:e}),W(),!(!e.length&&!f.length)}}return!1}function hb(){return gb(null,1)}function ib(){return gb(null,-1)}function jb(){if(kb(),Tb){var a=Tb.parentNode?Tb.parentNode.getAttribute(\"data-autoslide\"):null,b=Tb.getAttribute(\"data-autoslide\");kc=b?parseInt(b,10):a?parseInt(a,10):_b.autoSlide,l(Tb.querySelectorAll(\"video, audio\")).forEach(function(a){a.hasAttribute(\"data-autoplay\")&&kc&&1e3*a.duration>kc&&(kc=1e3*a.duration+1e3)}),!kc||nc||N()||H()||Reveal.isLastSlide()&&_b.loop!==!0||(lc=setTimeout(sb,kc),mc=Date.now()),Wb&&Wb.setPlaying(-1!==lc)}}function kb(){clearTimeout(lc),lc=-1}function lb(){nc=!0,clearTimeout(lc),Wb&&Wb.setPlaying(!1)}function mb(){nc=!1,jb()}function nb(){_b.rtl?(H()||hb()===!1)&&Z().left&&O(Qb+1):(H()||ib()===!1)&&Z().left&&O(Qb-1)}function ob(){_b.rtl?(H()||ib()===!1)&&Z().right&&O(Qb-1):(H()||hb()===!1)&&Z().right&&O(Qb+1)}function pb(){(H()||ib()===!1)&&Z().up&&O(Qb,Rb-1)}function qb(){(H()||hb()===!1)&&Z().down&&O(Qb,Rb+1)}function rb(){if(ib()===!1)if(Z().up)pb();else{var a=document.querySelector(Yb+\".past:nth-child(\"+Qb+\")\");if(a){var b=a.querySelectorAll(\"section\").length-1||void 0,c=Qb-1;O(c,b)}}}function sb(){hb()===!1&&(Z().down?qb():ob()),jb()}function tb(){_b.autoSlideStoppable&&lb()}function ub(a){tb(a),document.activeElement;var b=!(!document.activeElement||!document.activeElement.type&&!document.activeElement.href&&\"inherit\"===document.activeElement.contentEditable);if(!(b||a.shiftKey&&32!==a.keyCode||a.altKey||a.ctrlKey||a.metaKey)){if(N()&&-1===[66,190,191].indexOf(a.keyCode))return!1;var c=!1;if(\"object\"==typeof _b.keyboard)for(var d in _b.keyboard)if(parseInt(d,10)===a.keyCode){var e=_b.keyboard[d];\"function\"==typeof e?e.apply(null,[a]):\"string\"==typeof e&&\"function\"==typeof Reveal[e]&&Reveal[e].call(),c=!0}if(c===!1)switch(c=!0,a.keyCode){case 80:case 33:rb();break;case 78:case 34:sb();break;case 72:case 37:nb();break;case 76:case 39:ob();break;case 75:case 38:pb();break;case 74:case 40:qb();break;case 36:O(0);break;case 35:O(Number.MAX_VALUE);break;case 32:H()?F():a.shiftKey?rb():sb();break;case 13:H()?F():c=!1;break;case 66:case 190:case 191:M();break;case 70:J();break;default:c=!1}c?a.preventDefault():27!==a.keyCode&&79!==a.keyCode||!ec.transforms3d||(dc.preview?z():G(),a.preventDefault()),jb()}}function vb(a){oc.startX=a.touches[0].clientX,oc.startY=a.touches[0].clientY,oc.startCount=a.touches.length,2===a.touches.length&&_b.overview&&(oc.startSpan=m({x:a.touches[1].clientX,y:a.touches[1].clientY},{x:oc.startX,y:oc.startY}))}function wb(a){if(oc.captured)navigator.userAgent.match(/android/gi)&&a.preventDefault();else{tb(a);var b=a.touches[0].clientX,c=a.touches[0].clientY;if(2===a.touches.length&&2===oc.startCount&&_b.overview){var d=m({x:a.touches[1].clientX,y:a.touches[1].clientY},{x:oc.startX,y:oc.startY});Math.abs(oc.startSpan-d)>oc.threshold&&(oc.captured=!0,d<oc.startSpan?E():F()),a.preventDefault()}else if(1===a.touches.length&&2!==oc.startCount){var e=b-oc.startX,f=c-oc.startY;e>oc.threshold&&Math.abs(e)>Math.abs(f)?(oc.captured=!0,nb()):e<-oc.threshold&&Math.abs(e)>Math.abs(f)?(oc.captured=!0,ob()):f>oc.threshold?(oc.captured=!0,pb()):f<-oc.threshold&&(oc.captured=!0,qb()),_b.embedded?(oc.captured||I(Tb))&&a.preventDefault():a.preventDefault()}}}function xb(){oc.captured=!1}function yb(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],vb(a))}function zb(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],wb(a))}function Ab(a){a.pointerType===a.MSPOINTER_TYPE_TOUCH&&(a.touches=[{clientX:a.clientX,clientY:a.clientY}],xb(a))}function Bb(a){if(Date.now()-fc>600){fc=Date.now();var b=a.detail||-a.wheelDelta;b>0?sb():rb()}}function Cb(a){tb(a),a.preventDefault();var b=l(document.querySelectorAll(Yb)).length,c=Math.floor(a.clientX/dc.wrapper.offsetWidth*b);O(c)}function Db(a){a.preventDefault(),tb(),nb()}function Eb(a){a.preventDefault(),tb(),ob()}function Fb(a){a.preventDefault(),tb(),pb()}function Gb(a){a.preventDefault(),tb(),qb()}function Hb(a){a.preventDefault(),tb(),rb()}function Ib(a){a.preventDefault(),tb(),sb()}function Jb(){cb()}function Kb(){A()}function Lb(){var a=document.webkitHidden||document.msHidden||document.hidden;a===!1&&document.activeElement!==document.body&&(document.activeElement.blur(),document.body.focus())}function Mb(a){if(jc&&H()){a.preventDefault();for(var b=a.target;b&&!b.nodeName.match(/section/gi);)b=b.parentNode;if(b&&!b.classList.contains(\"disabled\")&&(F(),b.nodeName.match(/section/gi))){var c=parseInt(b.getAttribute(\"data-index-h\"),10),d=parseInt(b.getAttribute(\"data-index-v\"),10);O(c,d)}}}function Nb(a){var b=a.target.getAttribute(\"href\");b&&(y(b),a.preventDefault())}function Ob(){Reveal.isLastSlide()&&_b.loop===!1?(O(0,0),mb()):nc?mb():lb()}function Pb(a,b){this.diameter=50,this.thickness=3,this.playing=!1,this.progress=0,this.progressOffset=1,this.container=a,this.progressCheck=b,this.canvas=document.createElement(\"canvas\"),this.canvas.className=\"playback\",this.canvas.width=this.diameter,this.canvas.height=this.diameter,this.context=this.canvas.getContext(\"2d\"),this.container.appendChild(this.canvas),this.render()}var Qb,Rb,Sb,Tb,Ub,Vb,Wb,Xb=\".reveal .slides section\",Yb=\".reveal .slides>section\",Zb=\".reveal .slides>section.present>section\",$b=\".reveal .slides>section:first-of-type\",_b={width:960,height:700,margin:.1,minScale:.2,maxScale:1,controls:!0,progress:!0,slideNumber:!1,history:!1,keyboard:!0,overview:!0,center:!0,touch:!0,loop:!1,rtl:!1,fragments:!0,embedded:!1,autoSlide:0,autoSlideStoppable:!0,mouseWheel:!1,rollingLinks:!1,hideAddressBar:!0,previewLinks:!1,focusBodyOnPageVisiblityChange:!0,theme:null,transition:\"default\",transitionSpeed:\"default\",backgroundTransition:\"default\",parallaxBackgroundImage:\"\",parallaxBackgroundSize:\"\",viewDistance:3,dependencies:[]},ac=!1,bc=[],cc=1,dc={},ec={},fc=0,gc=0,hc=0,ic=0,jc=!1,kc=0,lc=0,mc=-1,nc=!1,oc={startX:0,startY:0,startSpan:0,startCount:0,captured:!1,threshold:40};return Pb.prototype.setPlaying=function(a){var b=this.playing;this.playing=a,!b&&this.playing?this.animate():this.render()},Pb.prototype.animate=function(){var a=this.progress;this.progress=this.progressCheck(),a>.8&&this.progress<.2&&(this.progressOffset=this.progress),this.render(),this.playing&&ec.requestAnimationFrameMethod.call(window,this.animate.bind(this))},Pb.prototype.render=function(){var a=this.playing?this.progress:0,b=this.diameter/2-this.thickness,c=this.diameter/2,d=this.diameter/2,e=14;this.progressOffset+=.1*(1-this.progressOffset);var f=-Math.PI/2+a*2*Math.PI,g=-Math.PI/2+this.progressOffset*2*Math.PI;this.context.save(),this.context.clearRect(0,0,this.diameter,this.diameter),this.context.beginPath(),this.context.arc(c,d,b+2,0,2*Math.PI,!1),this.context.fillStyle=\"rgba( 0, 0, 0, 0.4 )\",this.context.fill(),this.context.beginPath(),this.context.arc(c,d,b,0,2*Math.PI,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=\"#666\",this.context.stroke(),this.playing&&(this.context.beginPath(),this.context.arc(c,d,b,g,f,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=\"#fff\",this.context.stroke()),this.context.translate(c-e/2,d-e/2),this.playing?(this.context.fillStyle=\"#fff\",this.context.fillRect(0,0,e/2-2,e),this.context.fillRect(e/2+2,0,e/2-2,e)):(this.context.beginPath(),this.context.translate(2,0),this.context.moveTo(0,0),this.context.lineTo(e-2,e/2),this.context.lineTo(0,e),this.context.fillStyle=\"#fff\",this.context.fill()),this.context.restore()},Pb.prototype.on=function(a,b){this.canvas.addEventListener(a,b,!1)},Pb.prototype.off=function(a,b){this.canvas.removeEventListener(a,b,!1)},Pb.prototype.destroy=function(){this.playing=!1,this.canvas.parentNode&&this.container.removeChild(this.canvas)},{initialize:a,configure:h,sync:P,slide:O,left:nb,right:ob,up:pb,down:qb,prev:rb,next:sb,navigateFragment:gb,prevFragment:ib,nextFragment:hb,navigateTo:O,navigateLeft:nb,navigateRight:ob,navigateUp:pb,navigateDown:qb,navigatePrev:rb,navigateNext:sb,layout:A,availableRoutes:Z,availableFragments:$,toggleOverview:G,togglePause:M,isOverview:H,isPaused:N,addEventListeners:i,removeEventListeners:j,getIndices:eb,getSlide:function(a,b){var c=document.querySelectorAll(Yb)[a],d=c&&c.querySelectorAll(\"section\");\nreturn\"undefined\"!=typeof b?d?d[b]:void 0:c},getPreviousSlide:function(){return Sb},getCurrentSlide:function(){return Tb},getScale:function(){return cc},getConfig:function(){return _b},getQueryHash:function(){var a={};location.search.replace(/[A-Z0-9]+?=([\\w\\.%-]*)/gi,function(b){a[b.split(\"=\").shift()]=b.split(\"=\").pop()});for(var b in a){var c=a[b];a[b]=unescape(c),\"null\"===c?a[b]=null:\"true\"===c?a[b]=!0:\"false\"===c?a[b]=!1:c.match(/^\\d+$/)&&(a[b]=parseFloat(c))}return a},isFirstSlide:function(){return null==document.querySelector(Xb+\".past\")?!0:!1},isLastSlide:function(){return Tb?Tb.nextElementSibling?!1:I(Tb)&&Tb.parentNode.nextElementSibling?!1:!0:!1},isReady:function(){return ac},addEventListener:function(a,b,c){\"addEventListener\"in window&&(dc.wrapper||document.querySelector(\".reveal\")).addEventListener(a,b,c)},removeEventListener:function(a,b,c){\"addEventListener\"in window&&(dc.wrapper||document.querySelector(\".reveal\")).removeEventListener(a,b,c)}}}();"
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	__webpack_require__(18);
+	var $ = __webpack_require__(20);
+
+	var slides = __webpack_require__(21);
+
+	$('.slides').append(slides);
+
+	console.log(slides());
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(19);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(5)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(19, function() {
+				var newContent = __webpack_require__(19);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(4)();
+	// imports
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Lato:300,700,300italic,700italic);", ""]);
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,700,300italic,700italic);", ""]);
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Abril+Fatface);", ""]);
+
+	// module
+	exports.push([module.id, "/**\n * Default theme for reveal.js.\n *\n * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se\n */\n@font-face {\n  font-family: 'Lato';\n  weight: normal;\n  font-style: normal;\n}\n\n/*********************************************\n * GLOBAL STYLES\n *********************************************/\nbody {\n  background: #fff;\n  background-color: #fff;\n}\n\n.reveal {\n  font-family: \"Cabin\", sans-serif;\n  font-size: 34px;\n  font-weight: normal;\n  letter-spacing: -0.02em;\n  color: #226;\n}\n\n::selection {\n  color: #fff;\n  background: #FF5E99;\n  text-shadow: none;\n}\n\n/*********************************************\n * HEADERS\n *********************************************/\n.reveal h1,\n.reveal h2,\n.reveal h3,\n.reveal h4,\n.reveal h5,\n.reveal h6 {\n  margin: 0 0 10px 0;\n  color: #246;\n  font-family: \"Cabin\", sans-serif;\n  line-height: 1em;\n  letter-spacing: 0.02em;\n  text-transform: uppercase;\n  text-shadow: none;\n}\n\n.reveal h1 {\n  text-shadow: none;\n}\n\n/*********************************************\n * LINKS\n *********************************************/\n.reveal a:not(.image) {\n  color: #13DAEC;\n  text-decoration: none;\n  -webkit-transition: color .15s ease;\n  -moz-transition: color .15s ease;\n  -ms-transition: color .15s ease;\n  -o-transition: color .15s ease;\n  transition: color .15s ease;\n}\n\n.reveal a:not(.image):hover {\n  color: #71e9f4;\n  text-shadow: none;\n  border: none;\n}\n\n.reveal .roll span:after {\n  color: #fff;\n  background: #0d99a5;\n}\n\n/*********************************************\n * IMAGES\n *********************************************/\n.reveal section img {\n  margin: 15px 0px;\n  background: rgba(255, 255, 255, 0.12);\n  border: 4px solid #226;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);\n  -webkit-transition: all .2s linear;\n  -moz-transition: all .2s linear;\n  -ms-transition: all .2s linear;\n  -o-transition: all .2s linear;\n  transition: all .2s linear;\n}\n\n.reveal a:hover img {\n  background: rgba(255, 255, 255, 0.2);\n  border-color: #13DAEC;\n  box-shadow: 0 0 20px rgba(0, 0, 0, 0.55);\n}\n\n/*********************************************\n * NAVIGATION CONTROLS\n *********************************************/\n.reveal .controls div.navigate-left,\n.reveal .controls div.navigate-left.enabled {\n  border-right-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-right,\n.reveal .controls div.navigate-right.enabled {\n  border-left-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-up,\n.reveal .controls div.navigate-up.enabled {\n  border-bottom-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-down,\n.reveal .controls div.navigate-down.enabled {\n  border-top-color: #13DAEC;\n}\n\n.reveal .controls div.navigate-left.enabled:hover {\n  border-right-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-right.enabled:hover {\n  border-left-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-up.enabled:hover {\n  border-bottom-color: #71e9f4;\n}\n\n.reveal .controls div.navigate-down.enabled:hover {\n  border-top-color: #71e9f4;\n}\n\n/*********************************************\n * PROGRESS BAR\n *********************************************/\n.reveal .progress {\n  background: rgba(0, 0, 0, 0.2);\n}\n\n.reveal .progress span {\n  background: #13DAEC;\n  -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -ms-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  -o-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n  transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);\n}\n\n/*********************************************\n * SLIDE NUMBER\n *********************************************/\n.reveal .slide-number {\n  color: #13DAEC;\n}\n\n.reveal .slides {\n  text-align: left;\n  letter-spacing: 0;\n}\n\n.reveal .slides h1 {\n  margin-bottom: 40px;\n}\n\n.reveal .slides h2, .reveal .slides h3 {\n  margin: 0 0 130px 0;\n}\n\n.reveal .slides li, .reveal .slides p, .reveal .slides blockquote {\n  padding-bottom: 40px;\n}\n\n.reveal .slides li {\n  list-style-type: disc;\n  list-style-position: inside;\n  text-indent: -1em;\n  padding-left: 1em;\n}\n\n.reveal .slides pre code {\n  margin-top: 50px;\n  margin-bottom: 50px;\n  max-height: 650px;\n  font-size: 24px;\n  line-height: 30px;\n}\n\n.reveal .slides [data-state=\"white-background\"] h2, .reveal .slides [data-state=\"white-background\"] h3, .reveal .slides [data-state=\"white-background\"] h4, .reveal .slides [data-state=\"white-background\"] p {\n  color: #3B3B3B;\n}\n\n.white-background .state-background {\n  background-color: #EDEDED;\n}\n\nhtml {\n  font-size: 34px;\n}\n\n.reveal, .reveal section, .reveal .slides {\n  text-align: center;\n}\n\n.reveal h1, .reveal section h1, .reveal .slides h1 {\n  font-size: 2.4rem;\n}\n\n.reveal h2, .reveal section h2, .reveal .slides h2 {\n  font-size: 2rem;\n}\n\n.reveal h3, .reveal section h3, .reveal .slides h3 {\n  font-size: 1.6rem;\n}\n\n.reveal li, .reveal p, .reveal section li, .reveal section p, .reveal .slides li, .reveal .slides p {\n  font-size: 1rem;\n  padding-bottom: 1rem;\n}\n\n.reveal ul, .reveal ol, .reveal section ul, .reveal section ol, .reveal .slides ul, .reveal .slides ol {\n  display: inline-block;\n  margin-top: 1.5rem;\n  margin-left: 0;\n  padding-left: 0;\n}\n\n.reveal img, .reveal section img, .reveal .slides img {\n  border: none;\n  margin: 0 auto;\n  outline: none;\n  background: transparent;\n  box-shadow: none;\n}\n\n.reveal p, .reveal section p, .reveal .slides p {\n  padding-bottom: 1.5rem;\n  margin-bottom: 0;\n}\n\n.reveal img.center, .reveal section img.center, .reveal .slides img.center {\n  margin: 2rem auto;\n  display: block;\n}\n\n.reveal .wrap, .reveal section .wrap, .reveal .slides .wrap {\n  display: flex;\n}\n\n.reveal .wrap .half, .reveal section .wrap .half, .reveal .slides .wrap .half {\n  flex-grow: 1;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.1.1
+	 * jQuery JavaScript Library v2.1.4
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -4951,19 +1211,19 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-05-01T17:11Z
+	 * Date: 2015-04-28T16:01Z
 	 */
 
 	(function( global, factory ) {
 
 		if ( typeof module === "object" && typeof module.exports === "object" ) {
-			// For CommonJS and CommonJS-like environments where a proper window is present,
-			// execute the factory and get jQuery
-			// For environments that do not inherently posses a window with a document
-			// (such as Node.js), expose a jQuery-making factory as module.exports
-			// This accentuates the need for the creation of a real window
+			// For CommonJS and CommonJS-like environments where a proper `window`
+			// is present, execute the factory and get jQuery.
+			// For environments that do not have a `window` with a `document`
+			// (such as Node.js), expose a factory as module.exports.
+			// This accentuates the need for the creation of a real `window`.
 			// e.g. var jQuery = require("jquery")(window);
-			// See ticket #14549 for more info
+			// See ticket #14549 for more info.
 			module.exports = global.document ?
 				factory( global, true ) :
 				function( w ) {
@@ -4979,10 +1239,10 @@
 	// Pass this if window is not defined yet
 	}(typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 
-	// Can't do this because several apps including ASP.NET trace
+	// Support: Firefox 18+
+	// Can't be in strict mode, several libs including ASP.NET trace
 	// the stack via arguments.caller.callee and Firefox dies if
 	// you try to trace through "use strict" call chains. (#13335)
-	// Support: Firefox 18+
 	//
 
 	var arr = [];
@@ -5009,7 +1269,7 @@
 		// Use the correct document accordingly with window argument (sandbox)
 		document = window.document,
 
-		version = "2.1.1",
+		version = "2.1.4",
 
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -5127,7 +1387,7 @@
 		if ( typeof target === "boolean" ) {
 			deep = target;
 
-			// skip the boolean and the target
+			// Skip the boolean and the target
 			target = arguments[ i ] || {};
 			i++;
 		}
@@ -5137,7 +1397,7 @@
 			target = {};
 		}
 
-		// extend jQuery itself if only one argument is passed
+		// Extend jQuery itself if only one argument is passed
 		if ( i === length ) {
 			target = this;
 			i--;
@@ -5194,9 +1454,6 @@
 
 		noop: function() {},
 
-		// See test/unit/core.js for details concerning isFunction.
-		// Since version 1.3, DOM methods and functions like alert
-		// aren't supported. They return false on IE (#2968).
 		isFunction: function( obj ) {
 			return jQuery.type(obj) === "function";
 		},
@@ -5211,7 +1468,8 @@
 			// parseFloat NaNs numeric-cast false positives (null|true|false|"")
 			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 			// subtraction forces infinities to NaN
-			return !jQuery.isArray( obj ) && obj - parseFloat( obj ) >= 0;
+			// adding 1 corrects loss of precision from parseFloat (#15100)
+			return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
 		},
 
 		isPlainObject: function( obj ) {
@@ -5245,7 +1503,7 @@
 			if ( obj == null ) {
 				return obj + "";
 			}
-			// Support: Android < 4.0, iOS < 6 (functionish RegExp)
+			// Support: Android<4.0, iOS<6 (functionish RegExp)
 			return typeof obj === "object" || typeof obj === "function" ?
 				class2type[ toString.call(obj) ] || "object" :
 				typeof obj;
@@ -5275,6 +1533,7 @@
 		},
 
 		// Convert dashed to camelCase; used by the css and data modules
+		// Support: IE9-11+
 		// Microsoft forgot to hump their vendor prefix (#9572)
 		camelCase: function( string ) {
 			return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
@@ -5474,7 +1733,12 @@
 	});
 
 	function isArraylike( obj ) {
-		var length = obj.length,
+
+		// Support: iOS 8.2 (not reproducible in simulator)
+		// `in` check used to prevent JIT error (gh-2145)
+		// hasOwn isn't used here due to false negatives
+		// regarding Nodelist length in IE
+		var length = "length" in obj && obj.length,
 			type = jQuery.type( obj );
 
 		if ( type === "function" || jQuery.isWindow( obj ) ) {
@@ -5490,14 +1754,14 @@
 	}
 	var Sizzle =
 	/*!
-	 * Sizzle CSS Selector Engine v1.10.19
+	 * Sizzle CSS Selector Engine v2.2.0-pre
 	 * http://sizzlejs.com/
 	 *
-	 * Copyright 2013 jQuery Foundation, Inc. and other contributors
+	 * Copyright 2008, 2014 jQuery Foundation, Inc. and other contributors
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-04-18
+	 * Date: 2014-12-16
 	 */
 	(function( window ) {
 
@@ -5524,7 +1788,7 @@
 		contains,
 
 		// Instance-specific data
-		expando = "sizzle" + -(new Date()),
+		expando = "sizzle" + 1 * new Date(),
 		preferredDoc = window.document,
 		dirruns = 0,
 		done = 0,
@@ -5539,7 +1803,6 @@
 		},
 
 		// General-purpose constants
-		strundefined = typeof undefined,
 		MAX_NEGATIVE = 1 << 31,
 
 		// Instance methods
@@ -5549,12 +1812,13 @@
 		push_native = arr.push,
 		push = arr.push,
 		slice = arr.slice,
-		// Use a stripped-down indexOf if we can't use a native one
-		indexOf = arr.indexOf || function( elem ) {
+		// Use a stripped-down indexOf as it's faster than native
+		// http://jsperf.com/thor-indexof-vs-for/5
+		indexOf = function( list, elem ) {
 			var i = 0,
-				len = this.length;
+				len = list.length;
 			for ( ; i < len; i++ ) {
-				if ( this[i] === elem ) {
+				if ( list[i] === elem ) {
 					return i;
 				}
 			}
@@ -5594,6 +1858,7 @@
 			")\\)|)",
 
 		// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
+		rwhitespace = new RegExp( whitespace + "+", "g" ),
 		rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
 
 		rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
@@ -5645,6 +1910,14 @@
 					String.fromCharCode( high + 0x10000 ) :
 					// Supplemental Plane codepoint (surrogate pair)
 					String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
+		},
+
+		// Used for iframes
+		// See setDocument()
+		// Removing the function wrapper causes a "Permission Denied"
+		// error in IE
+		unloadHandler = function() {
+			setDocument();
 		};
 
 	// Optimize for push.apply( _, NodeList )
@@ -5687,19 +1960,18 @@
 
 		context = context || document;
 		results = results || [];
+		nodeType = context.nodeType;
 
-		if ( !selector || typeof selector !== "string" ) {
+		if ( typeof selector !== "string" || !selector ||
+			nodeType !== 1 && nodeType !== 9 && nodeType !== 11 ) {
+
 			return results;
 		}
 
-		if ( (nodeType = context.nodeType) !== 1 && nodeType !== 9 ) {
-			return [];
-		}
+		if ( !seed && documentIsHTML ) {
 
-		if ( documentIsHTML && !seed ) {
-
-			// Shortcuts
-			if ( (match = rquickExpr.exec( selector )) ) {
+			// Try to shortcut find operations when possible (e.g., not under DocumentFragment)
+			if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
 				// Speed-up: Sizzle("#ID")
 				if ( (m = match[1]) ) {
 					if ( nodeType === 9 ) {
@@ -5731,7 +2003,7 @@
 					return results;
 
 				// Speed-up: Sizzle(".CLASS")
-				} else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
+				} else if ( (m = match[3]) && support.getElementsByClassName ) {
 					push.apply( results, context.getElementsByClassName( m ) );
 					return results;
 				}
@@ -5741,7 +2013,7 @@
 			if ( support.qsa && (!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
 				nid = old = expando;
 				newContext = context;
-				newSelector = nodeType === 9 && selector;
+				newSelector = nodeType !== 1 && selector;
 
 				// qSA works strangely on Element-rooted queries
 				// We can work around this by specifying an extra ID on the root
@@ -5928,7 +2200,7 @@
 	 * @returns {Element|Object|Boolean} The input node if acceptable, otherwise a falsy value
 	 */
 	function testContext( context ) {
-		return context && typeof context.getElementsByTagName !== strundefined && context;
+		return context && typeof context.getElementsByTagName !== "undefined" && context;
 	}
 
 	// Expose support vars for convenience
@@ -5952,9 +2224,8 @@
 	 * @returns {Object} Returns the current document
 	 */
 	setDocument = Sizzle.setDocument = function( node ) {
-		var hasCompare,
-			doc = node ? node.ownerDocument || node : preferredDoc,
-			parent = doc.defaultView;
+		var hasCompare, parent,
+			doc = node ? node.ownerDocument || node : preferredDoc;
 
 		// If no document and documentElement is available, return
 		if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
@@ -5964,9 +2235,7 @@
 		// Set our document
 		document = doc;
 		docElem = doc.documentElement;
-
-		// Support tests
-		documentIsHTML = !isXML( doc );
+		parent = doc.defaultView;
 
 		// Support: IE>8
 		// If iframe document is assigned to "document" variable and if iframe has been reloaded,
@@ -5975,21 +2244,22 @@
 		if ( parent && parent !== parent.top ) {
 			// IE11 does not have attachEvent, so all must suffer
 			if ( parent.addEventListener ) {
-				parent.addEventListener( "unload", function() {
-					setDocument();
-				}, false );
+				parent.addEventListener( "unload", unloadHandler, false );
 			} else if ( parent.attachEvent ) {
-				parent.attachEvent( "onunload", function() {
-					setDocument();
-				});
+				parent.attachEvent( "onunload", unloadHandler );
 			}
 		}
+
+		/* Support tests
+		---------------------------------------------------------------------- */
+		documentIsHTML = !isXML( doc );
 
 		/* Attributes
 		---------------------------------------------------------------------- */
 
 		// Support: IE<8
-		// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
+		// Verify that getAttribute really returns attributes and not properties
+		// (excepting IE8 booleans)
 		support.attributes = assert(function( div ) {
 			div.className = "i";
 			return !div.getAttribute("className");
@@ -6004,17 +2274,8 @@
 			return !div.getElementsByTagName("*").length;
 		});
 
-		// Check if getElementsByClassName can be trusted
-		support.getElementsByClassName = rnative.test( doc.getElementsByClassName ) && assert(function( div ) {
-			div.innerHTML = "<div class='a'></div><div class='a i'></div>";
-
-			// Support: Safari<4
-			// Catch class over-caching
-			div.firstChild.className = "i";
-			// Support: Opera<10
-			// Catch gEBCN failure to find non-leading classes
-			return div.getElementsByClassName("i").length === 2;
-		});
+		// Support: IE<9
+		support.getElementsByClassName = rnative.test( doc.getElementsByClassName );
 
 		// Support: IE<10
 		// Check if getElementById returns elements by name
@@ -6028,7 +2289,7 @@
 		// ID find and filter
 		if ( support.getById ) {
 			Expr.find["ID"] = function( id, context ) {
-				if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
+				if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 					var m = context.getElementById( id );
 					// Check parentNode to catch when Blackberry 4.6 returns
 					// nodes that are no longer in the document #6963
@@ -6049,7 +2310,7 @@
 			Expr.filter["ID"] =  function( id ) {
 				var attrId = id.replace( runescape, funescape );
 				return function( elem ) {
-					var node = typeof elem.getAttributeNode !== strundefined && elem.getAttributeNode("id");
+					var node = typeof elem.getAttributeNode !== "undefined" && elem.getAttributeNode("id");
 					return node && node.value === attrId;
 				};
 			};
@@ -6058,14 +2319,20 @@
 		// Tag
 		Expr.find["TAG"] = support.getElementsByTagName ?
 			function( tag, context ) {
-				if ( typeof context.getElementsByTagName !== strundefined ) {
+				if ( typeof context.getElementsByTagName !== "undefined" ) {
 					return context.getElementsByTagName( tag );
+
+				// DocumentFragment nodes don't have gEBTN
+				} else if ( support.qsa ) {
+					return context.querySelectorAll( tag );
 				}
 			} :
+
 			function( tag, context ) {
 				var elem,
 					tmp = [],
 					i = 0,
+					// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
 					results = context.getElementsByTagName( tag );
 
 				// Filter out possible comments
@@ -6083,7 +2350,7 @@
 
 		// Class
 		Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
-			if ( typeof context.getElementsByClassName !== strundefined && documentIsHTML ) {
+			if ( documentIsHTML ) {
 				return context.getElementsByClassName( className );
 			}
 		};
@@ -6112,13 +2379,15 @@
 				// setting a boolean content attribute,
 				// since its presence should be enough
 				// http://bugs.jquery.com/ticket/12359
-				div.innerHTML = "<select msallowclip=''><option selected=''></option></select>";
+				docElem.appendChild( div ).innerHTML = "<a id='" + expando + "'></a>" +
+					"<select id='" + expando + "-\f]' msallowcapture=''>" +
+					"<option selected=''></option></select>";
 
 				// Support: IE8, Opera 11-12.16
 				// Nothing should be selected when empty strings follow ^= or $= or *=
 				// The test attribute must be unknown in Opera but "safe" for WinRT
 				// http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-				if ( div.querySelectorAll("[msallowclip^='']").length ) {
+				if ( div.querySelectorAll("[msallowcapture^='']").length ) {
 					rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 				}
 
@@ -6128,11 +2397,23 @@
 					rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 				}
 
+				// Support: Chrome<29, Android<4.2+, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.7+
+				if ( !div.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
+					rbuggyQSA.push("~=");
+				}
+
 				// Webkit/Opera - :checked should return selected option elements
 				// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 				// IE8 throws error here and will not see later tests
 				if ( !div.querySelectorAll(":checked").length ) {
 					rbuggyQSA.push(":checked");
+				}
+
+				// Support: Safari 8+, iOS 8+
+				// https://bugs.webkit.org/show_bug.cgi?id=136851
+				// In-page `selector#id sibing-combinator selector` fails
+				if ( !div.querySelectorAll( "a#" + expando + "+*" ).length ) {
+					rbuggyQSA.push(".#.+[+~]");
 				}
 			});
 
@@ -6250,7 +2531,7 @@
 
 				// Maintain original order
 				return sortInput ?
-					( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
+					( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
 					0;
 			}
 
@@ -6277,7 +2558,7 @@
 					aup ? -1 :
 					bup ? 1 :
 					sortInput ?
-					( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
+					( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
 					0;
 
 			// If the nodes are siblings, we can do a quick check
@@ -6340,7 +2621,7 @@
 						elem.document && elem.document.nodeType !== 11 ) {
 					return ret;
 				}
-			} catch(e) {}
+			} catch (e) {}
 		}
 
 		return Sizzle( expr, document, null, [ elem ] ).length > 0;
@@ -6559,7 +2840,7 @@
 				return pattern ||
 					(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
 					classCache( className, function( elem ) {
-						return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "" );
+						return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
 					});
 			},
 
@@ -6581,7 +2862,7 @@
 						operator === "^=" ? check && result.indexOf( check ) === 0 :
 						operator === "*=" ? check && result.indexOf( check ) > -1 :
 						operator === "$=" ? check && result.slice( -check.length ) === check :
-						operator === "~=" ? ( " " + result + " " ).indexOf( check ) > -1 :
+						operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
 						operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
 						false;
 				};
@@ -6701,7 +2982,7 @@
 								matched = fn( seed, argument ),
 								i = matched.length;
 							while ( i-- ) {
-								idx = indexOf.call( seed, matched[i] );
+								idx = indexOf( seed, matched[i] );
 								seed[ idx ] = !( matches[ idx ] = matched[i] );
 							}
 						}) :
@@ -6740,6 +3021,8 @@
 					function( elem, context, xml ) {
 						input[0] = elem;
 						matcher( input, null, xml, results );
+						// Don't keep the element (issue #299)
+						input[0] = null;
 						return !results.pop();
 					};
 			}),
@@ -6751,6 +3034,7 @@
 			}),
 
 			"contains": markFunction(function( text ) {
+				text = text.replace( runescape, funescape );
 				return function( elem ) {
 					return ( elem.textContent || elem.innerText || getText( elem ) ).indexOf( text ) > -1;
 				};
@@ -7172,7 +3456,7 @@
 					i = matcherOut.length;
 					while ( i-- ) {
 						if ( (elem = matcherOut[i]) &&
-							(temp = postFinder ? indexOf.call( seed, elem ) : preMap[i]) > -1 ) {
+							(temp = postFinder ? indexOf( seed, elem ) : preMap[i]) > -1 ) {
 
 							seed[temp] = !(results[temp] = elem);
 						}
@@ -7207,13 +3491,16 @@
 				return elem === checkContext;
 			}, implicitRelative, true ),
 			matchAnyContext = addCombinator( function( elem ) {
-				return indexOf.call( checkContext, elem ) > -1;
+				return indexOf( checkContext, elem ) > -1;
 			}, implicitRelative, true ),
 			matchers = [ function( elem, context, xml ) {
-				return ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
+				var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
 					(checkContext = context).nodeType ?
 						matchContext( elem, context, xml ) :
 						matchAnyContext( elem, context, xml ) );
+				// Avoid hanging onto element (issue #299)
+				checkContext = null;
+				return ret;
 			} ];
 
 		for ( ; i < len; i++ ) {
@@ -7463,7 +3750,7 @@
 	// Sort stability
 	support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
-	// Support: Chrome<14
+	// Support: Chrome 14-35+
 	// Always assume duplicates if they aren't passed to the comparison function
 	support.detectDuplicates = !!hasDuplicate;
 
@@ -7672,7 +3959,7 @@
 					if ( match[1] ) {
 						context = context instanceof jQuery ? context[0] : context;
 
-						// scripts is true for back-compat
+						// Option to run scripts is true for back-compat
 						// Intentionally let the error be thrown if parseHTML is not present
 						jQuery.merge( this, jQuery.parseHTML(
 							match[1],
@@ -7700,8 +3987,8 @@
 					} else {
 						elem = document.getElementById( match[2] );
 
-						// Check parentNode to catch when Blackberry 4.6 returns
-						// nodes that are no longer in the document #6963
+						// Support: Blackberry 4.6
+						// gEBID returns nodes no longer in the document (#6963)
 						if ( elem && elem.parentNode ) {
 							// Inject the element directly into the jQuery object
 							this.length = 1;
@@ -7754,7 +4041,7 @@
 
 
 	var rparentsprev = /^(?:parents|prev(?:Until|All))/,
-		// methods guaranteed to produce a unique set when starting from a unique set
+		// Methods guaranteed to produce a unique set when starting from a unique set
 		guaranteedUnique = {
 			children: true,
 			contents: true,
@@ -7834,8 +4121,7 @@
 			return this.pushStack( matched.length > 1 ? jQuery.unique( matched ) : matched );
 		},
 
-		// Determine the position of an element within
-		// the matched set of elements
+		// Determine the position of an element within the set
 		index: function( elem ) {
 
 			// No argument, return index in parent
@@ -7843,7 +4129,7 @@
 				return ( this[ 0 ] && this[ 0 ].parentNode ) ? this.first().prevAll().length : -1;
 			}
 
-			// index in selector
+			// Index in selector
 			if ( typeof elem === "string" ) {
 				return indexOf.call( jQuery( elem ), this[ 0 ] );
 			}
@@ -8259,7 +4545,7 @@
 
 				progressValues, progressContexts, resolveContexts;
 
-			// add listeners to Deferred subordinates; treat others as resolved
+			// Add listeners to Deferred subordinates; treat others as resolved
 			if ( length > 1 ) {
 				progressValues = new Array( length );
 				progressContexts = new Array( length );
@@ -8276,7 +4562,7 @@
 				}
 			}
 
-			// if we're not waiting on anything, resolve the master
+			// If we're not waiting on anything, resolve the master
 			if ( !remaining ) {
 				deferred.resolveWith( resolveContexts, resolveValues );
 			}
@@ -8355,7 +4641,7 @@
 			readyList = jQuery.Deferred();
 
 			// Catch cases where $(document).ready() is called after the browser event has already occurred.
-			// we once tried to use readyState "interactive" here, but it caused issues like the one
+			// We once tried to use readyState "interactive" here, but it caused issues like the one
 			// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
 			if ( document.readyState === "complete" ) {
 				// Handle it asynchronously to allow scripts the opportunity to delay ready
@@ -8449,7 +4735,7 @@
 
 
 	function Data() {
-		// Support: Android < 4,
+		// Support: Android<4,
 		// Old WebKit does not have Object.preventExtensions/freeze method,
 		// return new empty object instead with no [[set]] accessor
 		Object.defineProperty( this.cache = {}, 0, {
@@ -8458,7 +4744,7 @@
 			}
 		});
 
-		this.expando = jQuery.expando + Math.random();
+		this.expando = jQuery.expando + Data.uid++;
 	}
 
 	Data.uid = 1;
@@ -8486,7 +4772,7 @@
 					descriptor[ this.expando ] = { value: unlock };
 					Object.defineProperties( owner, descriptor );
 
-				// Support: Android < 4
+				// Support: Android<4
 				// Fallback to a less secure definition
 				} catch ( e ) {
 					descriptor[ this.expando ] = unlock;
@@ -8626,17 +4912,16 @@
 
 
 
-	/*
-		Implementation Summary
+	//	Implementation Summary
+	//
+	//	1. Enforce API surface and semantic compatibility with 1.9.x branch
+	//	2. Improve the module's maintainability by reducing the storage
+	//		paths to a single mechanism.
+	//	3. Use the same single mechanism to support "private" and "user" data.
+	//	4. _Never_ expose "private" data to user code (TODO: Drop _data, _removeData)
+	//	5. Avoid exposing implementation details on user objects (eg. expando properties)
+	//	6. Provide a clear path for implementation upgrade to WeakMap in 2014
 
-		1. Enforce API surface and semantic compatibility with 1.9.x branch
-		2. Improve the module's maintainability by reducing the storage
-			paths to a single mechanism.
-		3. Use the same single mechanism to support "private" and "user" data.
-		4. _Never_ expose "private" data to user code (TODO: Drop _data, _removeData)
-		5. Avoid exposing implementation details on user objects (eg. expando properties)
-		6. Provide a clear path for implementation upgrade to WeakMap in 2014
-	*/
 	var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
 		rmultiDash = /([A-Z])/g;
 
@@ -8841,7 +5126,7 @@
 					queue.unshift( "inprogress" );
 				}
 
-				// clear up the last queue stop function
+				// Clear up the last queue stop function
 				delete hooks.stop;
 				fn.call( elem, next, hooks );
 			}
@@ -8851,7 +5136,7 @@
 			}
 		},
 
-		// not intended for public consumption - generates a queueHooks object, or returns the current one
+		// Not public - generate a queueHooks object, or return the current one
 		_queueHooks: function( elem, type ) {
 			var key = type + "queueHooks";
 			return data_priv.get( elem, key ) || data_priv.access( elem, key, {
@@ -8881,7 +5166,7 @@
 				this.each(function() {
 					var queue = jQuery.queue( this, type, data );
 
-					// ensure a hooks for this queue
+					// Ensure a hooks for this queue
 					jQuery._queueHooks( this, type );
 
 					if ( type === "fx" && queue[0] !== "inprogress" ) {
@@ -8948,21 +5233,22 @@
 			div = fragment.appendChild( document.createElement( "div" ) ),
 			input = document.createElement( "input" );
 
-		// #11217 - WebKit loses check when the name is after the checked attribute
+		// Support: Safari<=5.1
+		// Check state lost if the name is set (#11217)
 		// Support: Windows Web Apps (WWA)
-		// `name` and `type` need .setAttribute for WWA
+		// `name` and `type` must use .setAttribute for WWA (#14901)
 		input.setAttribute( "type", "radio" );
 		input.setAttribute( "checked", "checked" );
 		input.setAttribute( "name", "t" );
 
 		div.appendChild( input );
 
-		// Support: Safari 5.1, iOS 5.1, Android 4.x, Android 2.3
-		// old WebKit doesn't clone checked state correctly in fragments
+		// Support: Safari<=5.1, Android<4.2
+		// Older WebKit doesn't clone checked state correctly in fragments
 		support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
+		// Support: IE<=11+
 		// Make sure textarea (and checkbox) defaultValue is properly cloned
-		// Support: IE9-IE11+
 		div.innerHTML = "<textarea>x</textarea>";
 		support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
 	})();
@@ -9340,8 +5626,8 @@
 				j = 0;
 				while ( (handleObj = matched.handlers[ j++ ]) && !event.isImmediatePropagationStopped() ) {
 
-					// Triggered event must either 1) have no namespace, or
-					// 2) have namespace(s) a subset or equal to those in the bound event (both can have no namespace).
+					// Triggered event must either 1) have no namespace, or 2) have namespace(s)
+					// a subset or equal to those in the bound event (both can have no namespace).
 					if ( !event.namespace_re || event.namespace_re.test( handleObj.namespace ) ) {
 
 						event.handleObj = handleObj;
@@ -9491,7 +5777,7 @@
 				event.target = document;
 			}
 
-			// Support: Safari 6.0+, Chrome < 28
+			// Support: Safari 6.0+, Chrome<28
 			// Target should not be a text node (#504, #13143)
 			if ( event.target.nodeType === 3 ) {
 				event.target = event.target.parentNode;
@@ -9596,7 +5882,7 @@
 			// by a handler lower down the tree; reflect the correct value.
 			this.isDefaultPrevented = src.defaultPrevented ||
 					src.defaultPrevented === undefined &&
-					// Support: Android < 4.0
+					// Support: Android<4.0
 					src.returnValue === false ?
 				returnTrue :
 				returnFalse;
@@ -9686,8 +5972,8 @@
 		};
 	});
 
-	// Create "bubbling" focus and blur events
 	// Support: Firefox, Chrome, Safari
+	// Create "bubbling" focus and blur events
 	if ( !support.focusinBubbles ) {
 		jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 
@@ -9840,7 +6126,7 @@
 		// We have to close these tags to support XHTML (#13200)
 		wrapMap = {
 
-			// Support: IE 9
+			// Support: IE9
 			option: [ 1, "<select multiple='multiple'>", "</select>" ],
 
 			thead: [ 1, "<table>", "</table>" ],
@@ -9851,7 +6137,7 @@
 			_default: [ 0, "", "" ]
 		};
 
-	// Support: IE 9
+	// Support: IE9
 	wrapMap.optgroup = wrapMap.option;
 
 	wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
@@ -9941,7 +6227,7 @@
 			ret;
 	}
 
-	// Support: IE >= 9
+	// Fix IE bugs, see support tests
 	function fixInput( src, dest ) {
 		var nodeName = dest.nodeName.toLowerCase();
 
@@ -9961,8 +6247,7 @@
 				clone = elem.cloneNode( true ),
 				inPage = jQuery.contains( elem.ownerDocument, elem );
 
-			// Support: IE >= 9
-			// Fix Cloning issues
+			// Fix IE cloning issues
 			if ( !support.noCloneChecked && ( elem.nodeType === 1 || elem.nodeType === 11 ) &&
 					!jQuery.isXMLDoc( elem ) ) {
 
@@ -10013,8 +6298,8 @@
 
 					// Add nodes directly
 					if ( jQuery.type( elem ) === "object" ) {
-						// Support: QtWebKit
-						// jQuery.merge because push.apply(_, arraylike) throws
+						// Support: QtWebKit, PhantomJS
+						// push.apply(_, arraylike) throws on ancient WebKit
 						jQuery.merge( nodes, elem.nodeType ? [ elem ] : elem );
 
 					// Convert non-html into a text node
@@ -10036,15 +6321,14 @@
 							tmp = tmp.lastChild;
 						}
 
-						// Support: QtWebKit
-						// jQuery.merge because push.apply(_, arraylike) throws
+						// Support: QtWebKit, PhantomJS
+						// push.apply(_, arraylike) throws on ancient WebKit
 						jQuery.merge( nodes, tmp.childNodes );
 
 						// Remember the top-level container
 						tmp = fragment.firstChild;
 
-						// Fixes #12346
-						// Support: Webkit, IE
+						// Ensure the created nodes are orphaned (#12392)
 						tmp.textContent = "";
 					}
 				}
@@ -10406,7 +6690,7 @@
 			// getDefaultComputedStyle might be reliably used only on attached element
 			display = window.getDefaultComputedStyle && ( style = window.getDefaultComputedStyle( elem[ 0 ] ) ) ?
 
-				// Use of this method is a temporary fix (more like optmization) until something better comes along,
+				// Use of this method is a temporary fix (more like optimization) until something better comes along,
 				// since it was removed from specification and supported only in FF
 				style.display : jQuery.css( elem[ 0 ], "display" );
 
@@ -10456,7 +6740,14 @@
 	var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 	var getStyles = function( elem ) {
-			return elem.ownerDocument.defaultView.getComputedStyle( elem, null );
+			// Support: IE<=11+, Firefox<=30+ (#15098, #14150)
+			// IE throws on elements created in popups
+			// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
+			if ( elem.ownerDocument.defaultView.opener ) {
+				return elem.ownerDocument.defaultView.getComputedStyle( elem, null );
+			}
+
+			return window.getComputedStyle( elem, null );
 		};
 
 
@@ -10468,7 +6759,7 @@
 		computed = computed || getStyles( elem );
 
 		// Support: IE9
-		// getPropertyValue is only needed for .css('filter') in IE9, see #12537
+		// getPropertyValue is only needed for .css('filter') (#12537)
 		if ( computed ) {
 			ret = computed.getPropertyValue( name ) || computed[ name ];
 		}
@@ -10514,15 +6805,13 @@
 		return {
 			get: function() {
 				if ( conditionFn() ) {
-					// Hook not needed (or it's not possible to use it due to missing dependency),
-					// remove it.
-					// Since there are no other hooks for marginRight, remove the whole object.
+					// Hook not needed (or it's not possible to use it due
+					// to missing dependency), remove it.
 					delete this.get;
 					return;
 				}
 
 				// Hook needed; redefine it so that the support test is not executed again.
-
 				return (this.get = hookFn).apply( this, arguments );
 			}
 		};
@@ -10539,6 +6828,8 @@
 			return;
 		}
 
+		// Support: IE9-11+
+		// Style of cloned element affects source element cloned (#8908)
 		div.style.backgroundClip = "content-box";
 		div.cloneNode( true ).style.backgroundClip = "";
 		support.clearCloneStyle = div.style.backgroundClip === "content-box";
@@ -10571,6 +6862,7 @@
 		if ( window.getComputedStyle ) {
 			jQuery.extend( support, {
 				pixelPosition: function() {
+
 					// This test is executed only once but we still do memoizing
 					// since we can use the boxSizingReliable pre-computing.
 					// No need to check if the test was already performed, though.
@@ -10584,6 +6876,7 @@
 					return boxSizingReliableVal;
 				},
 				reliableMarginRight: function() {
+
 					// Support: Android 2.3
 					// Check if div with explicit width and no margin-right incorrectly
 					// gets computed margin-right based on width of container. (#3333)
@@ -10605,6 +6898,7 @@
 					ret = !parseFloat( window.getComputedStyle( marginDiv, null ).marginRight );
 
 					docElem.removeChild( container );
+					div.removeChild( marginDiv );
 
 					return ret;
 				}
@@ -10636,8 +6930,8 @@
 
 
 	var
-		// swappable if display is none or starts with table except "table", "table-cell", or "table-caption"
-		// see here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
+		// Swappable if display is none or starts with table except "table", "table-cell", or "table-caption"
+		// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 		rdisplayswap = /^(none|table(?!-c[ea]).+)/,
 		rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" ),
 		rrelNum = new RegExp( "^([+-])=(" + pnum + ")", "i" ),
@@ -10650,15 +6944,15 @@
 
 		cssPrefixes = [ "Webkit", "O", "Moz", "ms" ];
 
-	// return a css property mapped to a potentially vendor prefixed property
+	// Return a css property mapped to a potentially vendor prefixed property
 	function vendorPropName( style, name ) {
 
-		// shortcut for names that are not vendor prefixed
+		// Shortcut for names that are not vendor prefixed
 		if ( name in style ) {
 			return name;
 		}
 
-		// check for vendor prefixed names
+		// Check for vendor prefixed names
 		var capName = name[0].toUpperCase() + name.slice(1),
 			origName = name,
 			i = cssPrefixes.length;
@@ -10691,7 +6985,7 @@
 			val = 0;
 
 		for ( ; i < 4; i += 2 ) {
-			// both box models exclude margin, so add it if we want it
+			// Both box models exclude margin, so add it if we want it
 			if ( extra === "margin" ) {
 				val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
 			}
@@ -10702,15 +6996,15 @@
 					val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 				}
 
-				// at this point, extra isn't border nor margin, so remove border
+				// At this point, extra isn't border nor margin, so remove border
 				if ( extra !== "margin" ) {
 					val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 				}
 			} else {
-				// at this point, extra isn't content, so add padding
+				// At this point, extra isn't content, so add padding
 				val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 
-				// at this point, extra isn't content nor padding, so add border
+				// At this point, extra isn't content nor padding, so add border
 				if ( extra !== "padding" ) {
 					val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 				}
@@ -10728,7 +7022,7 @@
 			styles = getStyles( elem ),
 			isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
-		// some non-html elements return undefined for offsetWidth, so check for null/undefined
+		// Some non-html elements return undefined for offsetWidth, so check for null/undefined
 		// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
 		// MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
 		if ( val <= 0 || val == null ) {
@@ -10743,7 +7037,7 @@
 				return val;
 			}
 
-			// we need the check for style in case a browser which returns unreliable values
+			// Check for style in case a browser which returns unreliable values
 			// for getComputedStyle silently falls back to the reliable elem.style
 			valueIsBorderBox = isBorderBox &&
 				( support.boxSizingReliable() || val === elem.style[ name ] );
@@ -10752,7 +7046,7 @@
 			val = parseFloat( val ) || 0;
 		}
 
-		// use the active box-sizing model to add/subtract irrelevant styles
+		// Use the active box-sizing model to add/subtract irrelevant styles
 		return ( val +
 			augmentWidthOrHeight(
 				elem,
@@ -10816,12 +7110,14 @@
 	}
 
 	jQuery.extend({
+
 		// Add in style property hooks for overriding the default
 		// behavior of getting and setting a style property
 		cssHooks: {
 			opacity: {
 				get: function( elem, computed ) {
 					if ( computed ) {
+
 						// We should always get a number back from opacity
 						var ret = curCSS( elem, "opacity" );
 						return ret === "" ? "1" : ret;
@@ -10849,12 +7145,12 @@
 		// Add in properties whose names you wish to fix before
 		// setting or getting the value
 		cssProps: {
-			// normalize float css property
 			"float": "cssFloat"
 		},
 
 		// Get and set the style property on a DOM Node
 		style: function( elem, name, value, extra ) {
+
 			// Don't set styles on text and comment nodes
 			if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style ) {
 				return;
@@ -10867,33 +7163,32 @@
 
 			name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( style, origName ) );
 
-			// gets hook for the prefixed version
-			// followed by the unprefixed version
+			// Gets hook for the prefixed version, then unprefixed version
 			hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 
 			// Check if we're setting a value
 			if ( value !== undefined ) {
 				type = typeof value;
 
-				// convert relative number strings (+= or -=) to relative numbers. #7345
+				// Convert "+=" or "-=" to relative numbers (#7345)
 				if ( type === "string" && (ret = rrelNum.exec( value )) ) {
 					value = ( ret[1] + 1 ) * ret[2] + parseFloat( jQuery.css( elem, name ) );
 					// Fixes bug #9237
 					type = "number";
 				}
 
-				// Make sure that null and NaN values aren't set. See: #7116
+				// Make sure that null and NaN values aren't set (#7116)
 				if ( value == null || value !== value ) {
 					return;
 				}
 
-				// If a number was passed in, add 'px' to the (except for certain CSS properties)
+				// If a number, add 'px' to the (except for certain CSS properties)
 				if ( type === "number" && !jQuery.cssNumber[ origName ] ) {
 					value += "px";
 				}
 
-				// Fixes #8908, it can be done more correctly by specifying setters in cssHooks,
-				// but it would mean to define eight (for every problematic property) identical functions
+				// Support: IE9-11+
+				// background-* props affect original clone's values
 				if ( !support.clearCloneStyle && value === "" && name.indexOf( "background" ) === 0 ) {
 					style[ name ] = "inherit";
 				}
@@ -10921,8 +7216,7 @@
 			// Make sure that we're working with the right name
 			name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
 
-			// gets hook for the prefixed version
-			// followed by the unprefixed version
+			// Try prefixed name followed by the unprefixed name
 			hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 
 			// If a hook was provided get the computed value from there
@@ -10935,12 +7229,12 @@
 				val = curCSS( elem, name, styles );
 			}
 
-			//convert "normal" to computed value
+			// Convert "normal" to computed value
 			if ( val === "normal" && name in cssNormalTransform ) {
 				val = cssNormalTransform[ name ];
 			}
 
-			// Return, converting to number if forced or a qualifier was provided and val looks numeric
+			// Make numeric if forced or a qualifier was provided and val looks numeric
 			if ( extra === "" || extra ) {
 				num = parseFloat( val );
 				return extra === true || jQuery.isNumeric( num ) ? num || 0 : val;
@@ -10953,8 +7247,9 @@
 		jQuery.cssHooks[ name ] = {
 			get: function( elem, computed, extra ) {
 				if ( computed ) {
-					// certain elements can have dimension info if we invisibly show them
-					// however, it must have a current display style that would benefit from this
+
+					// Certain elements can have dimension info if we invisibly show them
+					// but it must have a current display style that would benefit
 					return rdisplayswap.test( jQuery.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
 						jQuery.swap( elem, cssShow, function() {
 							return getWidthOrHeight( elem, name, extra );
@@ -10982,8 +7277,6 @@
 	jQuery.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
 		function( elem, computed ) {
 			if ( computed ) {
-				// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
-				// Work around by temporarily setting element display to inline-block
 				return jQuery.swap( elem, { "display": "inline-block" },
 					curCSS, [ elem, "marginRight" ] );
 			}
@@ -11001,7 +7294,7 @@
 				var i = 0,
 					expanded = {},
 
-					// assumes a single number if not a string
+					// Assumes a single number if not a string
 					parts = typeof value === "string" ? value.split(" ") : [ value ];
 
 				for ( ; i < 4; i++ ) {
@@ -11124,17 +7417,18 @@
 					return tween.elem[ tween.prop ];
 				}
 
-				// passing an empty string as a 3rd parameter to .css will automatically
-				// attempt a parseFloat and fallback to a string if the parse fails
-				// so, simple values such as "10px" are parsed to Float.
-				// complex values such as "rotate(1rad)" are returned as is.
+				// Passing an empty string as a 3rd parameter to .css will automatically
+				// attempt a parseFloat and fallback to a string if the parse fails.
+				// Simple values such as "10px" are parsed to Float;
+				// complex values such as "rotate(1rad)" are returned as-is.
 				result = jQuery.css( tween.elem, tween.prop, "" );
 				// Empty strings, null, undefined and "auto" are converted to 0.
 				return !result || result === "auto" ? 0 : result;
 			},
 			set: function( tween ) {
-				// use step hook for back compat - use cssHook if its there - use .style if its
-				// available and use plain properties where available
+				// Use step hook for back compat.
+				// Use cssHook if its there.
+				// Use .style if available and use plain properties where available.
 				if ( jQuery.fx.step[ tween.prop ] ) {
 					jQuery.fx.step[ tween.prop ]( tween );
 				} else if ( tween.elem.style && ( tween.elem.style[ jQuery.cssProps[ tween.prop ] ] != null || jQuery.cssHooks[ tween.prop ] ) ) {
@@ -11148,7 +7442,6 @@
 
 	// Support: IE9
 	// Panic based approach to setting things on disconnected nodes
-
 	Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 		set: function( tween ) {
 			if ( tween.elem.nodeType && tween.elem.parentNode ) {
@@ -11204,16 +7497,16 @@
 					start = +target || 1;
 
 					do {
-						// If previous iteration zeroed out, double until we get *something*
-						// Use a string for doubling factor so we don't accidentally see scale as unchanged below
+						// If previous iteration zeroed out, double until we get *something*.
+						// Use string for doubling so we don't accidentally see scale as unchanged below
 						scale = scale || ".5";
 
 						// Adjust and apply
 						start = start / scale;
 						jQuery.style( tween.elem, prop, start + unit );
 
-					// Update scale, tolerating zero or NaN from tween.cur()
-					// And breaking the loop if scale is unchanged or perfect, or if we've just had enough
+					// Update scale, tolerating zero or NaN from tween.cur(),
+					// break the loop if scale is unchanged or perfect, or if we've just had enough
 					} while ( scale !== (scale = tween.cur() / target) && scale !== 1 && --maxIterations );
 				}
 
@@ -11245,8 +7538,8 @@
 			i = 0,
 			attrs = { height: type };
 
-		// if we include width, step value is 1 to do all cssExpand values,
-		// if we don't include width, step value is 2 to skip over Left and Right
+		// If we include width, step value is 1 to do all cssExpand values,
+		// otherwise step value is 2 to skip over Left and Right
 		includeWidth = includeWidth ? 1 : 0;
 		for ( ; i < 4 ; i += 2 - includeWidth ) {
 			which = cssExpand[ i ];
@@ -11268,7 +7561,7 @@
 		for ( ; index < length; index++ ) {
 			if ( (tween = collection[ index ].call( animation, prop, value )) ) {
 
-				// we're done with this property
+				// We're done with this property
 				return tween;
 			}
 		}
@@ -11283,7 +7576,7 @@
 			hidden = elem.nodeType && isHidden( elem ),
 			dataShow = data_priv.get( elem, "fxshow" );
 
-		// handle queue: false promises
+		// Handle queue: false promises
 		if ( !opts.queue ) {
 			hooks = jQuery._queueHooks( elem, "fx" );
 			if ( hooks.unqueued == null ) {
@@ -11298,8 +7591,7 @@
 			hooks.unqueued++;
 
 			anim.always(function() {
-				// doing this makes sure that the complete handler will be called
-				// before this completes
+				// Ensure the complete handler is called before this completes
 				anim.always(function() {
 					hooks.unqueued--;
 					if ( !jQuery.queue( elem, "fx" ).length ) {
@@ -11309,7 +7601,7 @@
 			});
 		}
 
-		// height/width overflow pass
+		// Height/width overflow pass
 		if ( elem.nodeType === 1 && ( "height" in props || "width" in props ) ) {
 			// Make sure that nothing sneaks out
 			// Record all 3 overflow attributes because IE9-10 do not
@@ -11371,7 +7663,7 @@
 				dataShow = data_priv.access( elem, "fxshow", {} );
 			}
 
-			// store state if its toggle - enables .stop().toggle() to "reverse"
+			// Store state if its toggle - enables .stop().toggle() to "reverse"
 			if ( toggle ) {
 				dataShow.hidden = !hidden;
 			}
@@ -11431,8 +7723,8 @@
 				value = hooks.expand( value );
 				delete props[ name ];
 
-				// not quite $.extend, this wont overwrite keys already present.
-				// also - reusing 'index' from above because we have the correct "name"
+				// Not quite $.extend, this won't overwrite existing keys.
+				// Reusing 'index' because we have the correct "name"
 				for ( index in value ) {
 					if ( !( index in props ) ) {
 						props[ index ] = value[ index ];
@@ -11451,7 +7743,7 @@
 			index = 0,
 			length = animationPrefilters.length,
 			deferred = jQuery.Deferred().always( function() {
-				// don't match elem in the :animated selector
+				// Don't match elem in the :animated selector
 				delete tick.elem;
 			}),
 			tick = function() {
@@ -11460,7 +7752,8 @@
 				}
 				var currentTime = fxNow || createFxNow(),
 					remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
-					// archaic crash bug won't allow us to use 1 - ( 0.5 || 0 ) (#12497)
+					// Support: Android 2.3
+					// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (#12497)
 					temp = remaining / animation.duration || 0,
 					percent = 1 - temp,
 					index = 0,
@@ -11496,7 +7789,7 @@
 				},
 				stop: function( gotoEnd ) {
 					var index = 0,
-						// if we are going to the end, we want to run all the tweens
+						// If we are going to the end, we want to run all the tweens
 						// otherwise we skip this part
 						length = gotoEnd ? animation.tweens.length : 0;
 					if ( stopped ) {
@@ -11507,8 +7800,7 @@
 						animation.tweens[ index ].run( 1 );
 					}
 
-					// resolve when we played the last frame
-					// otherwise, reject
+					// Resolve when we played the last frame; otherwise, reject
 					if ( gotoEnd ) {
 						deferred.resolveWith( elem, [ animation, gotoEnd ] );
 					} else {
@@ -11590,7 +7882,7 @@
 		opt.duration = jQuery.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
 			opt.duration in jQuery.fx.speeds ? jQuery.fx.speeds[ opt.duration ] : jQuery.fx.speeds._default;
 
-		// normalize opt.queue - true/undefined/null -> "fx"
+		// Normalize opt.queue - true/undefined/null -> "fx"
 		if ( opt.queue == null || opt.queue === true ) {
 			opt.queue = "fx";
 		}
@@ -11614,10 +7906,10 @@
 	jQuery.fn.extend({
 		fadeTo: function( speed, to, easing, callback ) {
 
-			// show any hidden elements after setting opacity to 0
+			// Show any hidden elements after setting opacity to 0
 			return this.filter( isHidden ).css( "opacity", 0 ).show()
 
-				// animate to the value specified
+				// Animate to the value specified
 				.end().animate({ opacity: to }, speed, easing, callback );
 		},
 		animate: function( prop, speed, easing, callback ) {
@@ -11680,9 +7972,9 @@
 					}
 				}
 
-				// start the next in the queue if the last step wasn't forced
-				// timers currently will call their complete callbacks, which will dequeue
-				// but only if they were gotoEnd
+				// Start the next in the queue if the last step wasn't forced.
+				// Timers currently will call their complete callbacks, which
+				// will dequeue but only if they were gotoEnd.
 				if ( dequeue || !gotoEnd ) {
 					jQuery.dequeue( this, type );
 				}
@@ -11700,17 +7992,17 @@
 					timers = jQuery.timers,
 					length = queue ? queue.length : 0;
 
-				// enable finishing flag on private data
+				// Enable finishing flag on private data
 				data.finish = true;
 
-				// empty the queue first
+				// Empty the queue first
 				jQuery.queue( this, type, [] );
 
 				if ( hooks && hooks.stop ) {
 					hooks.stop.call( this, true );
 				}
 
-				// look for any active animations, and finish them
+				// Look for any active animations, and finish them
 				for ( index = timers.length; index--; ) {
 					if ( timers[ index ].elem === this && timers[ index ].queue === type ) {
 						timers[ index ].anim.stop( true );
@@ -11718,14 +8010,14 @@
 					}
 				}
 
-				// look for any animations in the old queue and finish them
+				// Look for any animations in the old queue and finish them
 				for ( index = 0; index < length; index++ ) {
 					if ( queue[ index ] && queue[ index ].finish ) {
 						queue[ index ].finish.call( this );
 					}
 				}
 
-				// turn off finishing flag
+				// Turn off finishing flag
 				delete data.finish;
 			});
 		}
@@ -11828,21 +8120,21 @@
 
 		input.type = "checkbox";
 
-		// Support: iOS 5.1, Android 4.x, Android 2.3
-		// Check the default checkbox/radio value ("" on old WebKit; "on" elsewhere)
+		// Support: iOS<=5.1, Android<=4.2+
+		// Default value for a checkbox should be "on"
 		support.checkOn = input.value !== "";
 
-		// Must access the parent to make an option select properly
-		// Support: IE9, IE10
+		// Support: IE<=11+
+		// Must access selectedIndex to make default options select
 		support.optSelected = opt.selected;
 
-		// Make sure that the options inside disabled selects aren't marked as disabled
-		// (WebKit marks them as disabled)
+		// Support: Android<=2.3
+		// Options inside disabled selects are incorrectly marked as disabled
 		select.disabled = true;
 		support.optDisabled = !opt.disabled;
 
-		// Check if an input maintains its value after becoming a radio
-		// Support: IE9, IE10
+		// Support: IE<=11+
+		// An input loses its value after becoming a radio
 		input = document.createElement( "input" );
 		input.value = "t";
 		input.type = "radio";
@@ -11939,8 +8231,6 @@
 				set: function( elem, value ) {
 					if ( !support.radioValue && value === "radio" &&
 						jQuery.nodeName( elem, "input" ) ) {
-						// Setting the type on a radio button after the value resets the value in IE6-9
-						// Reset value to default in case type is set after value during creation
 						var val = elem.value;
 						elem.setAttribute( "type", value );
 						if ( val ) {
@@ -12010,7 +8300,7 @@
 			var ret, hooks, notxml,
 				nType = elem.nodeType;
 
-			// don't get/set properties on text, comment and attribute nodes
+			// Don't get/set properties on text, comment and attribute nodes
 			if ( !elem || nType === 3 || nType === 8 || nType === 2 ) {
 				return;
 			}
@@ -12046,8 +8336,6 @@
 		}
 	});
 
-	// Support: IE9+
-	// Selectedness for an option in an optgroup can be inaccurate
 	if ( !support.optSelected ) {
 		jQuery.propHooks.selected = {
 			get: function( elem ) {
@@ -12155,7 +8443,7 @@
 							}
 						}
 
-						// only assign if different to avoid unneeded rendering.
+						// Only assign if different to avoid unneeded rendering.
 						finalValue = value ? jQuery.trim( cur ) : "";
 						if ( elem.className !== finalValue ) {
 							elem.className = finalValue;
@@ -12182,14 +8470,14 @@
 
 			return this.each(function() {
 				if ( type === "string" ) {
-					// toggle individual class names
+					// Toggle individual class names
 					var className,
 						i = 0,
 						self = jQuery( this ),
 						classNames = value.match( rnotwhite ) || [];
 
 					while ( (className = classNames[ i++ ]) ) {
-						// check each className given, space separated list
+						// Check each className given, space separated list
 						if ( self.hasClass( className ) ) {
 							self.removeClass( className );
 						} else {
@@ -12204,7 +8492,7 @@
 						data_priv.set( this, "__className__", this.className );
 					}
 
-					// If the element has a class name or if we're passed "false",
+					// If the element has a class name or if we're passed `false`,
 					// then remove the whole classname (if there was one, the above saved it).
 					// Otherwise bring back whatever was previously saved (if anything),
 					// falling back to the empty string if nothing was stored.
@@ -12248,9 +8536,9 @@
 					ret = elem.value;
 
 					return typeof ret === "string" ?
-						// handle most common string cases
+						// Handle most common string cases
 						ret.replace(rreturn, "") :
-						// handle cases where value is null/undef or number
+						// Handle cases where value is null/undef or number
 						ret == null ? "" : ret;
 				}
 
@@ -12358,7 +8646,7 @@
 						}
 					}
 
-					// force browsers to behave consistently when non-matching value is set
+					// Force browsers to behave consistently when non-matching value is set
 					if ( !optionSet ) {
 						elem.selectedIndex = -1;
 					}
@@ -12379,8 +8667,6 @@
 		};
 		if ( !support.checkOn ) {
 			jQuery.valHooks[ this ].get = function( elem ) {
-				// Support: Webkit
-				// "" is returned instead of "on" if a value isn't specified
 				return elem.getAttribute("value") === null ? "on" : elem.value;
 			};
 		}
@@ -12462,10 +8748,6 @@
 
 
 	var
-		// Document location
-		ajaxLocParts,
-		ajaxLocation,
-
 		rhash = /#.*$/,
 		rts = /([?&])_=[^&]*/,
 		rheaders = /^(.*?):[ \t]*([^\r\n]*)$/mg,
@@ -12494,22 +8776,13 @@
 		transports = {},
 
 		// Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
-		allTypes = "*/".concat("*");
+		allTypes = "*/".concat( "*" ),
 
-	// #8138, IE may throw an exception when accessing
-	// a field from window.location if document.domain has been set
-	try {
-		ajaxLocation = location.href;
-	} catch( e ) {
-		// Use the href attribute of an A element
-		// since IE will modify it given document.location
-		ajaxLocation = document.createElement( "a" );
-		ajaxLocation.href = "";
-		ajaxLocation = ajaxLocation.href;
-	}
+		// Document location
+		ajaxLocation = window.location.href,
 
-	// Segment location into parts
-	ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
+		// Segment location into parts
+		ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
 
 	// Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
 	function addToPrefiltersOrTransports( structure ) {
@@ -12988,7 +9261,8 @@
 			}
 
 			// We can fire global events as of now if asked to
-			fireGlobals = s.global;
+			// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (#15118)
+			fireGlobals = jQuery.event && s.global;
 
 			// Watch for a new set of requests
 			if ( fireGlobals && jQuery.active++ === 0 ) {
@@ -13061,7 +9335,7 @@
 				return jqXHR.abort();
 			}
 
-			// aborting is no longer a cancellation
+			// Aborting is no longer a cancellation
 			strAbort = "abort";
 
 			// Install callbacks on deferreds
@@ -13173,8 +9447,7 @@
 						isSuccess = !error;
 					}
 				} else {
-					// We extract error from statusText
-					// then normalize statusText and status for non-aborts
+					// Extract error from statusText and normalize for non-aborts
 					error = statusText;
 					if ( status || !statusText ) {
 						statusText = "error";
@@ -13230,7 +9503,7 @@
 
 	jQuery.each( [ "get", "post" ], function( i, method ) {
 		jQuery[ method ] = function( url, data, callback, type ) {
-			// shift arguments if data argument was omitted
+			// Shift arguments if data argument was omitted
 			if ( jQuery.isFunction( data ) ) {
 				type = type || callback;
 				callback = data;
@@ -13244,13 +9517,6 @@
 				data: data,
 				success: callback
 			});
-		};
-	});
-
-	// Attach a bunch of functions for handling common AJAX events
-	jQuery.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
-		jQuery.fn[ type ] = function( fn ) {
-			return this.on( type, fn );
 		};
 	});
 
@@ -13471,8 +9737,9 @@
 
 	// Support: IE9
 	// Open requests must be manually aborted on unload (#5280)
-	if ( window.ActiveXObject ) {
-		jQuery( window ).on( "unload", function() {
+	// See https://support.microsoft.com/kb/2856746 for more info
+	if ( window.attachEvent ) {
+		window.attachEvent( "onunload", function() {
 			for ( var key in xhrCallbacks ) {
 				xhrCallbacks[ key ]();
 			}
@@ -13825,6 +10092,16 @@
 
 
 
+	// Attach a bunch of functions for handling common AJAX events
+	jQuery.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
+		jQuery.fn[ type ] = function( fn ) {
+			return this.on( type, fn );
+		};
+	});
+
+
+
+
 	jQuery.expr.filters.animated = function( elem ) {
 		return jQuery.grep(jQuery.timers, function( fn ) {
 			return elem === fn.elem;
@@ -13861,7 +10138,8 @@
 			calculatePosition = ( position === "absolute" || position === "fixed" ) &&
 				( curCSSTop + curCSSLeft ).indexOf("auto") > -1;
 
-			// Need to be able to calculate position if either top or left is auto and position is either absolute or fixed
+			// Need to be able to calculate position if either
+			// top or left is auto and position is either absolute or fixed
 			if ( calculatePosition ) {
 				curPosition = curElem.position();
 				curTop = curPosition.top;
@@ -13918,8 +10196,8 @@
 				return box;
 			}
 
+			// Support: BlackBerry 5, iOS 3 (original iPhone)
 			// If we don't have gBCR, just use 0,0 rather than error
-			// BlackBerry 5, iOS 3 (original iPhone)
 			if ( typeof elem.getBoundingClientRect !== strundefined ) {
 				box = elem.getBoundingClientRect();
 			}
@@ -13941,7 +10219,7 @@
 
 			// Fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is its only offset parent
 			if ( jQuery.css( elem, "position" ) === "fixed" ) {
-				// We assume that getBoundingClientRect is available when computed position is fixed
+				// Assume getBoundingClientRect is there when computed position is fixed
 				offset = elem.getBoundingClientRect();
 
 			} else {
@@ -14004,16 +10282,18 @@
 		};
 	});
 
+	// Support: Safari<7+, Chrome<37+
 	// Add the top/left cssHooks using jQuery.fn.position
 	// Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
-	// getComputedStyle returns percent when specified for top/left/bottom/right
-	// rather than make the css module depend on the offset module, we just check for it here
+	// Blink bug: https://code.google.com/p/chromium/issues/detail?id=229280
+	// getComputedStyle returns percent when specified for top/left/bottom/right;
+	// rather than make the css module depend on the offset module, just check for it here
 	jQuery.each( [ "top", "left" ], function( i, prop ) {
 		jQuery.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 			function( elem, computed ) {
 				if ( computed ) {
 					computed = curCSS( elem, prop );
-					// if curCSS returns percentage, fallback to offset
+					// If curCSS returns percentage, fallback to offset
 					return rnumnonpx.test( computed ) ?
 						jQuery( elem ).position()[ prop ] + "px" :
 						computed;
@@ -14026,7 +10306,7 @@
 	// Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
 	jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 		jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
-			// margin is only for outerHeight, outerWidth
+			// Margin is only for outerHeight, outerWidth
 			jQuery.fn[ funcName ] = function( margin, value ) {
 				var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
 					extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
@@ -14117,8 +10397,8 @@
 		return jQuery;
 	};
 
-	// Expose jQuery and $ identifiers, even in
-	// AMD (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
+	// Expose jQuery and $ identifiers, even in AMD
+	// (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
 	// and CommonJS for browser emulators (#13566)
 	if ( typeof noGlobal === strundefined ) {
 		window.jQuery = window.$ = jQuery;
@@ -14133,8 +10413,1777 @@
 
 
 /***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var jade = __webpack_require__(22);
+
+	module.exports = function template(locals) {
+	var buf = [];
+	var jade_mixins = {};
+	var jade_interp;
+
+	buf.push("<section><h1>Observable web</h1><h3>Untangling async <div class=\"fragment\">completely</div></h3><p class=\"author-name\">Ganesh Shanmugasundaram</p></section><section><img" + (jade.attr("src", __webpack_require__(24), true, true)) + " class=\"center logo\"><img" + (jade.attr("src", __webpack_require__(25), true, true)) + " class=\"fragment center london\"></section><section><h1>Time <div class=\"fragment\">async</div></h1></section><section><h1>Webdev Problem</h1></section><section><h1>Build <br> a feature</h1><ul><li class=\"fragment\">Thought process</li><li class=\"fragment\">Series of steps</li></ul></section><section><h1>User story</h1><ul><li class=\"fragment\">Type something in search box</li><li class=\"fragment\">Show search suggestions</li><li class=\"fragment\">Update suggestions</li></ul></section><section><h1>Pseudocode</h1><ul class=\"pseudocode\"><li class=\"fragment\">Get input from the user</li><li class=\"fragment\">Get Suggestions</li><li class=\"fragment\">Display result</li><li class=\"fragment\">Repeat</li></ul></section><section><h1>Handling async<img" + (jade.attr("src", __webpack_require__(26), true, true)) + " class=\"fragment center\"></h1></section><section><h1>Step 1: Input</h1><pre><code class=\"javascript\">searchBox.addEventListener('keyup', (e) => {\n    let text = e.target.value;\n});</code></pre></section><section><h1>Step 2: Suggestions</h1><pre><code class=\"javascript\"> searchBox.addEventListener('keyup', (e) => {\n   let term = e.target.value;\n   performSearch(term, (result) => {\n       \n   });\n});</code></pre></section><section><h1>Step 3: Render</h1><pre><code class=\"javascript\">const searchBox = document.getElementById('searchbox');\nsearchBox.addEventListener('keyup', (e) => {\n    let term = e.target.value;\n    performSearch(term, (result) => {\n        displayResult(result);\n    });\n}); </code></pre></section><section><h1>Done!</h1><img" + (jade.attr("src", __webpack_require__(27), true, true)) + " class=\"center\"></section><section><h1>Wait!</h1><img" + (jade.attr("src", __webpack_require__(28), true, true)) + " class=\"center\"></section><section><p>Love the new auto suggest feature you guys have launched. \nBut it acts a bit weird sometimes.</p><p></p><p class=\"fragment\">I was on the tube this morning, i was trying to search for a book, \ni typed 5 letters and it showed me the exact book i wanted, but when i tried to click on it, \nit showed to a different book, which wasn't that relevent. \nI had to press backspace and the same letter again to get to the book, but it worked the second time. \nThe same issue happened a few times during my journey \nI'm on iphone 5S, not sure how to check the browser version. \nI can't seem to reproduce the issue now though, seemed to have fixed itself!</p></section><section><h1>Extended scenario</h1><ul><li class=\"fragment\">Mobile internet </li><li class=\"fragment\">On Tube <span class=\"fragment\">or Metro</span></li><li class=\"fragment\">Trying to search</li></ul></section><section><h1>Things to consider</h1><ul><li class=\"fragment\">Slower network</li><li class=\"fragment\">Unstable network</li><li class=\"fragment\">Network cost</li><li class=\"fragment\">Device constraints</li></ul></section><section><h1>Improvements</h1><ul><li class=\"fragment\">Reduce network requests</li><li class=\"fragment\">Remove duplicate requests</li><li class=\"fragment\">Handle race condition</li></ul></section><section><h1>Debounce</h1><pre><code class=\"js\">const searchBox = document.getElementById('searchbox');\nvar requestTimer = null;\nsearchBox.addEventListener('keyup', (e) => {\n    let term = e.target.value;\n    clearTimeout(requestTimer);\n    requestTimer = setTimeout(() => {\n        performSearch(term, (result) => {\n            displayResult(result);\n        );\n    }, 100);\n});</code></pre></section><section><h1>More problems</h1><ul><li class=\"fragment\">state</li><li class=\"fragment\">callback hell</li><li class=\"fragment\">one more problem...</li></ul></section><section><img" + (jade.attr("src", __webpack_require__(29), true, true)) + "></section><section><h1>Promises may be?</h1><ul><li class=\"fragment\">cool</li><li class=\"fragment\">readable and comprehendable</li><li class=\"fragment\">supported in most modern browsers</li></ul></section><section><h1>Promises in action!</h1><div class=\"wrap\"><div class=\"half\"><ul><li class=\"fragment\">one value</li><li class=\"fragment\">no modify</li><li class=\"fragment\">no cancel</li></ul></div><div class=\"half fragment\"><pre><code class=\"javascript\">const searchBox = document.getElementById('searchbox');\nvar requestTimer = null;\nsearchBox.addEventListener('keyup', (e) => {\n    let term = e.target.value;\n    clearTimeout(requestTimer);\n    requestTimer = setTimeout(() => {\n        fetch('/search?term='+term)\n            .then((resp) => {\n                return resp.json();\n            }).then((result) => {\n                displayResult(result);\n            })\n    }, 300);\n});</code></pre></div></div></section><section><h1>Simple feature?</h1><img" + (jade.attr("src", __webpack_require__(30), true, true)) + "></section><section><h1>Observable</h1><ul><li class=\"fragment\">Modelling async data</li><li class=\"fragment\">Emits 0 -> n values</li></ul></section><section><h1>Where does it fit?</h1><ul><li class=\"fragment\">Primitive: sync + single value</li><li class=\"fragment\">Iterator: sync + multiple value</li><li class=\"fragment\">Promise: async + single value</li><li class=\"fragment\"><span class=\"fragment\">Observable: </span><span>  async + multiple value </span></li></ul></section><section><h1>Syntax ~ Promise</h1><pre class=\"fragment\"><code class=\"javascript\">const p = new Promise();\np.then(onResolve, onReject);</code></pre></section><section><h1>Subscribe vs then</h1><pre><code class=\"javascript\">const ob = new Observable({});\nob.subscribe(onNext, onError);</code></pre></section><section><h1>onComplete</h1><pre><code class=\"javascript\">const ob = new Observable({});\nconst subscription = ob.subscribe(onNext, \n                                   onComplete,\n                                   onError);</code></pre></section><section> <h1>Unsubscribe</h1><pre><code class=\"javascript\">const ob = new Observable({});\nconst subscription = ob.subscribe(onNext, \n                                   onComplete,\n                                   onError);\nsubscription.unsubscribe();</code></pre></section><section><h1>Creating an Observable</h1><pre><code class=\"javascript\">$clickObs = new Observable(observer => {\n    const element = docuement.getElementById('btn');\n    let handler =  (evt) => {\n        observer.next(evt);\n    };\n    \n    element.addEventListener('click', handler, true);\n    \n    return _ =>  {\n        element.removeEventListener('click', handler, true);\n    }\n    \n}); </code></pre></section><section><h1>What can be Observables?</h1><ul><li class=\"fragment\">Keyboard events</li><li class=\"fragment\">Mouse events</li><li class=\"fragment\">Animation</li><li class=\"fragment\">Lifecycle events</li><li class=\"fragment\">XHR requests</li><li class=\"fragment\">WebSocket requests and messages</li><li class=\"fragment\">everything else...</li></ul></section><section><h1>Event emitter?</h1><ul><li class=\"fragment\">Both emit 0 - n values</li><li class=\"fragment\"> Can be subscribed on</li><li class=\"fragment\">Lazy ( or cold by default)</li><li class=\"fragment\">Operation happens on subscription </li><li class=\"fragment\">Each subscriber will get different values</li></ul></section><section><h1>What if i want to share values?</h1><ul><li class=\"fragment\">Make it hot</li><li class=\"fragment\">Operation happens on first subscription</li><li class=\"fragment\">Other subscribers just listen</li><li class=\"fragment\">Not all the subscribers get all the values</li></ul></section><section><h1>What's so special?</h1><ul><li class=\"fragment\">Unified protocol</li><li class=\"fragment\">Transformable</li><li class=\"fragment\">Composable</li><li class=\"fragment\">using Array#Operators like map, forEach, reduce.</li></ul></section><section><h1>Treat them like iterators</h1><pre><code class=\"javascript\">[1,2,3].map(x => x*x)\n.reduce((x, sum) => sum+x, 0);\n// 14</code></pre></section><section><h1>Subscribing to the Click Counter</h1><pre><code class=\"javascript\">$clickObs.subscribe(onNext, onComplete, onError);\n// event [Object]\n// event [Object]\n// event [Object]</code></pre></section><section><h1>Map Click Counter</h1><pre><code class=\"javascript\">$clickObs\n.map(x => 1)\n.subscribe(onNext, onComplete, onError);\n// 1\n// 1\n// 1</code></pre></section><section><h1>Scan (reduce) Click Counter</h1><pre><code class=\"javascript\">$clickObs\n.map(x => 1)\n.scan((x, y) => x+y)\n.subscribe(onNext, onComplete, onError);\n// 1\n// 2\n// 3</code></pre></section><section><h1> Browser support?</h1><ul><li class=\"fragment\">well...</li><li class=\"fragment\">still in tc39 proposal</li><li class=\"fragment\">stage 1</li><li class=\"fragment\">not for ES2016 / ES7</li><li class=\"fragment\">but...</li></ul></section><section><h1>Projects</h1><ul><li class=\"fragment\">rxJS</li><li class=\"fragment\">baconJS</li><li class=\"fragment\">Angular 2 (http)</li><li class=\"fragment\">more...</li></ul></section><section><h1>AutoSuggest</h1><pre><code class=\"javascript\">const searchObs  = Observable.fromEvent(searchBox, 'keyUp');\nsearchObs.subscribe(onNext, onComplete, onError);\n// [evt Object]\n// [evt Object] \n// [evt Object] \n// [evt Object] \n// [evt Object] </code></pre></section><section><h1>AutoSuggest</h1><pre><code class=\"javascript\">const searchObs  = Observable.fromEvent(searchBox, 'keyUp')\n          .map(e => e.target.value);\nsearchObs.subscribe(onNext, onComplete, onError);\n// h\n// ha\n// har\n// harr\n// harr <-- the user has pressed down key\n// harry</code></pre></section><section><h1>AutoSuggest</h1><pre><code class=\"javascript\">const searchObs  = Observable.fromEvent(searchBox, 'keyUp')\n           .map(e => e.target.value)\n          .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );\nsearchObs.subscribe(onNext, onComplete, onError);\n// [Result Object]\n// [Result Object]\n// [Result Object]\n// [Result Object]\n// [Result Object]\n// [Result Object]</code></pre></section><section><h1>AutoSuggest Improved</h1><pre><code class=\"javascript\">const searchObs  = Observable.fromEvent(searchBox, 'keyUp')\n           .map(e => e.target.value)\n           .debounce(100)\n          .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );\nsearchObs.subscribe(onNext, onComplete, onError);\n// [Result Object]\n// [Result Object]</code></pre></section><section><h1>AutoSuggest Improved</h1><pre><code class=\"javascript\">const searchObs  = Observable.fromEvent(searchBox, 'keyUp')\n           .map(e => e.target.value)\n           .debounce(100)\n           .distinctUntilChanged()\n           .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );\nsearchObs.subscribe(onNext, onComplete, onError);\n// [Result Object]</code></pre></section><section><h1>td;dr</h1><ul><li class=\"fragment\">embrace Observables</li><li class=\"fragment\">start using it today</li><li class=\"fragment\">push for the standards</li><li class=\"fragment\">write clean code</li><li class=\"fragment\">future You will thank You</li></ul></section><section><h1>Q/A</h1></section>");;return buf.join("");
+	}
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/**
+	 * Merge two attribute objects giving precedence
+	 * to values in object `b`. Classes are special-cased
+	 * allowing for arrays and merging/joining appropriately
+	 * resulting in a string.
+	 *
+	 * @param {Object} a
+	 * @param {Object} b
+	 * @return {Object} a
+	 * @api private
+	 */
+
+	exports.merge = function merge(a, b) {
+	  if (arguments.length === 1) {
+	    var attrs = a[0];
+	    for (var i = 1; i < a.length; i++) {
+	      attrs = merge(attrs, a[i]);
+	    }
+	    return attrs;
+	  }
+	  var ac = a['class'];
+	  var bc = b['class'];
+
+	  if (ac || bc) {
+	    ac = ac || [];
+	    bc = bc || [];
+	    if (!Array.isArray(ac)) ac = [ac];
+	    if (!Array.isArray(bc)) bc = [bc];
+	    a['class'] = ac.concat(bc).filter(nulls);
+	  }
+
+	  for (var key in b) {
+	    if (key != 'class') {
+	      a[key] = b[key];
+	    }
+	  }
+
+	  return a;
+	};
+
+	/**
+	 * Filter null `val`s.
+	 *
+	 * @param {*} val
+	 * @return {Boolean}
+	 * @api private
+	 */
+
+	function nulls(val) {
+	  return val != null && val !== '';
+	}
+
+	/**
+	 * join array as classes.
+	 *
+	 * @param {*} val
+	 * @return {String}
+	 */
+	exports.joinClasses = joinClasses;
+	function joinClasses(val) {
+	  return (Array.isArray(val) ? val.map(joinClasses) :
+	    (val && typeof val === 'object') ? Object.keys(val).filter(function (key) { return val[key]; }) :
+	    [val]).filter(nulls).join(' ');
+	}
+
+	/**
+	 * Render the given classes.
+	 *
+	 * @param {Array} classes
+	 * @param {Array.<Boolean>} escaped
+	 * @return {String}
+	 */
+	exports.cls = function cls(classes, escaped) {
+	  var buf = [];
+	  for (var i = 0; i < classes.length; i++) {
+	    if (escaped && escaped[i]) {
+	      buf.push(exports.escape(joinClasses([classes[i]])));
+	    } else {
+	      buf.push(joinClasses(classes[i]));
+	    }
+	  }
+	  var text = joinClasses(buf);
+	  if (text.length) {
+	    return ' class="' + text + '"';
+	  } else {
+	    return '';
+	  }
+	};
+
+
+	exports.style = function (val) {
+	  if (val && typeof val === 'object') {
+	    return Object.keys(val).map(function (style) {
+	      return style + ':' + val[style];
+	    }).join(';');
+	  } else {
+	    return val;
+	  }
+	};
+	/**
+	 * Render the given attribute.
+	 *
+	 * @param {String} key
+	 * @param {String} val
+	 * @param {Boolean} escaped
+	 * @param {Boolean} terse
+	 * @return {String}
+	 */
+	exports.attr = function attr(key, val, escaped, terse) {
+	  if (key === 'style') {
+	    val = exports.style(val);
+	  }
+	  if ('boolean' == typeof val || null == val) {
+	    if (val) {
+	      return ' ' + (terse ? key : key + '="' + key + '"');
+	    } else {
+	      return '';
+	    }
+	  } else if (0 == key.indexOf('data') && 'string' != typeof val) {
+	    if (JSON.stringify(val).indexOf('&') !== -1) {
+	      console.warn('Since Jade 2.0.0, ampersands (`&`) in data attributes ' +
+	                   'will be escaped to `&amp;`');
+	    };
+	    if (val && typeof val.toISOString === 'function') {
+	      console.warn('Jade will eliminate the double quotes around dates in ' +
+	                   'ISO form after 2.0.0');
+	    }
+	    return ' ' + key + "='" + JSON.stringify(val).replace(/'/g, '&apos;') + "'";
+	  } else if (escaped) {
+	    if (val && typeof val.toISOString === 'function') {
+	      console.warn('Jade will stringify dates in ISO form after 2.0.0');
+	    }
+	    return ' ' + key + '="' + exports.escape(val) + '"';
+	  } else {
+	    if (val && typeof val.toISOString === 'function') {
+	      console.warn('Jade will stringify dates in ISO form after 2.0.0');
+	    }
+	    return ' ' + key + '="' + val + '"';
+	  }
+	};
+
+	/**
+	 * Render the given attributes object.
+	 *
+	 * @param {Object} obj
+	 * @param {Object} escaped
+	 * @return {String}
+	 */
+	exports.attrs = function attrs(obj, terse){
+	  var buf = [];
+
+	  var keys = Object.keys(obj);
+
+	  if (keys.length) {
+	    for (var i = 0; i < keys.length; ++i) {
+	      var key = keys[i]
+	        , val = obj[key];
+
+	      if ('class' == key) {
+	        if (val = joinClasses(val)) {
+	          buf.push(' ' + key + '="' + val + '"');
+	        }
+	      } else {
+	        buf.push(exports.attr(key, val, false, terse));
+	      }
+	    }
+	  }
+
+	  return buf.join('');
+	};
+
+	/**
+	 * Escape the given string of `html`.
+	 *
+	 * @param {String} html
+	 * @return {String}
+	 * @api private
+	 */
+
+	var jade_encode_html_rules = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  '"': '&quot;'
+	};
+	var jade_match_html = /[&<>"]/g;
+
+	function jade_encode_char(c) {
+	  return jade_encode_html_rules[c] || c;
+	}
+
+	exports.escape = jade_escape;
+	function jade_escape(html){
+	  var result = String(html).replace(jade_match_html, jade_encode_char);
+	  if (result === '' + html) return html;
+	  else return result;
+	};
+
+	/**
+	 * Re-throw the given `err` in context to the
+	 * the jade in `filename` at the given `lineno`.
+	 *
+	 * @param {Error} err
+	 * @param {String} filename
+	 * @param {String} lineno
+	 * @api private
+	 */
+
+	exports.rethrow = function rethrow(err, filename, lineno, str){
+	  if (!(err instanceof Error)) throw err;
+	  if ((typeof window != 'undefined' || !filename) && !str) {
+	    err.message += ' on line ' + lineno;
+	    throw err;
+	  }
+	  try {
+	    str = str || __webpack_require__(23).readFileSync(filename, 'utf8')
+	  } catch (ex) {
+	    rethrow(err, null, lineno)
+	  }
+	  var context = 3
+	    , lines = str.split('\n')
+	    , start = Math.max(lineno - context, 0)
+	    , end = Math.min(lines.length, lineno + context);
+
+	  // Error context
+	  var context = lines.slice(start, end).map(function(line, i){
+	    var curr = i + start + 1;
+	    return (curr == lineno ? '  > ' : '    ')
+	      + curr
+	      + '| '
+	      + line;
+	  }).join('\n');
+
+	  // Alter exception message
+	  err.path = filename;
+	  err.message = (filename || 'Jade') + ':' + lineno
+	    + '\n' + context + '\n\n' + err.message;
+	  throw err;
+	};
+
+	exports.DebugItem = function DebugItem(lineno, filename) {
+	  this.lineno = lineno;
+	  this.filename = filename;
+	}
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports) {
+
+	/* (ignored) */
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "f75135d4b9f444f239863f7fcac6c718.png";
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "28966eb6da0c29147eeb02df6cd71c7c.png";
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "3d8171e92a92981fe362db7a1a7016e2.jpg";
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "47bc01e9613db667563710d842cbf89e.jpg";
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "6f090fb546f4ccf1e3e8f8799237734f.jpg";
+
+/***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "0262ce4f9e8923cff27e8bc2e4f3fd0c.jpg";
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "74d55ecf68d3fb42f3a4d382e55b145d.jpg";
+
+/***/ },
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	/*globals window __webpack_hash__ */
+	if(true) {
+		var lastData;
+		var upToDate = function upToDate() {
+			return lastData.indexOf(__webpack_require__.h()) >= 0;
+		};
+		var check = function check() {
+			module.hot.check(true, function(err, updatedModules) {
+				if(err) {
+					if(module.hot.status() in {
+							abort: 1,
+							fail: 1
+						}) {
+						console.warn("[HMR] Cannot apply update. Need to do a full reload!");
+						console.warn("[HMR] " + err.stack || err.message);
+						window.location.reload();
+					} else {
+						console.warn("[HMR] Update failed: " + err.stack || err.message);
+					}
+					return;
+				}
+
+				if(!updatedModules) {
+					console.warn("[HMR] Cannot find update. Need to do a full reload!");
+					console.warn("[HMR] (Probably because of restarting the webpack-dev-server)");
+					window.location.reload();
+					return;
+				}
+
+				if(!upToDate()) {
+					check();
+				}
+
+				__webpack_require__(36)(updatedModules, updatedModules);
+
+				if(upToDate()) {
+					console.log("[HMR] App is up to date.");
+				}
+
+			});
+		};
+		var addEventListener = window.addEventListener ? function(eventName, listener) {
+			window.addEventListener(eventName, listener, false);
+		} : function(eventName, listener) {
+			window.attachEvent("on" + eventName, listener);
+		};
+		addEventListener("message", function(event) {
+			if(typeof event.data === "string" && event.data.indexOf("webpackHotUpdate") === 0) {
+				lastData = event.data;
+				if(!upToDate() && module.hot.status() === "idle") {
+					console.log("[HMR] Checking for updates on the server...");
+					check();
+				}
+			}
+		});
+		console.log("[HMR] Waiting for update signal from WDS...");
+	} else {
+		throw new Error("[HMR] Hot Module Replacement is disabled.");
+	}
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	module.exports = function(updatedModules, renewedModules) {
+		var unacceptedModules = updatedModules.filter(function(moduleId) {
+			return renewedModules && renewedModules.indexOf(moduleId) < 0;
+		});
+
+		if(unacceptedModules.length > 0) {
+			console.warn("[HMR] The following modules couldn't be hot updated: (They would need a full reload!)");
+			unacceptedModules.forEach(function(moduleId) {
+				console.warn("[HMR]  - " + moduleId);
+			});
+		}
+
+		if(!renewedModules || renewedModules.length === 0) {
+			console.log("[HMR] Nothing hot updated.");
+		} else {
+			console.log("[HMR] Updated modules:");
+			renewedModules.forEach(function(moduleId) {
+				console.log("[HMR]  - " + moduleId);
+			});
+		}
+	};
+
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(__resourceQuery) {var url = __webpack_require__(38);
+	var SockJS = __webpack_require__(44);
+	var stripAnsi = __webpack_require__(108);
+	var scriptElements = document.getElementsByTagName("script");
+	var scriptHost = scriptElements[scriptElements.length-1].getAttribute("src").replace(/\/[^\/]+$/, "");
+
+	// If this bundle is inlined, use the resource query to get the correct url.
+	// Else, get the url from the <script> this file was called with.
+	var urlParts = url.parse( true ?
+		__resourceQuery.substr(1) :
+		(scriptHost ? scriptHost : "/")
+	);
+
+	var sock = null;
+	var hot = false;
+	var initial = true;
+	var currentHash = "";
+
+	var onSocketMsg = {
+		hot: function() {
+			hot = true;
+			console.log("[WDS] Hot Module Replacement enabled.");
+		},
+		invalid: function() {
+			console.log("[WDS] App updated. Recompiling...");
+		},
+		hash: function(hash) {
+			currentHash = hash;
+		},
+		"still-ok": function() {
+			console.log("[WDS] Nothing changed.")
+		},
+		ok: function() {
+			if(initial) return initial = false;
+			reloadApp();
+		},
+		warnings: function(warnings) {
+			console.log("[WDS] Warnings while compiling.");
+			for(var i = 0; i < warnings.length; i++)
+				console.warn(stripAnsi(warnings[i]));
+			if(initial) return initial = false;
+			reloadApp();
+		},
+		errors: function(errors) {
+			console.log("[WDS] Errors while compiling.");
+			for(var i = 0; i < errors.length; i++)
+				console.error(stripAnsi(errors[i]));
+			if(initial) return initial = false;
+			reloadApp();
+		},
+		"proxy-error": function(errors) {
+			console.log("[WDS] Proxy error.");
+			for(var i = 0; i < errors.length; i++)
+				console.error(stripAnsi(errors[i]));
+			if(initial) return initial = false;
+			reloadApp();
+		}
+	};
+
+	var newConnection = function() {
+		sock = new SockJS(url.format({
+			protocol: urlParts.protocol,
+			auth: urlParts.auth,
+			hostname: (urlParts.hostname === '0.0.0.0') ? window.location.hostname : urlParts.hostname,
+			port: urlParts.port,
+			pathname: urlParts.path === '/' ? "/sockjs-node" : urlParts.path
+		}));
+
+		sock.onclose = function() {
+			console.error("[WDS] Disconnected!");
+
+			// Try to reconnect.
+			sock = null;
+			setTimeout(function () {
+				newConnection();
+			}, 2000);
+		};
+
+		sock.onmessage = function(e) {
+			// This assumes that all data sent via the websocket is JSON.
+			var msg = JSON.parse(e.data);
+			onSocketMsg[msg.type](msg.data);
+		};
+	};
+
+	newConnection();
+
+	function reloadApp() {
+		if(hot) {
+			console.log("[WDS] App hot update...");
+			window.postMessage("webpackHotUpdate" + currentHash, "*");
+		} else {
+			console.log("[WDS] App updated. Reloading...");
+			window.location.reload();
+		}
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, "?http://localhost:8081"))
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	var punycode = __webpack_require__(39);
+
+	exports.parse = urlParse;
+	exports.resolve = urlResolve;
+	exports.resolveObject = urlResolveObject;
+	exports.format = urlFormat;
+
+	exports.Url = Url;
+
+	function Url() {
+	  this.protocol = null;
+	  this.slashes = null;
+	  this.auth = null;
+	  this.host = null;
+	  this.port = null;
+	  this.hostname = null;
+	  this.hash = null;
+	  this.search = null;
+	  this.query = null;
+	  this.pathname = null;
+	  this.path = null;
+	  this.href = null;
+	}
+
+	// Reference: RFC 3986, RFC 1808, RFC 2396
+
+	// define these here so at least they only have to be
+	// compiled once on the first module load.
+	var protocolPattern = /^([a-z0-9.+-]+:)/i,
+	    portPattern = /:[0-9]*$/,
+
+	    // RFC 2396: characters reserved for delimiting URLs.
+	    // We actually just auto-escape these.
+	    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+	    // RFC 2396: characters not allowed for various reasons.
+	    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+	    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+	    autoEscape = ['\''].concat(unwise),
+	    // Characters that are never ever allowed in a hostname.
+	    // Note that any invalid chars are also handled, but these
+	    // are the ones that are *expected* to be seen, so we fast-path
+	    // them.
+	    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+	    hostEndingChars = ['/', '?', '#'],
+	    hostnameMaxLen = 255,
+	    hostnamePartPattern = /^[a-z0-9A-Z_-]{0,63}$/,
+	    hostnamePartStart = /^([a-z0-9A-Z_-]{0,63})(.*)$/,
+	    // protocols that can allow "unsafe" and "unwise" chars.
+	    unsafeProtocol = {
+	      'javascript': true,
+	      'javascript:': true
+	    },
+	    // protocols that never have a hostname.
+	    hostlessProtocol = {
+	      'javascript': true,
+	      'javascript:': true
+	    },
+	    // protocols that always contain a // bit.
+	    slashedProtocol = {
+	      'http': true,
+	      'https': true,
+	      'ftp': true,
+	      'gopher': true,
+	      'file': true,
+	      'http:': true,
+	      'https:': true,
+	      'ftp:': true,
+	      'gopher:': true,
+	      'file:': true
+	    },
+	    querystring = __webpack_require__(41);
+
+	function urlParse(url, parseQueryString, slashesDenoteHost) {
+	  if (url && isObject(url) && url instanceof Url) return url;
+
+	  var u = new Url;
+	  u.parse(url, parseQueryString, slashesDenoteHost);
+	  return u;
+	}
+
+	Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+	  if (!isString(url)) {
+	    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
+	  }
+
+	  var rest = url;
+
+	  // trim before proceeding.
+	  // This is to support parse stuff like "  http://foo.com  \n"
+	  rest = rest.trim();
+
+	  var proto = protocolPattern.exec(rest);
+	  if (proto) {
+	    proto = proto[0];
+	    var lowerProto = proto.toLowerCase();
+	    this.protocol = lowerProto;
+	    rest = rest.substr(proto.length);
+	  }
+
+	  // figure out if it's got a host
+	  // user@server is *always* interpreted as a hostname, and url
+	  // resolution will treat //foo/bar as host=foo,path=bar because that's
+	  // how the browser resolves relative URLs.
+	  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+	    var slashes = rest.substr(0, 2) === '//';
+	    if (slashes && !(proto && hostlessProtocol[proto])) {
+	      rest = rest.substr(2);
+	      this.slashes = true;
+	    }
+	  }
+
+	  if (!hostlessProtocol[proto] &&
+	      (slashes || (proto && !slashedProtocol[proto]))) {
+
+	    // there's a hostname.
+	    // the first instance of /, ?, ;, or # ends the host.
+	    //
+	    // If there is an @ in the hostname, then non-host chars *are* allowed
+	    // to the left of the last @ sign, unless some host-ending character
+	    // comes *before* the @-sign.
+	    // URLs are obnoxious.
+	    //
+	    // ex:
+	    // http://a@b@c/ => user:a@b host:c
+	    // http://a@b?@c => user:a host:c path:/?@c
+
+	    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+	    // Review our test case against browsers more comprehensively.
+
+	    // find the first instance of any hostEndingChars
+	    var hostEnd = -1;
+	    for (var i = 0; i < hostEndingChars.length; i++) {
+	      var hec = rest.indexOf(hostEndingChars[i]);
+	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+	        hostEnd = hec;
+	    }
+
+	    // at this point, either we have an explicit point where the
+	    // auth portion cannot go past, or the last @ char is the decider.
+	    var auth, atSign;
+	    if (hostEnd === -1) {
+	      // atSign can be anywhere.
+	      atSign = rest.lastIndexOf('@');
+	    } else {
+	      // atSign must be in auth portion.
+	      // http://a@b/c@d => host:b auth:a path:/c@d
+	      atSign = rest.lastIndexOf('@', hostEnd);
+	    }
+
+	    // Now we have a portion which is definitely the auth.
+	    // Pull that off.
+	    if (atSign !== -1) {
+	      auth = rest.slice(0, atSign);
+	      rest = rest.slice(atSign + 1);
+	      this.auth = decodeURIComponent(auth);
+	    }
+
+	    // the host is the remaining to the left of the first non-host char
+	    hostEnd = -1;
+	    for (var i = 0; i < nonHostChars.length; i++) {
+	      var hec = rest.indexOf(nonHostChars[i]);
+	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+	        hostEnd = hec;
+	    }
+	    // if we still have not hit it, then the entire thing is a host.
+	    if (hostEnd === -1)
+	      hostEnd = rest.length;
+
+	    this.host = rest.slice(0, hostEnd);
+	    rest = rest.slice(hostEnd);
+
+	    // pull out port.
+	    this.parseHost();
+
+	    // we've indicated that there is a hostname,
+	    // so even if it's empty, it has to be present.
+	    this.hostname = this.hostname || '';
+
+	    // if hostname begins with [ and ends with ]
+	    // assume that it's an IPv6 address.
+	    var ipv6Hostname = this.hostname[0] === '[' &&
+	        this.hostname[this.hostname.length - 1] === ']';
+
+	    // validate a little.
+	    if (!ipv6Hostname) {
+	      var hostparts = this.hostname.split(/\./);
+	      for (var i = 0, l = hostparts.length; i < l; i++) {
+	        var part = hostparts[i];
+	        if (!part) continue;
+	        if (!part.match(hostnamePartPattern)) {
+	          var newpart = '';
+	          for (var j = 0, k = part.length; j < k; j++) {
+	            if (part.charCodeAt(j) > 127) {
+	              // we replace non-ASCII char with a temporary placeholder
+	              // we need this to make sure size of hostname is not
+	              // broken by replacing non-ASCII by nothing
+	              newpart += 'x';
+	            } else {
+	              newpart += part[j];
+	            }
+	          }
+	          // we test again with ASCII char only
+	          if (!newpart.match(hostnamePartPattern)) {
+	            var validParts = hostparts.slice(0, i);
+	            var notHost = hostparts.slice(i + 1);
+	            var bit = part.match(hostnamePartStart);
+	            if (bit) {
+	              validParts.push(bit[1]);
+	              notHost.unshift(bit[2]);
+	            }
+	            if (notHost.length) {
+	              rest = '/' + notHost.join('.') + rest;
+	            }
+	            this.hostname = validParts.join('.');
+	            break;
+	          }
+	        }
+	      }
+	    }
+
+	    if (this.hostname.length > hostnameMaxLen) {
+	      this.hostname = '';
+	    } else {
+	      // hostnames are always lower case.
+	      this.hostname = this.hostname.toLowerCase();
+	    }
+
+	    if (!ipv6Hostname) {
+	      // IDNA Support: Returns a puny coded representation of "domain".
+	      // It only converts the part of the domain name that
+	      // has non ASCII characters. I.e. it dosent matter if
+	      // you call it with a domain that already is in ASCII.
+	      var domainArray = this.hostname.split('.');
+	      var newOut = [];
+	      for (var i = 0; i < domainArray.length; ++i) {
+	        var s = domainArray[i];
+	        newOut.push(s.match(/[^A-Za-z0-9_-]/) ?
+	            'xn--' + punycode.encode(s) : s);
+	      }
+	      this.hostname = newOut.join('.');
+	    }
+
+	    var p = this.port ? ':' + this.port : '';
+	    var h = this.hostname || '';
+	    this.host = h + p;
+	    this.href += this.host;
+
+	    // strip [ and ] from the hostname
+	    // the host field still retains them, though
+	    if (ipv6Hostname) {
+	      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+	      if (rest[0] !== '/') {
+	        rest = '/' + rest;
+	      }
+	    }
+	  }
+
+	  // now rest is set to the post-host stuff.
+	  // chop off any delim chars.
+	  if (!unsafeProtocol[lowerProto]) {
+
+	    // First, make 100% sure that any "autoEscape" chars get
+	    // escaped, even if encodeURIComponent doesn't think they
+	    // need to be.
+	    for (var i = 0, l = autoEscape.length; i < l; i++) {
+	      var ae = autoEscape[i];
+	      var esc = encodeURIComponent(ae);
+	      if (esc === ae) {
+	        esc = escape(ae);
+	      }
+	      rest = rest.split(ae).join(esc);
+	    }
+	  }
+
+
+	  // chop off from the tail first.
+	  var hash = rest.indexOf('#');
+	  if (hash !== -1) {
+	    // got a fragment string.
+	    this.hash = rest.substr(hash);
+	    rest = rest.slice(0, hash);
+	  }
+	  var qm = rest.indexOf('?');
+	  if (qm !== -1) {
+	    this.search = rest.substr(qm);
+	    this.query = rest.substr(qm + 1);
+	    if (parseQueryString) {
+	      this.query = querystring.parse(this.query);
+	    }
+	    rest = rest.slice(0, qm);
+	  } else if (parseQueryString) {
+	    // no query string, but parseQueryString still requested
+	    this.search = '';
+	    this.query = {};
+	  }
+	  if (rest) this.pathname = rest;
+	  if (slashedProtocol[lowerProto] &&
+	      this.hostname && !this.pathname) {
+	    this.pathname = '/';
+	  }
+
+	  //to support http.request
+	  if (this.pathname || this.search) {
+	    var p = this.pathname || '';
+	    var s = this.search || '';
+	    this.path = p + s;
+	  }
+
+	  // finally, reconstruct the href based on what has been validated.
+	  this.href = this.format();
+	  return this;
+	};
+
+	// format a parsed object into a url string
+	function urlFormat(obj) {
+	  // ensure it's an object, and not a string url.
+	  // If it's an obj, this is a no-op.
+	  // this way, you can call url_format() on strings
+	  // to clean up potentially wonky urls.
+	  if (isString(obj)) obj = urlParse(obj);
+	  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+	  return obj.format();
+	}
+
+	Url.prototype.format = function() {
+	  var auth = this.auth || '';
+	  if (auth) {
+	    auth = encodeURIComponent(auth);
+	    auth = auth.replace(/%3A/i, ':');
+	    auth += '@';
+	  }
+
+	  var protocol = this.protocol || '',
+	      pathname = this.pathname || '',
+	      hash = this.hash || '',
+	      host = false,
+	      query = '';
+
+	  if (this.host) {
+	    host = auth + this.host;
+	  } else if (this.hostname) {
+	    host = auth + (this.hostname.indexOf(':') === -1 ?
+	        this.hostname :
+	        '[' + this.hostname + ']');
+	    if (this.port) {
+	      host += ':' + this.port;
+	    }
+	  }
+
+	  if (this.query &&
+	      isObject(this.query) &&
+	      Object.keys(this.query).length) {
+	    query = querystring.stringify(this.query);
+	  }
+
+	  var search = this.search || (query && ('?' + query)) || '';
+
+	  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+	  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+	  // unless they had them to begin with.
+	  if (this.slashes ||
+	      (!protocol || slashedProtocol[protocol]) && host !== false) {
+	    host = '//' + (host || '');
+	    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+	  } else if (!host) {
+	    host = '';
+	  }
+
+	  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+	  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+	  pathname = pathname.replace(/[?#]/g, function(match) {
+	    return encodeURIComponent(match);
+	  });
+	  search = search.replace('#', '%23');
+
+	  return protocol + host + pathname + search + hash;
+	};
+
+	function urlResolve(source, relative) {
+	  return urlParse(source, false, true).resolve(relative);
+	}
+
+	Url.prototype.resolve = function(relative) {
+	  return this.resolveObject(urlParse(relative, false, true)).format();
+	};
+
+	function urlResolveObject(source, relative) {
+	  if (!source) return relative;
+	  return urlParse(source, false, true).resolveObject(relative);
+	}
+
+	Url.prototype.resolveObject = function(relative) {
+	  if (isString(relative)) {
+	    var rel = new Url();
+	    rel.parse(relative, false, true);
+	    relative = rel;
+	  }
+
+	  var result = new Url();
+	  Object.keys(this).forEach(function(k) {
+	    result[k] = this[k];
+	  }, this);
+
+	  // hash is always overridden, no matter what.
+	  // even href="" will remove it.
+	  result.hash = relative.hash;
+
+	  // if the relative url is empty, then there's nothing left to do here.
+	  if (relative.href === '') {
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  // hrefs like //foo/bar always cut to the protocol.
+	  if (relative.slashes && !relative.protocol) {
+	    // take everything except the protocol from relative
+	    Object.keys(relative).forEach(function(k) {
+	      if (k !== 'protocol')
+	        result[k] = relative[k];
+	    });
+
+	    //urlParse appends trailing / to urls like http://www.example.com
+	    if (slashedProtocol[result.protocol] &&
+	        result.hostname && !result.pathname) {
+	      result.path = result.pathname = '/';
+	    }
+
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  if (relative.protocol && relative.protocol !== result.protocol) {
+	    // if it's a known url protocol, then changing
+	    // the protocol does weird things
+	    // first, if it's not file:, then we MUST have a host,
+	    // and if there was a path
+	    // to begin with, then we MUST have a path.
+	    // if it is file:, then the host is dropped,
+	    // because that's known to be hostless.
+	    // anything else is assumed to be absolute.
+	    if (!slashedProtocol[relative.protocol]) {
+	      Object.keys(relative).forEach(function(k) {
+	        result[k] = relative[k];
+	      });
+	      result.href = result.format();
+	      return result;
+	    }
+
+	    result.protocol = relative.protocol;
+	    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+	      var relPath = (relative.pathname || '').split('/');
+	      while (relPath.length && !(relative.host = relPath.shift()));
+	      if (!relative.host) relative.host = '';
+	      if (!relative.hostname) relative.hostname = '';
+	      if (relPath[0] !== '') relPath.unshift('');
+	      if (relPath.length < 2) relPath.unshift('');
+	      result.pathname = relPath.join('/');
+	    } else {
+	      result.pathname = relative.pathname;
+	    }
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    result.host = relative.host || '';
+	    result.auth = relative.auth;
+	    result.hostname = relative.hostname || relative.host;
+	    result.port = relative.port;
+	    // to support http.request
+	    if (result.pathname || result.search) {
+	      var p = result.pathname || '';
+	      var s = result.search || '';
+	      result.path = p + s;
+	    }
+	    result.slashes = result.slashes || relative.slashes;
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+	      isRelAbs = (
+	          relative.host ||
+	          relative.pathname && relative.pathname.charAt(0) === '/'
+	      ),
+	      mustEndAbs = (isRelAbs || isSourceAbs ||
+	                    (result.host && relative.pathname)),
+	      removeAllDots = mustEndAbs,
+	      srcPath = result.pathname && result.pathname.split('/') || [],
+	      relPath = relative.pathname && relative.pathname.split('/') || [],
+	      psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+	  // if the url is a non-slashed url, then relative
+	  // links like ../.. should be able
+	  // to crawl up to the hostname, as well.  This is strange.
+	  // result.protocol has already been set by now.
+	  // Later on, put the first path part into the host field.
+	  if (psychotic) {
+	    result.hostname = '';
+	    result.port = null;
+	    if (result.host) {
+	      if (srcPath[0] === '') srcPath[0] = result.host;
+	      else srcPath.unshift(result.host);
+	    }
+	    result.host = '';
+	    if (relative.protocol) {
+	      relative.hostname = null;
+	      relative.port = null;
+	      if (relative.host) {
+	        if (relPath[0] === '') relPath[0] = relative.host;
+	        else relPath.unshift(relative.host);
+	      }
+	      relative.host = null;
+	    }
+	    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+	  }
+
+	  if (isRelAbs) {
+	    // it's absolute.
+	    result.host = (relative.host || relative.host === '') ?
+	                  relative.host : result.host;
+	    result.hostname = (relative.hostname || relative.hostname === '') ?
+	                      relative.hostname : result.hostname;
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    srcPath = relPath;
+	    // fall through to the dot-handling below.
+	  } else if (relPath.length) {
+	    // it's relative
+	    // throw away the existing file, and take the new path instead.
+	    if (!srcPath) srcPath = [];
+	    srcPath.pop();
+	    srcPath = srcPath.concat(relPath);
+	    result.search = relative.search;
+	    result.query = relative.query;
+	  } else if (!isNullOrUndefined(relative.search)) {
+	    // just pull out the search.
+	    // like href='?foo'.
+	    // Put this after the other two cases because it simplifies the booleans
+	    if (psychotic) {
+	      result.hostname = result.host = srcPath.shift();
+	      //occationaly the auth can get stuck only in host
+	      //this especialy happens in cases like
+	      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+	      var authInHost = result.host && result.host.indexOf('@') > 0 ?
+	                       result.host.split('@') : false;
+	      if (authInHost) {
+	        result.auth = authInHost.shift();
+	        result.host = result.hostname = authInHost.shift();
+	      }
+	    }
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    //to support http.request
+	    if (!isNull(result.pathname) || !isNull(result.search)) {
+	      result.path = (result.pathname ? result.pathname : '') +
+	                    (result.search ? result.search : '');
+	    }
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  if (!srcPath.length) {
+	    // no path at all.  easy.
+	    // we've already handled the other stuff above.
+	    result.pathname = null;
+	    //to support http.request
+	    if (result.search) {
+	      result.path = '/' + result.search;
+	    } else {
+	      result.path = null;
+	    }
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  // if a url ENDs in . or .., then it must get a trailing slash.
+	  // however, if it ends in anything else non-slashy,
+	  // then it must NOT get a trailing slash.
+	  var last = srcPath.slice(-1)[0];
+	  var hasTrailingSlash = (
+	      (result.host || relative.host) && (last === '.' || last === '..') ||
+	      last === '');
+
+	  // strip single dots, resolve double dots to parent dir
+	  // if the path tries to go above the root, `up` ends up > 0
+	  var up = 0;
+	  for (var i = srcPath.length; i >= 0; i--) {
+	    last = srcPath[i];
+	    if (last == '.') {
+	      srcPath.splice(i, 1);
+	    } else if (last === '..') {
+	      srcPath.splice(i, 1);
+	      up++;
+	    } else if (up) {
+	      srcPath.splice(i, 1);
+	      up--;
+	    }
+	  }
+
+	  // if the path is allowed to go above the root, restore leading ..s
+	  if (!mustEndAbs && !removeAllDots) {
+	    for (; up--; up) {
+	      srcPath.unshift('..');
+	    }
+	  }
+
+	  if (mustEndAbs && srcPath[0] !== '' &&
+	      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+	    srcPath.unshift('');
+	  }
+
+	  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+	    srcPath.push('');
+	  }
+
+	  var isAbsolute = srcPath[0] === '' ||
+	      (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+	  // put the host back
+	  if (psychotic) {
+	    result.hostname = result.host = isAbsolute ? '' :
+	                                    srcPath.length ? srcPath.shift() : '';
+	    //occationaly the auth can get stuck only in host
+	    //this especialy happens in cases like
+	    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+	    var authInHost = result.host && result.host.indexOf('@') > 0 ?
+	                     result.host.split('@') : false;
+	    if (authInHost) {
+	      result.auth = authInHost.shift();
+	      result.host = result.hostname = authInHost.shift();
+	    }
+	  }
+
+	  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+	  if (mustEndAbs && !isAbsolute) {
+	    srcPath.unshift('');
+	  }
+
+	  if (!srcPath.length) {
+	    result.pathname = null;
+	    result.path = null;
+	  } else {
+	    result.pathname = srcPath.join('/');
+	  }
+
+	  //to support request.http
+	  if (!isNull(result.pathname) || !isNull(result.search)) {
+	    result.path = (result.pathname ? result.pathname : '') +
+	                  (result.search ? result.search : '');
+	  }
+	  result.auth = relative.auth || result.auth;
+	  result.slashes = result.slashes || relative.slashes;
+	  result.href = result.format();
+	  return result;
+	};
+
+	Url.prototype.parseHost = function() {
+	  var host = this.host;
+	  var port = portPattern.exec(host);
+	  if (port) {
+	    port = port[0];
+	    if (port !== ':') {
+	      this.port = port.substr(1);
+	    }
+	    host = host.substr(0, host.length - port.length);
+	  }
+	  if (host) this.hostname = host;
+	};
+
+	function isString(arg) {
+	  return typeof arg === "string";
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	function isNullOrUndefined(arg) {
+	  return  arg == null;
+	}
+
+
+/***/ },
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
+	;(function(root) {
+
+		/** Detect free variables */
+		var freeExports = typeof exports == 'object' && exports &&
+			!exports.nodeType && exports;
+		var freeModule = typeof module == 'object' && module &&
+			!module.nodeType && module;
+		var freeGlobal = typeof global == 'object' && global;
+		if (
+			freeGlobal.global === freeGlobal ||
+			freeGlobal.window === freeGlobal ||
+			freeGlobal.self === freeGlobal
+		) {
+			root = freeGlobal;
+		}
+
+		/**
+		 * The `punycode` object.
+		 * @name punycode
+		 * @type Object
+		 */
+		var punycode,
+
+		/** Highest positive signed 32-bit float value */
+		maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+		/** Bootstring parameters */
+		base = 36,
+		tMin = 1,
+		tMax = 26,
+		skew = 38,
+		damp = 700,
+		initialBias = 72,
+		initialN = 128, // 0x80
+		delimiter = '-', // '\x2D'
+
+		/** Regular expressions */
+		regexPunycode = /^xn--/,
+		regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
+		regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
+
+		/** Error messages */
+		errors = {
+			'overflow': 'Overflow: input needs wider integers to process',
+			'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+			'invalid-input': 'Invalid input'
+		},
+
+		/** Convenience shortcuts */
+		baseMinusTMin = base - tMin,
+		floor = Math.floor,
+		stringFromCharCode = String.fromCharCode,
+
+		/** Temporary variable */
+		key;
+
+		/*--------------------------------------------------------------------------*/
+
+		/**
+		 * A generic error utility function.
+		 * @private
+		 * @param {String} type The error type.
+		 * @returns {Error} Throws a `RangeError` with the applicable error message.
+		 */
+		function error(type) {
+			throw RangeError(errors[type]);
+		}
+
+		/**
+		 * A generic `Array#map` utility function.
+		 * @private
+		 * @param {Array} array The array to iterate over.
+		 * @param {Function} callback The function that gets called for every array
+		 * item.
+		 * @returns {Array} A new array of values returned by the callback function.
+		 */
+		function map(array, fn) {
+			var length = array.length;
+			var result = [];
+			while (length--) {
+				result[length] = fn(array[length]);
+			}
+			return result;
+		}
+
+		/**
+		 * A simple `Array#map`-like wrapper to work with domain name strings or email
+		 * addresses.
+		 * @private
+		 * @param {String} domain The domain name or email address.
+		 * @param {Function} callback The function that gets called for every
+		 * character.
+		 * @returns {Array} A new string of characters returned by the callback
+		 * function.
+		 */
+		function mapDomain(string, fn) {
+			var parts = string.split('@');
+			var result = '';
+			if (parts.length > 1) {
+				// In email addresses, only the domain name should be punycoded. Leave
+				// the local part (i.e. everything up to `@`) intact.
+				result = parts[0] + '@';
+				string = parts[1];
+			}
+			// Avoid `split(regex)` for IE8 compatibility. See #17.
+			string = string.replace(regexSeparators, '\x2E');
+			var labels = string.split('.');
+			var encoded = map(labels, fn).join('.');
+			return result + encoded;
+		}
+
+		/**
+		 * Creates an array containing the numeric code points of each Unicode
+		 * character in the string. While JavaScript uses UCS-2 internally,
+		 * this function will convert a pair of surrogate halves (each of which
+		 * UCS-2 exposes as separate characters) into a single code point,
+		 * matching UTF-16.
+		 * @see `punycode.ucs2.encode`
+		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode.ucs2
+		 * @name decode
+		 * @param {String} string The Unicode input string (UCS-2).
+		 * @returns {Array} The new array of code points.
+		 */
+		function ucs2decode(string) {
+			var output = [],
+			    counter = 0,
+			    length = string.length,
+			    value,
+			    extra;
+			while (counter < length) {
+				value = string.charCodeAt(counter++);
+				if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+					// high surrogate, and there is a next character
+					extra = string.charCodeAt(counter++);
+					if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+						output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+					} else {
+						// unmatched surrogate; only append this code unit, in case the next
+						// code unit is the high surrogate of a surrogate pair
+						output.push(value);
+						counter--;
+					}
+				} else {
+					output.push(value);
+				}
+			}
+			return output;
+		}
+
+		/**
+		 * Creates a string based on an array of numeric code points.
+		 * @see `punycode.ucs2.decode`
+		 * @memberOf punycode.ucs2
+		 * @name encode
+		 * @param {Array} codePoints The array of numeric code points.
+		 * @returns {String} The new Unicode string (UCS-2).
+		 */
+		function ucs2encode(array) {
+			return map(array, function(value) {
+				var output = '';
+				if (value > 0xFFFF) {
+					value -= 0x10000;
+					output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+					value = 0xDC00 | value & 0x3FF;
+				}
+				output += stringFromCharCode(value);
+				return output;
+			}).join('');
+		}
+
+		/**
+		 * Converts a basic code point into a digit/integer.
+		 * @see `digitToBasic()`
+		 * @private
+		 * @param {Number} codePoint The basic numeric code point value.
+		 * @returns {Number} The numeric value of a basic code point (for use in
+		 * representing integers) in the range `0` to `base - 1`, or `base` if
+		 * the code point does not represent a value.
+		 */
+		function basicToDigit(codePoint) {
+			if (codePoint - 48 < 10) {
+				return codePoint - 22;
+			}
+			if (codePoint - 65 < 26) {
+				return codePoint - 65;
+			}
+			if (codePoint - 97 < 26) {
+				return codePoint - 97;
+			}
+			return base;
+		}
+
+		/**
+		 * Converts a digit/integer into a basic code point.
+		 * @see `basicToDigit()`
+		 * @private
+		 * @param {Number} digit The numeric value of a basic code point.
+		 * @returns {Number} The basic code point whose value (when used for
+		 * representing integers) is `digit`, which needs to be in the range
+		 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+		 * used; else, the lowercase form is used. The behavior is undefined
+		 * if `flag` is non-zero and `digit` has no uppercase form.
+		 */
+		function digitToBasic(digit, flag) {
+			//  0..25 map to ASCII a..z or A..Z
+			// 26..35 map to ASCII 0..9
+			return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+		}
+
+		/**
+		 * Bias adaptation function as per section 3.4 of RFC 3492.
+		 * http://tools.ietf.org/html/rfc3492#section-3.4
+		 * @private
+		 */
+		function adapt(delta, numPoints, firstTime) {
+			var k = 0;
+			delta = firstTime ? floor(delta / damp) : delta >> 1;
+			delta += floor(delta / numPoints);
+			for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+				delta = floor(delta / baseMinusTMin);
+			}
+			return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+		}
+
+		/**
+		 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+		 * symbols.
+		 * @memberOf punycode
+		 * @param {String} input The Punycode string of ASCII-only symbols.
+		 * @returns {String} The resulting string of Unicode symbols.
+		 */
+		function decode(input) {
+			// Don't use UCS-2
+			var output = [],
+			    inputLength = input.length,
+			    out,
+			    i = 0,
+			    n = initialN,
+			    bias = initialBias,
+			    basic,
+			    j,
+			    index,
+			    oldi,
+			    w,
+			    k,
+			    digit,
+			    t,
+			    /** Cached calculation results */
+			    baseMinusT;
+
+			// Handle the basic code points: let `basic` be the number of input code
+			// points before the last delimiter, or `0` if there is none, then copy
+			// the first basic code points to the output.
+
+			basic = input.lastIndexOf(delimiter);
+			if (basic < 0) {
+				basic = 0;
+			}
+
+			for (j = 0; j < basic; ++j) {
+				// if it's not a basic code point
+				if (input.charCodeAt(j) >= 0x80) {
+					error('not-basic');
+				}
+				output.push(input.charCodeAt(j));
+			}
+
+			// Main decoding loop: start just after the last delimiter if any basic code
+			// points were copied; start at the beginning otherwise.
+
+			for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+				// `index` is the index of the next character to be consumed.
+				// Decode a generalized variable-length integer into `delta`,
+				// which gets added to `i`. The overflow checking is easier
+				// if we increase `i` as we go, then subtract off its starting
+				// value at the end to obtain `delta`.
+				for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+					if (index >= inputLength) {
+						error('invalid-input');
+					}
+
+					digit = basicToDigit(input.charCodeAt(index++));
+
+					if (digit >= base || digit > floor((maxInt - i) / w)) {
+						error('overflow');
+					}
+
+					i += digit * w;
+					t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+					if (digit < t) {
+						break;
+					}
+
+					baseMinusT = base - t;
+					if (w > floor(maxInt / baseMinusT)) {
+						error('overflow');
+					}
+
+					w *= baseMinusT;
+
+				}
+
+				out = output.length + 1;
+				bias = adapt(i - oldi, out, oldi == 0);
+
+				// `i` was supposed to wrap around from `out` to `0`,
+				// incrementing `n` each time, so we'll fix that now:
+				if (floor(i / out) > maxInt - n) {
+					error('overflow');
+				}
+
+				n += floor(i / out);
+				i %= out;
+
+				// Insert `n` at position `i` of the output
+				output.splice(i++, 0, n);
+
+			}
+
+			return ucs2encode(output);
+		}
+
+		/**
+		 * Converts a string of Unicode symbols (e.g. a domain name label) to a
+		 * Punycode string of ASCII-only symbols.
+		 * @memberOf punycode
+		 * @param {String} input The string of Unicode symbols.
+		 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+		 */
+		function encode(input) {
+			var n,
+			    delta,
+			    handledCPCount,
+			    basicLength,
+			    bias,
+			    j,
+			    m,
+			    q,
+			    k,
+			    t,
+			    currentValue,
+			    output = [],
+			    /** `inputLength` will hold the number of code points in `input`. */
+			    inputLength,
+			    /** Cached calculation results */
+			    handledCPCountPlusOne,
+			    baseMinusT,
+			    qMinusT;
+
+			// Convert the input in UCS-2 to Unicode
+			input = ucs2decode(input);
+
+			// Cache the length
+			inputLength = input.length;
+
+			// Initialize the state
+			n = initialN;
+			delta = 0;
+			bias = initialBias;
+
+			// Handle the basic code points
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue < 0x80) {
+					output.push(stringFromCharCode(currentValue));
+				}
+			}
+
+			handledCPCount = basicLength = output.length;
+
+			// `handledCPCount` is the number of code points that have been handled;
+			// `basicLength` is the number of basic code points.
+
+			// Finish the basic string - if it is not empty - with a delimiter
+			if (basicLength) {
+				output.push(delimiter);
+			}
+
+			// Main encoding loop:
+			while (handledCPCount < inputLength) {
+
+				// All non-basic code points < n have been handled already. Find the next
+				// larger one:
+				for (m = maxInt, j = 0; j < inputLength; ++j) {
+					currentValue = input[j];
+					if (currentValue >= n && currentValue < m) {
+						m = currentValue;
+					}
+				}
+
+				// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+				// but guard against overflow
+				handledCPCountPlusOne = handledCPCount + 1;
+				if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+					error('overflow');
+				}
+
+				delta += (m - n) * handledCPCountPlusOne;
+				n = m;
+
+				for (j = 0; j < inputLength; ++j) {
+					currentValue = input[j];
+
+					if (currentValue < n && ++delta > maxInt) {
+						error('overflow');
+					}
+
+					if (currentValue == n) {
+						// Represent delta as a generalized variable-length integer
+						for (q = delta, k = base; /* no condition */; k += base) {
+							t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+							if (q < t) {
+								break;
+							}
+							qMinusT = q - t;
+							baseMinusT = base - t;
+							output.push(
+								stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+							);
+							q = floor(qMinusT / baseMinusT);
+						}
+
+						output.push(stringFromCharCode(digitToBasic(q, 0)));
+						bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+						delta = 0;
+						++handledCPCount;
+					}
+				}
+
+				++delta;
+				++n;
+
+			}
+			return output.join('');
+		}
+
+		/**
+		 * Converts a Punycode string representing a domain name or an email address
+		 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+		 * it doesn't matter if you call it on a string that has already been
+		 * converted to Unicode.
+		 * @memberOf punycode
+		 * @param {String} input The Punycoded domain name or email address to
+		 * convert to Unicode.
+		 * @returns {String} The Unicode representation of the given Punycode
+		 * string.
+		 */
+		function toUnicode(input) {
+			return mapDomain(input, function(string) {
+				return regexPunycode.test(string)
+					? decode(string.slice(4).toLowerCase())
+					: string;
+			});
+		}
+
+		/**
+		 * Converts a Unicode string representing a domain name or an email address to
+		 * Punycode. Only the non-ASCII parts of the domain name will be converted,
+		 * i.e. it doesn't matter if you call it with a domain that's already in
+		 * ASCII.
+		 * @memberOf punycode
+		 * @param {String} input The domain name or email address to convert, as a
+		 * Unicode string.
+		 * @returns {String} The Punycode representation of the given domain name or
+		 * email address.
+		 */
+		function toASCII(input) {
+			return mapDomain(input, function(string) {
+				return regexNonASCII.test(string)
+					? 'xn--' + encode(string)
+					: string;
+			});
+		}
+
+		/*--------------------------------------------------------------------------*/
+
+		/** Define the public API */
+		punycode = {
+			/**
+			 * A string representing the current Punycode.js version number.
+			 * @memberOf punycode
+			 * @type String
+			 */
+			'version': '1.3.2',
+			/**
+			 * An object of methods to convert from JavaScript's internal character
+			 * representation (UCS-2) to Unicode code points, and back.
+			 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+			 * @memberOf punycode
+			 * @type Object
+			 */
+			'ucs2': {
+				'decode': ucs2decode,
+				'encode': ucs2encode
+			},
+			'decode': decode,
+			'encode': encode,
+			'toASCII': toASCII,
+			'toUnicode': toUnicode
+		};
+
+		/** Expose `punycode` */
+		// Some AMD build optimizers, like r.js, check for specific condition patterns
+		// like the following:
+		if (
+			true
+		) {
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+				return punycode;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (freeExports && freeModule) {
+			if (module.exports == freeExports) { // in Node.js or RingoJS v0.8.0+
+				freeModule.exports = punycode;
+			} else { // in Narwhal or RingoJS v0.7.0-
+				for (key in punycode) {
+					punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+				}
+			}
+		} else { // in Rhino or a web browser
+			root.punycode = punycode;
+		}
+
+	}(this));
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)(module), (function() { return this; }())))
+
+/***/ },
+/* 40 */
+/***/ function(module, exports) {
 
 	module.exports = function(module) {
 		if(!module.webpackPolyfill) {
@@ -14148,5 +12197,6037 @@
 	}
 
 
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.decode = exports.parse = __webpack_require__(42);
+	exports.encode = exports.stringify = __webpack_require__(43);
+
+
+/***/ },
+/* 42 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	'use strict';
+
+	// If obj.hasOwnProperty has been overridden, then calling
+	// obj.hasOwnProperty(prop) will break.
+	// See: https://github.com/joyent/node/issues/1707
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+
+	module.exports = function(qs, sep, eq, options) {
+	  sep = sep || '&';
+	  eq = eq || '=';
+	  var obj = {};
+
+	  if (typeof qs !== 'string' || qs.length === 0) {
+	    return obj;
+	  }
+
+	  var regexp = /\+/g;
+	  qs = qs.split(sep);
+
+	  var maxKeys = 1000;
+	  if (options && typeof options.maxKeys === 'number') {
+	    maxKeys = options.maxKeys;
+	  }
+
+	  var len = qs.length;
+	  // maxKeys <= 0 means that we should not limit keys count
+	  if (maxKeys > 0 && len > maxKeys) {
+	    len = maxKeys;
+	  }
+
+	  for (var i = 0; i < len; ++i) {
+	    var x = qs[i].replace(regexp, '%20'),
+	        idx = x.indexOf(eq),
+	        kstr, vstr, k, v;
+
+	    if (idx >= 0) {
+	      kstr = x.substr(0, idx);
+	      vstr = x.substr(idx + 1);
+	    } else {
+	      kstr = x;
+	      vstr = '';
+	    }
+
+	    k = decodeURIComponent(kstr);
+	    v = decodeURIComponent(vstr);
+
+	    if (!hasOwnProperty(obj, k)) {
+	      obj[k] = v;
+	    } else if (Array.isArray(obj[k])) {
+	      obj[k].push(v);
+	    } else {
+	      obj[k] = [obj[k], v];
+	    }
+	  }
+
+	  return obj;
+	};
+
+
+/***/ },
+/* 43 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	'use strict';
+
+	var stringifyPrimitive = function(v) {
+	  switch (typeof v) {
+	    case 'string':
+	      return v;
+
+	    case 'boolean':
+	      return v ? 'true' : 'false';
+
+	    case 'number':
+	      return isFinite(v) ? v : '';
+
+	    default:
+	      return '';
+	  }
+	};
+
+	module.exports = function(obj, sep, eq, name) {
+	  sep = sep || '&';
+	  eq = eq || '=';
+	  if (obj === null) {
+	    obj = undefined;
+	  }
+
+	  if (typeof obj === 'object') {
+	    return Object.keys(obj).map(function(k) {
+	      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+	      if (Array.isArray(obj[k])) {
+	        return obj[k].map(function(v) {
+	          return ks + encodeURIComponent(stringifyPrimitive(v));
+	        }).join(sep);
+	      } else {
+	        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+	      }
+	    }).join(sep);
+
+	  }
+
+	  if (!name) return '';
+	  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+	         encodeURIComponent(stringifyPrimitive(obj));
+	};
+
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var transportList = __webpack_require__(45);
+
+	module.exports = __webpack_require__(92)(transportList);
+
+	// TODO can't get rid of this until all servers do
+	if ('_sockjs_onload' in global) {
+	  setTimeout(global._sockjs_onload, 1);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = [
+	  // streaming transports
+	  __webpack_require__(46)
+	, __webpack_require__(63)
+	, __webpack_require__(73)
+	, __webpack_require__(75)
+	, __webpack_require__(78)(__webpack_require__(75))
+
+	  // polling transports
+	, __webpack_require__(85)
+	, __webpack_require__(78)(__webpack_require__(85))
+	, __webpack_require__(87)
+	, __webpack_require__(88)
+	, __webpack_require__(78)(__webpack_require__(87))
+	, __webpack_require__(89)
+	];
+
+
+/***/ },
+/* 46 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var utils = __webpack_require__(48)
+	  , urlUtils = __webpack_require__(51)
+	  , inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  , WebsocketDriver = __webpack_require__(62)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:websocket');
+	}
+
+	function WebSocketTransport(transUrl) {
+	  if (!WebSocketTransport.enabled()) {
+	    throw new Error('Transport created when disabled');
+	  }
+
+	  EventEmitter.call(this);
+	  debug('constructor', transUrl);
+
+	  var self = this;
+	  var url = urlUtils.addPath(transUrl, '/websocket');
+	  if (url.slice(0, 5) === 'https') {
+	    url = 'wss' + url.slice(5);
+	  } else {
+	    url = 'ws' + url.slice(4);
+	  }
+	  this.url = url;
+
+	  this.ws = new WebsocketDriver(this.url);
+	  this.ws.onmessage = function(e) {
+	    debug('message event', e.data);
+	    self.emit('message', e.data);
+	  };
+	  // Firefox has an interesting bug. If a websocket connection is
+	  // created after onunload, it stays alive even when user
+	  // navigates away from the page. In such situation let's lie -
+	  // let's not open the ws connection at all. See:
+	  // https://github.com/sockjs/sockjs-client/issues/28
+	  // https://bugzilla.mozilla.org/show_bug.cgi?id=696085
+	  this.unloadRef = utils.unloadAdd(function() {
+	    debug('unload');
+	    self.ws.close();
+	  });
+	  this.ws.onclose = function(e) {
+	    debug('close event', e.code, e.reason);
+	    self.emit('close', e.code, e.reason);
+	    self._cleanup();
+	  };
+	  this.ws.onerror = function(e) {
+	    debug('error event', e);
+	    self.emit('close', 1006, 'WebSocket connection broken');
+	    self._cleanup();
+	  };
+	}
+
+	inherits(WebSocketTransport, EventEmitter);
+
+	WebSocketTransport.prototype.send = function(data) {
+	  var msg = '[' + data + ']';
+	  debug('send', msg);
+	  this.ws.send(msg);
+	};
+
+	WebSocketTransport.prototype.close = function() {
+	  debug('close');
+	  if (this.ws) {
+	    this.ws.close();
+	  }
+	  this._cleanup();
+	};
+
+	WebSocketTransport.prototype._cleanup = function() {
+	  debug('_cleanup');
+	  var ws = this.ws;
+	  if (ws) {
+	    ws.onmessage = ws.onclose = ws.onerror = null;
+	  }
+	  utils.unloadDel(this.unloadRef);
+	  this.unloadRef = this.ws = null;
+	  this.removeAllListeners();
+	};
+
+	WebSocketTransport.enabled = function() {
+	  debug('enabled');
+	  return !!WebsocketDriver;
+	};
+	WebSocketTransport.transportName = 'websocket';
+
+	// In theory, ws should require 1 round trip. But in chrome, this is
+	// not very stable over SSL. Most likely a ws connection requires a
+	// separate SSL connection, in which case 2 round trips are an
+	// absolute minumum.
+	WebSocketTransport.roundTrips = 2;
+
+	module.exports = WebSocketTransport;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 47 */
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+
+	function cleanUpNextTick() {
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = setTimeout(cleanUpNextTick);
+	    draining = true;
+
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    clearTimeout(timeout);
+	}
+
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var random = __webpack_require__(49);
+
+	var onUnload = {}
+	  , afterUnload = false
+	    // detect google chrome packaged apps because they don't allow the 'unload' event
+	  , isChromePackagedApp = global.chrome && global.chrome.app && global.chrome.app.runtime
+	  ;
+
+	module.exports = {
+	  attachEvent: function(event, listener) {
+	    if (typeof global.addEventListener !== 'undefined') {
+	      global.addEventListener(event, listener, false);
+	    } else if (global.document && global.attachEvent) {
+	      // IE quirks.
+	      // According to: http://stevesouders.com/misc/test-postmessage.php
+	      // the message gets delivered only to 'document', not 'window'.
+	      global.document.attachEvent('on' + event, listener);
+	      // I get 'window' for ie8.
+	      global.attachEvent('on' + event, listener);
+	    }
+	  }
+
+	, detachEvent: function(event, listener) {
+	    if (typeof global.addEventListener !== 'undefined') {
+	      global.removeEventListener(event, listener, false);
+	    } else if (global.document && global.detachEvent) {
+	      global.document.detachEvent('on' + event, listener);
+	      global.detachEvent('on' + event, listener);
+	    }
+	  }
+
+	, unloadAdd: function(listener) {
+	    if (isChromePackagedApp) {
+	      return null;
+	    }
+
+	    var ref = random.string(8);
+	    onUnload[ref] = listener;
+	    if (afterUnload) {
+	      setTimeout(this.triggerUnloadCallbacks, 0);
+	    }
+	    return ref;
+	  }
+
+	, unloadDel: function(ref) {
+	    if (ref in onUnload) {
+	      delete onUnload[ref];
+	    }
+	  }
+
+	, triggerUnloadCallbacks: function() {
+	    for (var ref in onUnload) {
+	      onUnload[ref]();
+	      delete onUnload[ref];
+	    }
+	  }
+	};
+
+	var unloadTriggered = function() {
+	  if (afterUnload) {
+	    return;
+	  }
+	  afterUnload = true;
+	  module.exports.triggerUnloadCallbacks();
+	};
+
+	// 'unload' alone is not reliable in opera within an iframe, but we
+	// can't use `beforeunload` as IE fires it on javascript: links.
+	if (!isChromePackagedApp) {
+	  module.exports.attachEvent('unload', unloadTriggered);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/* global crypto:true */
+	var crypto = __webpack_require__(50);
+
+	// This string has length 32, a power of 2, so the modulus doesn't introduce a
+	// bias.
+	var _randomStringChars = 'abcdefghijklmnopqrstuvwxyz012345';
+	module.exports = {
+	  string: function(length) {
+	    var max = _randomStringChars.length;
+	    var bytes = crypto.randomBytes(length);
+	    var ret = [];
+	    for (var i = 0; i < length; i++) {
+	      ret.push(_randomStringChars.substr(bytes[i] % max, 1));
+	    }
+	    return ret.join('');
+	  }
+
+	, number: function(max) {
+	    return Math.floor(Math.random() * max);
+	  }
+
+	, numberString: function(max) {
+	    var t = ('' + (max - 1)).length;
+	    var p = new Array(t + 1).join('0');
+	    return (p + this.number(max)).slice(-t);
+	  }
+	};
+
+
+/***/ },
+/* 50 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	if (global.crypto && global.crypto.getRandomValues) {
+	  module.exports.randomBytes = function(length) {
+	    var bytes = new Uint8Array(length);
+	    global.crypto.getRandomValues(bytes);
+	    return bytes;
+	  };
+	} else {
+	  module.exports.randomBytes = function(length) {
+	    var bytes = new Array(length);
+	    for (var i = 0; i < length; i++) {
+	      bytes[i] = Math.floor(Math.random() * 256);
+	    }
+	    return bytes;
+	  };
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var URL = __webpack_require__(52);
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:utils:url');
+	}
+
+	module.exports = {
+	  getOrigin: function(url) {
+	    if (!url) {
+	      return null;
+	    }
+
+	    var p = new URL(url);
+	    if (p.protocol === 'file:') {
+	      return null;
+	    }
+
+	    var port = p.port;
+	    if (!port) {
+	      port = (p.protocol === 'https:') ? '443' : '80';
+	    }
+
+	    return p.protocol + '//' + p.hostname + ':' + port;
+	  }
+
+	, isOriginEqual: function(a, b) {
+	    var res = this.getOrigin(a) === this.getOrigin(b);
+	    debug('same', a, b, res);
+	    return res;
+	  }
+
+	, isSchemeEqual: function(a, b) {
+	    return (a.split(':')[0] === b.split(':')[0]);
+	  }
+
+	, addPath: function (url, path) {
+	    var qs = url.split('?');
+	    return qs[0] + path + (qs[1] ? '?' + qs[1] : '');
+	  }
+
+	, addQuery: function (url, q) {
+	    return url + (url.indexOf('?') === -1 ? ('?' + q) : ('&' + q));
+	  }
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var required = __webpack_require__(53)
+	  , lolcation = __webpack_require__(54)
+	  , qs = __webpack_require__(55)
+	  , relativere = /^\/(?!\/)/
+	  , protocolre = /^([a-z0-9.+-]+:)?(\/\/)?(.*)$/i; // actual protocol is first match
+
+	/**
+	 * These are the parse instructions for the URL parsers, it informs the parser
+	 * about:
+	 *
+	 * 0. The char it Needs to parse, if it's a string it should be done using
+	 *    indexOf, RegExp using exec and NaN means set as current value.
+	 * 1. The property we should set when parsing this value.
+	 * 2. Indication if it's backwards or forward parsing, when set as number it's
+	 *    the value of extra chars that should be split off.
+	 * 3. Inherit from location if non existing in the parser.
+	 * 4. `toLowerCase` the resulting value.
+	 */
+	var instructions = [
+	  ['#', 'hash'],                        // Extract from the back.
+	  ['?', 'query'],                       // Extract from the back.
+	  ['/', 'pathname'],                    // Extract from the back.
+	  ['@', 'auth', 1],                     // Extract from the front.
+	  [NaN, 'host', undefined, 1, 1],       // Set left over value.
+	  [/\:(\d+)$/, 'port'],                 // RegExp the back.
+	  [NaN, 'hostname', undefined, 1, 1]    // Set left over.
+	];
+
+	 /**
+	 * @typedef ProtocolExtract
+	 * @type Object
+	 * @property {String} protocol Protocol matched in the URL, in lowercase
+	 * @property {Boolean} slashes Indicates whether the protocol is followed by double slash ("//")
+	 * @property {String} rest     Rest of the URL that is not part of the protocol
+	 */
+
+	 /**
+	  * Extract protocol information from a URL with/without double slash ("//")
+	  *
+	  * @param  {String} address   URL we want to extract from.
+	  * @return {ProtocolExtract}  Extracted information
+	  * @private
+	  */
+	function extractProtocol(address) {
+	  var match = protocolre.exec(address);
+	  return {
+	    protocol: match[1] ? match[1].toLowerCase() : '',
+	    slashes: !!match[2],
+	    rest: match[3] ? match[3] : ''
+	  };
+	}
+
+	/**
+	 * The actual URL instance. Instead of returning an object we've opted-in to
+	 * create an actual constructor as it's much more memory efficient and
+	 * faster and it pleases my CDO.
+	 *
+	 * @constructor
+	 * @param {String} address URL we want to parse.
+	 * @param {Object|String} location Location defaults for relative paths.
+	 * @param {Boolean|Function} parser Parser for the query string.
+	 * @api public
+	 */
+	function URL(address, location, parser) {
+	  if (!(this instanceof URL)) {
+	    return new URL(address, location, parser);
+	  }
+
+	  var relative = relativere.test(address)
+	    , parse, instruction, index, key
+	    , type = typeof location
+	    , url = this
+	    , i = 0;
+
+	  //
+	  // The following if statements allows this module two have compatibility with
+	  // 2 different API:
+	  //
+	  // 1. Node.js's `url.parse` api which accepts a URL, boolean as arguments
+	  //    where the boolean indicates that the query string should also be parsed.
+	  //
+	  // 2. The `URL` interface of the browser which accepts a URL, object as
+	  //    arguments. The supplied object will be used as default values / fall-back
+	  //    for relative paths.
+	  //
+	  if ('object' !== type && 'string' !== type) {
+	    parser = location;
+	    location = null;
+	  }
+
+	  if (parser && 'function' !== typeof parser) {
+	    parser = qs.parse;
+	  }
+
+	  location = lolcation(location);
+
+	  // extract protocol information before running the instructions
+	  var extracted = extractProtocol(address);
+	  url.protocol = extracted.protocol || location.protocol || '';
+	  url.slashes = extracted.slashes || location.slashes;
+	  address = extracted.rest;
+
+	  for (; i < instructions.length; i++) {
+	    instruction = instructions[i];
+	    parse = instruction[0];
+	    key = instruction[1];
+
+	    if (parse !== parse) {
+	      url[key] = address;
+	    } else if ('string' === typeof parse) {
+	      if (~(index = address.indexOf(parse))) {
+	        if ('number' === typeof instruction[2]) {
+	          url[key] = address.slice(0, index);
+	          address = address.slice(index + instruction[2]);
+	        } else {
+	          url[key] = address.slice(index);
+	          address = address.slice(0, index);
+	        }
+	      }
+	    } else if (index = parse.exec(address)) {
+	      url[key] = index[1];
+	      address = address.slice(0, address.length - index[0].length);
+	    }
+
+	    url[key] = url[key] || (instruction[3] || ('port' === key && relative) ? location[key] || '' : '');
+
+	    //
+	    // Hostname, host and protocol should be lowercased so they can be used to
+	    // create a proper `origin`.
+	    //
+	    if (instruction[4]) {
+	      url[key] = url[key].toLowerCase();
+	    }
+	  }
+
+	  //
+	  // Also parse the supplied query string in to an object. If we're supplied
+	  // with a custom parser as function use that instead of the default build-in
+	  // parser.
+	  //
+	  if (parser) url.query = parser(url.query);
+
+	  //
+	  // We should not add port numbers if they are already the default port number
+	  // for a given protocol. As the host also contains the port number we're going
+	  // override it with the hostname which contains no port number.
+	  //
+	  if (!required(url.port, url.protocol)) {
+	    url.host = url.hostname;
+	    url.port = '';
+	  }
+
+	  //
+	  // Parse down the `auth` for the username and password.
+	  //
+	  url.username = url.password = '';
+	  if (url.auth) {
+	    instruction = url.auth.split(':');
+	    url.username = instruction[0] || '';
+	    url.password = instruction[1] || '';
+	  }
+
+	  //
+	  // The href is just the compiled result.
+	  //
+	  url.href = url.toString();
+	}
+
+	/**
+	 * This is convenience method for changing properties in the URL instance to
+	 * insure that they all propagate correctly.
+	 *
+	 * @param {String} prop          Property we need to adjust.
+	 * @param {Mixed} value          The newly assigned value.
+	 * @param {Boolean|Function} fn  When setting the query, it will be the function used to parse
+	 *                               the query.
+	 *                               When setting the protocol, double slash will be removed from
+	 *                               the final url if it is true.
+	 * @returns {URL}
+	 * @api public
+	 */
+	URL.prototype.set = function set(part, value, fn) {
+	  var url = this;
+
+	  if ('query' === part) {
+	    if ('string' === typeof value && value.length) {
+	      value = (fn || qs.parse)(value);
+	    }
+
+	    url[part] = value;
+	  } else if ('port' === part) {
+	    url[part] = value;
+
+	    if (!required(value, url.protocol)) {
+	      url.host = url.hostname;
+	      url[part] = '';
+	    } else if (value) {
+	      url.host = url.hostname +':'+ value;
+	    }
+	  } else if ('hostname' === part) {
+	    url[part] = value;
+
+	    if (url.port) value += ':'+ url.port;
+	    url.host = value;
+	  } else if ('host' === part) {
+	    url[part] = value;
+
+	    if (/\:\d+/.test(value)) {
+	      value = value.split(':');
+	      url.hostname = value[0];
+	      url.port = value[1];
+	    }
+	  } else if ('protocol' === part) {
+	    url.protocol = value;
+	    url.slashes = !fn;
+	  } else {
+	    url[part] = value;
+	  }
+
+	  url.href = url.toString();
+	  return url;
+	};
+
+	/**
+	 * Transform the properties back in to a valid and full URL string.
+	 *
+	 * @param {Function} stringify Optional query stringify function.
+	 * @returns {String}
+	 * @api public
+	 */
+	URL.prototype.toString = function toString(stringify) {
+	  if (!stringify || 'function' !== typeof stringify) stringify = qs.stringify;
+
+	  var query
+	    , url = this
+	    , protocol = url.protocol;
+
+	  if (protocol && protocol.charAt(protocol.length - 1) !== ':') protocol += ':';
+
+	  var result = protocol + (url.slashes ? '//' : '');
+
+	  if (url.username) {
+	    result += url.username;
+	    if (url.password) result += ':'+ url.password;
+	    result += '@';
+	  }
+
+	  result += url.hostname;
+	  if (url.port) result += ':'+ url.port;
+
+	  result += url.pathname;
+
+	  query = 'object' === typeof url.query ? stringify(url.query) : url.query;
+	  if (query) result += '?' !== query.charAt(0) ? '?'+ query : query;
+
+	  if (url.hash) result += url.hash;
+
+	  return result;
+	};
+
+	//
+	// Expose the URL parser and some additional properties that might be useful for
+	// others.
+	//
+	URL.qs = qs;
+	URL.location = lolcation;
+	module.exports = URL;
+
+
+/***/ },
+/* 53 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Check if we're required to add a port number.
+	 *
+	 * @see https://url.spec.whatwg.org/#default-port
+	 * @param {Number|String} port Port number we need to check
+	 * @param {String} protocol Protocol we need to check against.
+	 * @returns {Boolean} Is it a default port for the given protocol
+	 * @api private
+	 */
+	module.exports = function required(port, protocol) {
+	  protocol = protocol.split(':')[0];
+	  port = +port;
+
+	  if (!port) return false;
+
+	  switch (protocol) {
+	    case 'http':
+	    case 'ws':
+	    return port !== 80;
+
+	    case 'https':
+	    case 'wss':
+	    return port !== 443;
+
+	    case 'ftp':
+	    return port !== 21;
+
+	    case 'gopher':
+	    return port !== 70;
+
+	    case 'file':
+	    return false;
+	  }
+
+	  return port !== 0;
+	};
+
+
+/***/ },
+/* 54 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var slashes = /^[A-Za-z][A-Za-z0-9+-.]*:\/\//;
+
+	/**
+	 * These properties should not be copied or inherited from. This is only needed
+	 * for all non blob URL's as a blob URL does not include a hash, only the
+	 * origin.
+	 *
+	 * @type {Object}
+	 * @private
+	 */
+	var ignore = { hash: 1, query: 1 }
+	  , URL;
+
+	/**
+	 * The location object differs when your code is loaded through a normal page,
+	 * Worker or through a worker using a blob. And with the blobble begins the
+	 * trouble as the location object will contain the URL of the blob, not the
+	 * location of the page where our code is loaded in. The actual origin is
+	 * encoded in the `pathname` so we can thankfully generate a good "default"
+	 * location from it so we can generate proper relative URL's again.
+	 *
+	 * @param {Object|String} loc Optional default location object.
+	 * @returns {Object} lolcation object.
+	 * @api public
+	 */
+	module.exports = function lolcation(loc) {
+	  loc = loc || global.location || {};
+	  URL = URL || __webpack_require__(52);
+
+	  var finaldestination = {}
+	    , type = typeof loc
+	    , key;
+
+	  if ('blob:' === loc.protocol) {
+	    finaldestination = new URL(unescape(loc.pathname), {});
+	  } else if ('string' === type) {
+	    finaldestination = new URL(loc, {});
+	    for (key in ignore) delete finaldestination[key];
+	  } else if ('object' === type) {
+	    for (key in loc) {
+	      if (key in ignore) continue;
+	      finaldestination[key] = loc[key];
+	    }
+
+	    if (finaldestination.slashes === undefined) {
+	      finaldestination.slashes = slashes.test(loc.href);
+	    }
+	  }
+
+	  return finaldestination;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 55 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var has = Object.prototype.hasOwnProperty;
+
+	/**
+	 * Simple query string parser.
+	 *
+	 * @param {String} query The query string that needs to be parsed.
+	 * @returns {Object}
+	 * @api public
+	 */
+	function querystring(query) {
+	  var parser = /([^=?&]+)=([^&]*)/g
+	    , result = {}
+	    , part;
+
+	  //
+	  // Little nifty parsing hack, leverage the fact that RegExp.exec increments
+	  // the lastIndex property so we can continue executing this loop until we've
+	  // parsed all results.
+	  //
+	  for (;
+	    part = parser.exec(query);
+	    result[decodeURIComponent(part[1])] = decodeURIComponent(part[2])
+	  );
+
+	  return result;
+	}
+
+	/**
+	 * Transform a query string to an object.
+	 *
+	 * @param {Object} obj Object that should be transformed.
+	 * @param {String} prefix Optional prefix.
+	 * @returns {String}
+	 * @api public
+	 */
+	function querystringify(obj, prefix) {
+	  prefix = prefix || '';
+
+	  var pairs = [];
+
+	  //
+	  // Optionally prefix with a '?' if needed
+	  //
+	  if ('string' !== typeof prefix) prefix = '?';
+
+	  for (var key in obj) {
+	    if (has.call(obj, key)) {
+	      pairs.push(encodeURIComponent(key) +'='+ encodeURIComponent(obj[key]));
+	    }
+	  }
+
+	  return pairs.length ? prefix + pairs.join('&') : '';
+	}
+
+	//
+	// Expose the module.
+	//
+	exports.stringify = querystringify;
+	exports.parse = querystring;
+
+
+/***/ },
+/* 56 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the web browser implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = __webpack_require__(57);
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+	exports.storage = 'undefined' != typeof chrome
+	               && 'undefined' != typeof chrome.storage
+	                  ? chrome.storage.local
+	                  : localstorage();
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [
+	  'lightseagreen',
+	  'forestgreen',
+	  'goldenrod',
+	  'dodgerblue',
+	  'darkorchid',
+	  'crimson'
+	];
+
+	/**
+	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+	 * and the Firebug extension (any Firefox version) are known
+	 * to support "%c" CSS customizations.
+	 *
+	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
+	 */
+
+	function useColors() {
+	  // is webkit? http://stackoverflow.com/a/16459606/376773
+	  return ('WebkitAppearance' in document.documentElement.style) ||
+	    // is firebug? http://stackoverflow.com/a/398120/376773
+	    (window.console && (console.firebug || (console.exception && console.table))) ||
+	    // is firefox >= v31?
+	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+	}
+
+	/**
+	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+	 */
+
+	exports.formatters.j = function(v) {
+	  return JSON.stringify(v);
+	};
+
+
+	/**
+	 * Colorize log arguments if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var args = arguments;
+	  var useColors = this.useColors;
+
+	  args[0] = (useColors ? '%c' : '')
+	    + this.namespace
+	    + (useColors ? ' %c' : ' ')
+	    + args[0]
+	    + (useColors ? '%c ' : ' ')
+	    + '+' + exports.humanize(this.diff);
+
+	  if (!useColors) return args;
+
+	  var c = 'color: ' + this.color;
+	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+	  // the final "%c" is somewhat tricky, because there could be other
+	  // arguments passed either before or after the %c, so we need to
+	  // figure out the correct index to insert the CSS into
+	  var index = 0;
+	  var lastC = 0;
+	  args[0].replace(/%[a-z%]/g, function(match) {
+	    if ('%%' === match) return;
+	    index++;
+	    if ('%c' === match) {
+	      // we only are interested in the *last* %c
+	      // (the user may have provided their own)
+	      lastC = index;
+	    }
+	  });
+
+	  args.splice(lastC, 0, c);
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.log()` when available.
+	 * No-op when `console.log` is not a "function".
+	 *
+	 * @api public
+	 */
+
+	function log() {
+	  // this hackery is required for IE8/9, where
+	  // the `console.log` function doesn't have 'apply'
+	  return 'object' === typeof console
+	    && console.log
+	    && Function.prototype.apply.call(console.log, console, arguments);
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  try {
+	    if (null == namespaces) {
+	      exports.storage.removeItem('debug');
+	    } else {
+	      exports.storage.debug = namespaces;
+	    }
+	  } catch(e) {}
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  var r;
+	  try {
+	    r = exports.storage.debug;
+	  } catch(e) {}
+	  return r;
+	}
+
+	/**
+	 * Enable namespaces listed in `localStorage.debug` initially.
+	 */
+
+	exports.enable(load());
+
+	/**
+	 * Localstorage attempts to return the localstorage.
+	 *
+	 * This is necessary because safari throws
+	 * when a user disables cookies/localstorage
+	 * and you attempt to access it.
+	 *
+	 * @return {LocalStorage}
+	 * @api private
+	 */
+
+	function localstorage(){
+	  try {
+	    return window.localStorage;
+	  } catch (e) {}
+	}
+
+
+/***/ },
+/* 57 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = __webpack_require__(58);
+
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+
+	exports.names = [];
+	exports.skips = [];
+
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+
+	exports.formatters = {};
+
+	/**
+	 * Previously assigned color.
+	 */
+
+	var prevColor = 0;
+
+	/**
+	 * Previous log timestamp.
+	 */
+
+	var prevTime;
+
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+
+	function debug(namespace) {
+
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+
+	  // define the `enabled` version
+	  function enabled() {
+
+	    var self = enabled;
+
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+
+	    var args = Array.prototype.slice.call(arguments);
+
+	    args[0] = exports.coerce(args[0]);
+
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+
+	    if ('function' === typeof exports.formatArgs) {
+	      args = exports.formatArgs.apply(self, args);
+	    }
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+	  fn.namespace = namespace;
+
+	  return fn;
+	}
+
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+
+	function enable(namespaces) {
+	  exports.save(namespaces);
+
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+
+	function disable() {
+	  exports.enable('');
+	}
+
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+
+/***/ },
+/* 58 */
+/***/ function(module, exports) {
+
+	/**
+	 * Helpers.
+	 */
+
+	var s = 1000;
+	var m = s * 60;
+	var h = m * 60;
+	var d = h * 24;
+	var y = d * 365.25;
+
+	/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} options
+	 * @return {String|Number}
+	 * @api public
+	 */
+
+	module.exports = function(val, options){
+	  options = options || {};
+	  if ('string' == typeof val) return parse(val);
+	  return options.long
+	    ? long(val)
+	    : short(val);
+	};
+
+	/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function parse(str) {
+	  str = '' + str;
+	  if (str.length > 10000) return;
+	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+	  if (!match) return;
+	  var n = parseFloat(match[1]);
+	  var type = (match[2] || 'ms').toLowerCase();
+	  switch (type) {
+	    case 'years':
+	    case 'year':
+	    case 'yrs':
+	    case 'yr':
+	    case 'y':
+	      return n * y;
+	    case 'days':
+	    case 'day':
+	    case 'd':
+	      return n * d;
+	    case 'hours':
+	    case 'hour':
+	    case 'hrs':
+	    case 'hr':
+	    case 'h':
+	      return n * h;
+	    case 'minutes':
+	    case 'minute':
+	    case 'mins':
+	    case 'min':
+	    case 'm':
+	      return n * m;
+	    case 'seconds':
+	    case 'second':
+	    case 'secs':
+	    case 'sec':
+	    case 's':
+	      return n * s;
+	    case 'milliseconds':
+	    case 'millisecond':
+	    case 'msecs':
+	    case 'msec':
+	    case 'ms':
+	      return n;
+	  }
+	}
+
+	/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function short(ms) {
+	  if (ms >= d) return Math.round(ms / d) + 'd';
+	  if (ms >= h) return Math.round(ms / h) + 'h';
+	  if (ms >= m) return Math.round(ms / m) + 'm';
+	  if (ms >= s) return Math.round(ms / s) + 's';
+	  return ms + 'ms';
+	}
+
+	/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function long(ms) {
+	  return plural(ms, d, 'day')
+	    || plural(ms, h, 'hour')
+	    || plural(ms, m, 'minute')
+	    || plural(ms, s, 'second')
+	    || ms + ' ms';
+	}
+
+	/**
+	 * Pluralization helper.
+	 */
+
+	function plural(ms, n, name) {
+	  if (ms < n) return;
+	  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+	  return Math.ceil(ms / n) + ' ' + name + 's';
+	}
+
+
+/***/ },
+/* 59 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 60 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventTarget = __webpack_require__(61)
+	  ;
+
+	function EventEmitter() {
+	  EventTarget.call(this);
+	}
+
+	inherits(EventEmitter, EventTarget);
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  if (type) {
+	    delete this._listeners[type];
+	  } else {
+	    this._listeners = {};
+	  }
+	};
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  var self = this
+	    , fired = false;
+
+	  function g() {
+	    self.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  this.on(type, g);
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var listeners = this._listeners[type];
+	  if (!listeners) {
+	    return;
+	  }
+	  var args = Array.prototype.slice.call(arguments, 1);
+	  for (var i = 0; i < listeners.length; i++) {
+	    listeners[i].apply(this, args);
+	  }
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener = EventTarget.prototype.addEventListener;
+	EventEmitter.prototype.removeListener = EventTarget.prototype.removeEventListener;
+
+	module.exports.EventEmitter = EventEmitter;
+
+
+/***/ },
+/* 61 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/* Simplified implementation of DOM2 EventTarget.
+	 *   http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventTarget
+	 */
+
+	function EventTarget() {
+	  this._listeners = {};
+	}
+
+	EventTarget.prototype.addEventListener = function(eventType, listener) {
+	  if (!(eventType in this._listeners)) {
+	    this._listeners[eventType] = [];
+	  }
+	  var arr = this._listeners[eventType];
+	  // #4
+	  if (arr.indexOf(listener) === -1) {
+	    // Make a copy so as not to interfere with a current dispatchEvent.
+	    arr = arr.concat([listener]);
+	  }
+	  this._listeners[eventType] = arr;
+	};
+
+	EventTarget.prototype.removeEventListener = function(eventType, listener) {
+	  var arr = this._listeners[eventType];
+	  if (!arr) {
+	    return;
+	  }
+	  var idx = arr.indexOf(listener);
+	  if (idx !== -1) {
+	    if (arr.length > 1) {
+	      // Make a copy so as not to interfere with a current dispatchEvent.
+	      this._listeners[eventType] = arr.slice(0, idx).concat(arr.slice(idx + 1));
+	    } else {
+	      delete this._listeners[eventType];
+	    }
+	    return;
+	  }
+	};
+
+	EventTarget.prototype.dispatchEvent = function(event) {
+	  var t = event.type;
+	  var args = Array.prototype.slice.call(arguments, 0);
+	  // TODO: This doesn't match the real behavior; per spec, onfoo get
+	  // their place in line from the /first/ time they're set from
+	  // non-null. Although WebKit bumps it to the end every time it's
+	  // set.
+	  if (this['on' + t]) {
+	    this['on' + t].apply(this, args);
+	  }
+	  if (t in this._listeners) {
+	    // Grab a reference to the listeners list. removeEventListener may alter the list.
+	    var listeners = this._listeners[t];
+	    for (var i = 0; i < listeners.length; i++) {
+	      listeners[i].apply(this, args);
+	    }
+	  }
+	};
+
+	module.exports = EventTarget;
+
+
+/***/ },
+/* 62 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global.WebSocket || global.MozWebSocket;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 63 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  , XhrReceiver = __webpack_require__(68)
+	  , XHRCorsObject = __webpack_require__(69)
+	  , XHRLocalObject = __webpack_require__(71)
+	  , browser = __webpack_require__(72)
+	  ;
+
+	function XhrStreamingTransport(transUrl) {
+	  if (!XHRLocalObject.enabled && !XHRCorsObject.enabled) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  AjaxBasedTransport.call(this, transUrl, '/xhr_streaming', XhrReceiver, XHRCorsObject);
+	}
+
+	inherits(XhrStreamingTransport, AjaxBasedTransport);
+
+	XhrStreamingTransport.enabled = function(info) {
+	  if (info.nullOrigin) {
+	    return false;
+	  }
+	  // Opera doesn't support xhr-streaming #60
+	  // But it might be able to #92
+	  if (browser.isOpera()) {
+	    return false;
+	  }
+
+	  return XHRCorsObject.enabled;
+	};
+
+	XhrStreamingTransport.transportName = 'xhr-streaming';
+	XhrStreamingTransport.roundTrips = 2; // preflight, ajax
+
+	// Safari gets confused when a streaming ajax request is started
+	// before onload. This causes the load indicator to spin indefinetely.
+	// Only require body when used in a browser
+	XhrStreamingTransport.needBody = !!global.document;
+
+	module.exports = XhrStreamingTransport;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , urlUtils = __webpack_require__(51)
+	  , SenderReceiver = __webpack_require__(65)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:ajax-based');
+	}
+
+	function createAjaxSender(AjaxObject) {
+	  return function(url, payload, callback) {
+	    debug('create ajax sender', url, payload);
+	    var opt = {};
+	    if (typeof payload === 'string') {
+	      opt.headers = {'Content-type':'text/plain'};
+	    }
+	    var ajaxUrl = urlUtils.addPath(url, '/xhr_send');
+	    var xo = new AjaxObject('POST', ajaxUrl, payload, opt);
+	    xo.once('finish', function(status) {
+	      debug('finish', status);
+	      xo = null;
+
+	      if (status !== 200 && status !== 204) {
+	        return callback(new Error('http status ' + status));
+	      }
+	      callback();
+	    });
+	    return function() {
+	      debug('abort');
+	      xo.close();
+	      xo = null;
+
+	      var err = new Error('Aborted');
+	      err.code = 1000;
+	      callback(err);
+	    };
+	  };
+	}
+
+	function AjaxBasedTransport(transUrl, urlSuffix, Receiver, AjaxObject) {
+	  SenderReceiver.call(this, transUrl, urlSuffix, createAjaxSender(AjaxObject), Receiver, AjaxObject);
+	}
+
+	inherits(AjaxBasedTransport, SenderReceiver);
+
+	module.exports = AjaxBasedTransport;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 65 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , urlUtils = __webpack_require__(51)
+	  , BufferedSender = __webpack_require__(66)
+	  , Polling = __webpack_require__(67)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:sender-receiver');
+	}
+
+	function SenderReceiver(transUrl, urlSuffix, senderFunc, Receiver, AjaxObject) {
+	  var pollUrl = urlUtils.addPath(transUrl, urlSuffix);
+	  debug(pollUrl);
+	  var self = this;
+	  BufferedSender.call(this, transUrl, senderFunc);
+
+	  this.poll = new Polling(Receiver, pollUrl, AjaxObject);
+	  this.poll.on('message', function(msg) {
+	    debug('poll message', msg);
+	    self.emit('message', msg);
+	  });
+	  this.poll.once('close', function(code, reason) {
+	    debug('poll close', code, reason);
+	    self.poll = null;
+	    self.emit('close', code, reason);
+	    self.close();
+	  });
+	}
+
+	inherits(SenderReceiver, BufferedSender);
+
+	SenderReceiver.prototype.close = function() {
+	  debug('close');
+	  this.removeAllListeners();
+	  if (this.poll) {
+	    this.poll.abort();
+	    this.poll = null;
+	  }
+	  this.stop();
+	};
+
+	module.exports = SenderReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 66 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:buffered-sender');
+	}
+
+	function BufferedSender(url, sender) {
+	  debug(url);
+	  EventEmitter.call(this);
+	  this.sendBuffer = [];
+	  this.sender = sender;
+	  this.url = url;
+	}
+
+	inherits(BufferedSender, EventEmitter);
+
+	BufferedSender.prototype.send = function(message) {
+	  debug('send', message);
+	  this.sendBuffer.push(message);
+	  if (!this.sendStop) {
+	    this.sendSchedule();
+	  }
+	};
+
+	// For polling transports in a situation when in the message callback,
+	// new message is being send. If the sending connection was started
+	// before receiving one, it is possible to saturate the network and
+	// timeout due to the lack of receiving socket. To avoid that we delay
+	// sending messages by some small time, in order to let receiving
+	// connection be started beforehand. This is only a halfmeasure and
+	// does not fix the big problem, but it does make the tests go more
+	// stable on slow networks.
+	BufferedSender.prototype.sendScheduleWait = function() {
+	  debug('sendScheduleWait');
+	  var self = this;
+	  var tref;
+	  this.sendStop = function() {
+	    debug('sendStop');
+	    self.sendStop = null;
+	    clearTimeout(tref);
+	  };
+	  tref = setTimeout(function() {
+	    debug('timeout');
+	    self.sendStop = null;
+	    self.sendSchedule();
+	  }, 25);
+	};
+
+	BufferedSender.prototype.sendSchedule = function() {
+	  debug('sendSchedule', this.sendBuffer.length);
+	  var self = this;
+	  if (this.sendBuffer.length > 0) {
+	    var payload = '[' + this.sendBuffer.join(',') + ']';
+	    this.sendStop = this.sender(this.url, payload, function(err) {
+	      self.sendStop = null;
+	      if (err) {
+	        debug('error', err);
+	        self.emit('close', err.code || 1006, 'Sending error: ' + err);
+	        self._cleanup();
+	      } else {
+	        self.sendScheduleWait();
+	      }
+	    });
+	    this.sendBuffer = [];
+	  }
+	};
+
+	BufferedSender.prototype._cleanup = function() {
+	  debug('_cleanup');
+	  this.removeAllListeners();
+	};
+
+	BufferedSender.prototype.stop = function() {
+	  debug('stop');
+	  this._cleanup();
+	  if (this.sendStop) {
+	    this.sendStop();
+	    this.sendStop = null;
+	  }
+	};
+
+	module.exports = BufferedSender;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 67 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:polling');
+	}
+
+	function Polling(Receiver, receiveUrl, AjaxObject) {
+	  debug(receiveUrl);
+	  EventEmitter.call(this);
+	  this.Receiver = Receiver;
+	  this.receiveUrl = receiveUrl;
+	  this.AjaxObject = AjaxObject;
+	  this._scheduleReceiver();
+	}
+
+	inherits(Polling, EventEmitter);
+
+	Polling.prototype._scheduleReceiver = function() {
+	  debug('_scheduleReceiver');
+	  var self = this;
+	  var poll = this.poll = new this.Receiver(this.receiveUrl, this.AjaxObject);
+
+	  poll.on('message', function(msg) {
+	    debug('message', msg);
+	    self.emit('message', msg);
+	  });
+
+	  poll.once('close', function(code, reason) {
+	    debug('close', code, reason, self.pollIsClosing);
+	    self.poll = poll = null;
+
+	    if (!self.pollIsClosing) {
+	      if (reason === 'network') {
+	        self._scheduleReceiver();
+	      } else {
+	        self.emit('close', code || 1006, reason);
+	        self.removeAllListeners();
+	      }
+	    }
+	  });
+	};
+
+	Polling.prototype.abort = function() {
+	  debug('abort');
+	  this.removeAllListeners();
+	  this.pollIsClosing = true;
+	  if (this.poll) {
+	    this.poll.abort();
+	  }
+	};
+
+	module.exports = Polling;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 68 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:receiver:xhr');
+	}
+
+	function XhrReceiver(url, AjaxObject) {
+	  debug(url);
+	  EventEmitter.call(this);
+	  var self = this;
+
+	  this.bufferPosition = 0;
+
+	  this.xo = new AjaxObject('POST', url, null);
+	  this.xo.on('chunk', this._chunkHandler.bind(this));
+	  this.xo.once('finish', function(status, text) {
+	    debug('finish', status, text);
+	    self._chunkHandler(status, text);
+	    self.xo = null;
+	    var reason = status === 200 ? 'network' : 'permanent';
+	    debug('close', reason);
+	    self.emit('close', null, reason);
+	    self._cleanup();
+	  });
+	}
+
+	inherits(XhrReceiver, EventEmitter);
+
+	XhrReceiver.prototype._chunkHandler = function(status, text) {
+	  debug('_chunkHandler', status);
+	  if (status !== 200 || !text) {
+	    return;
+	  }
+
+	  for (var idx = -1; ; this.bufferPosition += idx + 1) {
+	    var buf = text.slice(this.bufferPosition);
+	    idx = buf.indexOf('\n');
+	    if (idx === -1) {
+	      break;
+	    }
+	    var msg = buf.slice(0, idx);
+	    if (msg) {
+	      debug('message', msg);
+	      this.emit('message', msg);
+	    }
+	  }
+	};
+
+	XhrReceiver.prototype._cleanup = function() {
+	  debug('_cleanup');
+	  this.removeAllListeners();
+	};
+
+	XhrReceiver.prototype.abort = function() {
+	  debug('abort');
+	  if (this.xo) {
+	    this.xo.close();
+	    debug('close');
+	    this.emit('close', null, 'user');
+	    this.xo = null;
+	  }
+	  this._cleanup();
+	};
+
+	module.exports = XhrReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , XhrDriver = __webpack_require__(70)
+	  ;
+
+	function XHRCorsObject(method, url, payload, opts) {
+	  XhrDriver.call(this, method, url, payload, opts);
+	}
+
+	inherits(XHRCorsObject, XhrDriver);
+
+	XHRCorsObject.enabled = XhrDriver.enabled && XhrDriver.supportsCORS;
+
+	module.exports = XHRCorsObject;
+
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  , utils = __webpack_require__(48)
+	  , urlUtils = __webpack_require__(51)
+	  , XHR = global.XMLHttpRequest
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:browser:xhr');
+	}
+
+	function AbstractXHRObject(method, url, payload, opts) {
+	  debug(method, url);
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  setTimeout(function () {
+	    self._start(method, url, payload, opts);
+	  }, 0);
+	}
+
+	inherits(AbstractXHRObject, EventEmitter);
+
+	AbstractXHRObject.prototype._start = function(method, url, payload, opts) {
+	  var self = this;
+
+	  try {
+	    this.xhr = new XHR();
+	  } catch (x) {}
+
+	  if (!this.xhr) {
+	    debug('no xhr');
+	    this.emit('finish', 0, 'no xhr support');
+	    this._cleanup();
+	    return;
+	  }
+
+	  // several browsers cache POSTs
+	  url = urlUtils.addQuery(url, 't=' + (+new Date()));
+
+	  // Explorer tends to keep connection open, even after the
+	  // tab gets closed: http://bugs.jquery.com/ticket/5280
+	  this.unloadRef = utils.unloadAdd(function() {
+	    debug('unload cleanup');
+	    self._cleanup(true);
+	  });
+	  try {
+	    this.xhr.open(method, url, true);
+	    if (this.timeout && 'timeout' in this.xhr) {
+	      this.xhr.timeout = this.timeout;
+	      this.xhr.ontimeout = function() {
+	        debug('xhr timeout');
+	        self.emit('finish', 0, '');
+	        self._cleanup(false);
+	      };
+	    }
+	  } catch (e) {
+	    debug('exception', e);
+	    // IE raises an exception on wrong port.
+	    this.emit('finish', 0, '');
+	    this._cleanup(false);
+	    return;
+	  }
+
+	  if ((!opts || !opts.noCredentials) && AbstractXHRObject.supportsCORS) {
+	    debug('withCredentials');
+	    // Mozilla docs says https://developer.mozilla.org/en/XMLHttpRequest :
+	    // "This never affects same-site requests."
+
+	    this.xhr.withCredentials = 'true';
+	  }
+	  if (opts && opts.headers) {
+	    for (var key in opts.headers) {
+	      this.xhr.setRequestHeader(key, opts.headers[key]);
+	    }
+	  }
+
+	  this.xhr.onreadystatechange = function() {
+	    if (self.xhr) {
+	      var x = self.xhr;
+	      var text, status;
+	      debug('readyState', x.readyState);
+	      switch (x.readyState) {
+	      case 3:
+	        // IE doesn't like peeking into responseText or status
+	        // on Microsoft.XMLHTTP and readystate=3
+	        try {
+	          status = x.status;
+	          text = x.responseText;
+	        } catch (e) {}
+	        debug('status', status);
+	        // IE returns 1223 for 204: http://bugs.jquery.com/ticket/1450
+	        if (status === 1223) {
+	          status = 204;
+	        }
+
+	        // IE does return readystate == 3 for 404 answers.
+	        if (status === 200 && text && text.length > 0) {
+	          debug('chunk');
+	          self.emit('chunk', status, text);
+	        }
+	        break;
+	      case 4:
+	        status = x.status;
+	        debug('status', status);
+	        // IE returns 1223 for 204: http://bugs.jquery.com/ticket/1450
+	        if (status === 1223) {
+	          status = 204;
+	        }
+	        // IE returns this for a bad port
+	        // http://msdn.microsoft.com/en-us/library/windows/desktop/aa383770(v=vs.85).aspx
+	        if (status === 12005 || status === 12029) {
+	          status = 0;
+	        }
+
+	        debug('finish', status, x.responseText);
+	        self.emit('finish', status, x.responseText);
+	        self._cleanup(false);
+	        break;
+	      }
+	    }
+	  };
+
+	  try {
+	    self.xhr.send(payload);
+	  } catch (e) {
+	    self.emit('finish', 0, '');
+	    self._cleanup(false);
+	  }
+	};
+
+	AbstractXHRObject.prototype._cleanup = function(abort) {
+	  debug('cleanup');
+	  if (!this.xhr) {
+	    return;
+	  }
+	  this.removeAllListeners();
+	  utils.unloadDel(this.unloadRef);
+
+	  // IE needs this field to be a function
+	  this.xhr.onreadystatechange = function() {};
+	  if (this.xhr.ontimeout) {
+	    this.xhr.ontimeout = null;
+	  }
+
+	  if (abort) {
+	    try {
+	      this.xhr.abort();
+	    } catch (x) {}
+	  }
+	  this.unloadRef = this.xhr = null;
+	};
+
+	AbstractXHRObject.prototype.close = function() {
+	  debug('close');
+	  this._cleanup(true);
+	};
+
+	AbstractXHRObject.enabled = !!XHR;
+	// override XMLHttpRequest for IE6/7
+	// obfuscate to avoid firewalls
+	var axo = ['Active'].concat('Object').join('X');
+	if (!AbstractXHRObject.enabled && (axo in global)) {
+	  debug('overriding xmlhttprequest');
+	  XHR = function() {
+	    try {
+	      return new global[axo]('Microsoft.XMLHTTP');
+	    } catch (e) {
+	      return null;
+	    }
+	  };
+	  AbstractXHRObject.enabled = !!new XHR();
+	}
+
+	var cors = false;
+	try {
+	  cors = 'withCredentials' in new XHR();
+	} catch (ignored) {}
+
+	AbstractXHRObject.supportsCORS = cors;
+
+	module.exports = AbstractXHRObject;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(47)))
+
+/***/ },
+/* 71 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , XhrDriver = __webpack_require__(70)
+	  ;
+
+	function XHRLocalObject(method, url, payload /*, opts */) {
+	  XhrDriver.call(this, method, url, payload, {
+	    noCredentials: true
+	  });
+	}
+
+	inherits(XHRLocalObject, XhrDriver);
+
+	XHRLocalObject.enabled = XhrDriver.enabled;
+
+	module.exports = XHRLocalObject;
+
+
+/***/ },
+/* 72 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	module.exports = {
+	  isOpera: function() {
+	    return global.navigator &&
+	      /opera/i.test(global.navigator.userAgent);
+	  }
+
+	, isKonqueror: function() {
+	    return global.navigator &&
+	      /konqueror/i.test(global.navigator.userAgent);
+	  }
+
+	  // #187 wrap document.domain in try/catch because of WP8 from file:///
+	, hasDomain: function () {
+	    // non-browser client always has a domain
+	    if (!global.document) {
+	      return true;
+	    }
+
+	    try {
+	      return !!global.document.domain;
+	    } catch (e) {
+	      return false;
+	    }
+	  }
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 73 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  , XhrReceiver = __webpack_require__(68)
+	  , XDRObject = __webpack_require__(74)
+	  ;
+
+	// According to:
+	//   http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
+	//   http://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
+
+	function XdrStreamingTransport(transUrl) {
+	  if (!XDRObject.enabled) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  AjaxBasedTransport.call(this, transUrl, '/xhr_streaming', XhrReceiver, XDRObject);
+	}
+
+	inherits(XdrStreamingTransport, AjaxBasedTransport);
+
+	XdrStreamingTransport.enabled = function(info) {
+	  if (info.cookie_needed || info.nullOrigin) {
+	    return false;
+	  }
+	  return XDRObject.enabled && info.sameScheme;
+	};
+
+	XdrStreamingTransport.transportName = 'xdr-streaming';
+	XdrStreamingTransport.roundTrips = 2; // preflight, ajax
+
+	module.exports = XdrStreamingTransport;
+
+
+/***/ },
+/* 74 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  , eventUtils = __webpack_require__(48)
+	  , browser = __webpack_require__(72)
+	  , urlUtils = __webpack_require__(51)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:sender:xdr');
+	}
+
+	// References:
+	//   http://ajaxian.com/archives/100-line-ajax-wrapper
+	//   http://msdn.microsoft.com/en-us/library/cc288060(v=VS.85).aspx
+
+	function XDRObject(method, url, payload) {
+	  debug(method, url);
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  setTimeout(function() {
+	    self._start(method, url, payload);
+	  }, 0);
+	}
+
+	inherits(XDRObject, EventEmitter);
+
+	XDRObject.prototype._start = function(method, url, payload) {
+	  debug('_start');
+	  var self = this;
+	  var xdr = new global.XDomainRequest();
+	  // IE caches even POSTs
+	  url = urlUtils.addQuery(url, 't=' + (+new Date()));
+
+	  xdr.onerror = function() {
+	    debug('onerror');
+	    self._error();
+	  };
+	  xdr.ontimeout = function() {
+	    debug('ontimeout');
+	    self._error();
+	  };
+	  xdr.onprogress = function() {
+	    debug('progress', xdr.responseText);
+	    self.emit('chunk', 200, xdr.responseText);
+	  };
+	  xdr.onload = function() {
+	    debug('load');
+	    self.emit('finish', 200, xdr.responseText);
+	    self._cleanup(false);
+	  };
+	  this.xdr = xdr;
+	  this.unloadRef = eventUtils.unloadAdd(function() {
+	    self._cleanup(true);
+	  });
+	  try {
+	    // Fails with AccessDenied if port number is bogus
+	    this.xdr.open(method, url);
+	    if (this.timeout) {
+	      this.xdr.timeout = this.timeout;
+	    }
+	    this.xdr.send(payload);
+	  } catch (x) {
+	    this._error();
+	  }
+	};
+
+	XDRObject.prototype._error = function() {
+	  this.emit('finish', 0, '');
+	  this._cleanup(false);
+	};
+
+	XDRObject.prototype._cleanup = function(abort) {
+	  debug('cleanup', abort);
+	  if (!this.xdr) {
+	    return;
+	  }
+	  this.removeAllListeners();
+	  eventUtils.unloadDel(this.unloadRef);
+
+	  this.xdr.ontimeout = this.xdr.onerror = this.xdr.onprogress = this.xdr.onload = null;
+	  if (abort) {
+	    try {
+	      this.xdr.abort();
+	    } catch (x) {}
+	  }
+	  this.unloadRef = this.xdr = null;
+	};
+
+	XDRObject.prototype.close = function() {
+	  debug('close');
+	  this._cleanup(true);
+	};
+
+	// IE 8/9 if the request target uses the same scheme - #79
+	XDRObject.enabled = !!(global.XDomainRequest && browser.hasDomain());
+
+	module.exports = XDRObject;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 75 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  , EventSourceReceiver = __webpack_require__(76)
+	  , XHRCorsObject = __webpack_require__(69)
+	  , EventSourceDriver = __webpack_require__(77)
+	  ;
+
+	function EventSourceTransport(transUrl) {
+	  if (!EventSourceTransport.enabled()) {
+	    throw new Error('Transport created when disabled');
+	  }
+
+	  AjaxBasedTransport.call(this, transUrl, '/eventsource', EventSourceReceiver, XHRCorsObject);
+	}
+
+	inherits(EventSourceTransport, AjaxBasedTransport);
+
+	EventSourceTransport.enabled = function() {
+	  return !!EventSourceDriver;
+	};
+
+	EventSourceTransport.transportName = 'eventsource';
+	EventSourceTransport.roundTrips = 2;
+
+	module.exports = EventSourceTransport;
+
+
+/***/ },
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  , EventSourceDriver = __webpack_require__(77)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:receiver:eventsource');
+	}
+
+	function EventSourceReceiver(url) {
+	  debug(url);
+	  EventEmitter.call(this);
+
+	  var self = this;
+	  var es = this.es = new EventSourceDriver(url);
+	  es.onmessage = function(e) {
+	    debug('message', e.data);
+	    self.emit('message', decodeURI(e.data));
+	  };
+	  es.onerror = function(e) {
+	    debug('error', es.readyState, e);
+	    // ES on reconnection has readyState = 0 or 1.
+	    // on network error it's CLOSED = 2
+	    var reason = (es.readyState !== 2 ? 'network' : 'permanent');
+	    self._cleanup();
+	    self._close(reason);
+	  };
+	}
+
+	inherits(EventSourceReceiver, EventEmitter);
+
+	EventSourceReceiver.prototype.abort = function() {
+	  debug('abort');
+	  this._cleanup();
+	  this._close('user');
+	};
+
+	EventSourceReceiver.prototype._cleanup = function() {
+	  debug('cleanup');
+	  var es = this.es;
+	  if (es) {
+	    es.onmessage = es.onerror = null;
+	    es.close();
+	    this.es = null;
+	  }
+	};
+
+	EventSourceReceiver.prototype._close = function(reason) {
+	  debug('close', reason);
+	  var self = this;
+	  // Safari and chrome < 15 crash if we close window before
+	  // waiting for ES cleanup. See:
+	  // https://code.google.com/p/chromium/issues/detail?id=89155
+	  setTimeout(function() {
+	    self.emit('close', null, reason);
+	    self.removeAllListeners();
+	  }, 200);
+	};
+
+	module.exports = EventSourceReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 77 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global.EventSource;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 78 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , IframeTransport = __webpack_require__(79)
+	  , objectUtils = __webpack_require__(84)
+	  ;
+
+	module.exports = function(transport) {
+
+	  function IframeWrapTransport(transUrl, baseUrl) {
+	    IframeTransport.call(this, transport.transportName, transUrl, baseUrl);
+	  }
+
+	  inherits(IframeWrapTransport, IframeTransport);
+
+	  IframeWrapTransport.enabled = function(url, info) {
+	    if (!global.document) {
+	      return false;
+	    }
+
+	    var iframeInfo = objectUtils.extend({}, info);
+	    iframeInfo.sameOrigin = true;
+	    return transport.enabled(iframeInfo) && IframeTransport.enabled();
+	  };
+
+	  IframeWrapTransport.transportName = 'iframe-' + transport.transportName;
+	  IframeWrapTransport.needBody = true;
+	  IframeWrapTransport.roundTrips = IframeTransport.roundTrips + transport.roundTrips - 1; // html, javascript (2) + transport - no CORS (1)
+
+	  IframeWrapTransport.facadeTransport = transport;
+
+	  return IframeWrapTransport;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 79 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	// Few cool transports do work only for same-origin. In order to make
+	// them work cross-domain we shall use iframe, served from the
+	// remote domain. New browsers have capabilities to communicate with
+	// cross domain iframe using postMessage(). In IE it was implemented
+	// from IE 8+, but of course, IE got some details wrong:
+	//    http://msdn.microsoft.com/en-us/library/cc197015(v=VS.85).aspx
+	//    http://stevesouders.com/misc/test-postmessage.php
+
+	var inherits = __webpack_require__(59)
+	  , JSON3 = __webpack_require__(80)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  , version = __webpack_require__(82)
+	  , urlUtils = __webpack_require__(51)
+	  , iframeUtils = __webpack_require__(83)
+	  , eventUtils = __webpack_require__(48)
+	  , random = __webpack_require__(49)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:transport:iframe');
+	}
+
+	function IframeTransport(transport, transUrl, baseUrl) {
+	  if (!IframeTransport.enabled()) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  EventEmitter.call(this);
+
+	  var self = this;
+	  this.origin = urlUtils.getOrigin(baseUrl);
+	  this.baseUrl = baseUrl;
+	  this.transUrl = transUrl;
+	  this.transport = transport;
+	  this.windowId = random.string(8);
+
+	  var iframeUrl = urlUtils.addPath(baseUrl, '/iframe.html') + '#' + this.windowId;
+	  debug(transport, transUrl, iframeUrl);
+
+	  this.iframeObj = iframeUtils.createIframe(iframeUrl, function(r) {
+	    debug('err callback');
+	    self.emit('close', 1006, 'Unable to load an iframe (' + r + ')');
+	    self.close();
+	  });
+
+	  this.onmessageCallback = this._message.bind(this);
+	  eventUtils.attachEvent('message', this.onmessageCallback);
+	}
+
+	inherits(IframeTransport, EventEmitter);
+
+	IframeTransport.prototype.close = function() {
+	  debug('close');
+	  this.removeAllListeners();
+	  if (this.iframeObj) {
+	    eventUtils.detachEvent('message', this.onmessageCallback);
+	    try {
+	      // When the iframe is not loaded, IE raises an exception
+	      // on 'contentWindow'.
+	      this.postMessage('c');
+	    } catch (x) {}
+	    this.iframeObj.cleanup();
+	    this.iframeObj = null;
+	    this.onmessageCallback = this.iframeObj = null;
+	  }
+	};
+
+	IframeTransport.prototype._message = function(e) {
+	  debug('message', e.data);
+	  if (!urlUtils.isOriginEqual(e.origin, this.origin)) {
+	    debug('not same origin', e.origin, this.origin);
+	    return;
+	  }
+
+	  var iframeMessage;
+	  try {
+	    iframeMessage = JSON3.parse(e.data);
+	  } catch (ignored) {
+	    debug('bad json', e.data);
+	    return;
+	  }
+
+	  if (iframeMessage.windowId !== this.windowId) {
+	    debug('mismatched window id', iframeMessage.windowId, this.windowId);
+	    return;
+	  }
+
+	  switch (iframeMessage.type) {
+	  case 's':
+	    this.iframeObj.loaded();
+	    // window global dependency
+	    this.postMessage('s', JSON3.stringify([
+	      version
+	    , this.transport
+	    , this.transUrl
+	    , this.baseUrl
+	    ]));
+	    break;
+	  case 't':
+	    this.emit('message', iframeMessage.data);
+	    break;
+	  case 'c':
+	    var cdata;
+	    try {
+	      cdata = JSON3.parse(iframeMessage.data);
+	    } catch (ignored) {
+	      debug('bad json', iframeMessage.data);
+	      return;
+	    }
+	    this.emit('close', cdata[0], cdata[1]);
+	    this.close();
+	    break;
+	  }
+	};
+
+	IframeTransport.prototype.postMessage = function(type, data) {
+	  debug('postMessage', type, data);
+	  this.iframeObj.post(JSON3.stringify({
+	    windowId: this.windowId
+	  , type: type
+	  , data: data || ''
+	  }), this.origin);
+	};
+
+	IframeTransport.prototype.send = function(message) {
+	  debug('send', message);
+	  this.postMessage('m', message);
+	};
+
+	IframeTransport.enabled = function() {
+	  return iframeUtils.iframeEnabled;
+	};
+
+	IframeTransport.transportName = 'iframe';
+	IframeTransport.roundTrips = 2;
+
+	module.exports = IframeTransport;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 80 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
+	;(function () {
+	  // Detect the `define` function exposed by asynchronous module loaders. The
+	  // strict `define` check is necessary for compatibility with `r.js`.
+	  var isLoader = "function" === "function" && __webpack_require__(81);
+
+	  // A set of types used to distinguish objects from primitives.
+	  var objectTypes = {
+	    "function": true,
+	    "object": true
+	  };
+
+	  // Detect the `exports` object exposed by CommonJS implementations.
+	  var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
+
+	  // Use the `global` object exposed by Node (including Browserify via
+	  // `insert-module-globals`), Narwhal, and Ringo as the default context,
+	  // and the `window` object in browsers. Rhino exports a `global` function
+	  // instead.
+	  var root = objectTypes[typeof window] && window || this,
+	      freeGlobal = freeExports && objectTypes[typeof module] && module && !module.nodeType && typeof global == "object" && global;
+
+	  if (freeGlobal && (freeGlobal["global"] === freeGlobal || freeGlobal["window"] === freeGlobal || freeGlobal["self"] === freeGlobal)) {
+	    root = freeGlobal;
+	  }
+
+	  // Public: Initializes JSON 3 using the given `context` object, attaching the
+	  // `stringify` and `parse` functions to the specified `exports` object.
+	  function runInContext(context, exports) {
+	    context || (context = root["Object"]());
+	    exports || (exports = root["Object"]());
+
+	    // Native constructor aliases.
+	    var Number = context["Number"] || root["Number"],
+	        String = context["String"] || root["String"],
+	        Object = context["Object"] || root["Object"],
+	        Date = context["Date"] || root["Date"],
+	        SyntaxError = context["SyntaxError"] || root["SyntaxError"],
+	        TypeError = context["TypeError"] || root["TypeError"],
+	        Math = context["Math"] || root["Math"],
+	        nativeJSON = context["JSON"] || root["JSON"];
+
+	    // Delegate to the native `stringify` and `parse` implementations.
+	    if (typeof nativeJSON == "object" && nativeJSON) {
+	      exports.stringify = nativeJSON.stringify;
+	      exports.parse = nativeJSON.parse;
+	    }
+
+	    // Convenience aliases.
+	    var objectProto = Object.prototype,
+	        getClass = objectProto.toString,
+	        isProperty, forEach, undef;
+
+	    // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+	    var isExtended = new Date(-3509827334573292);
+	    try {
+	      // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+	      // results for certain dates in Opera >= 10.53.
+	      isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
+	        // Safari < 2.0.2 stores the internal millisecond time value correctly,
+	        // but clips the values returned by the date methods to the range of
+	        // signed 32-bit integers ([-2 ** 31, 2 ** 31 - 1]).
+	        isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+	    } catch (exception) {}
+
+	    // Internal: Determines whether the native `JSON.stringify` and `parse`
+	    // implementations are spec-compliant. Based on work by Ken Snyder.
+	    function has(name) {
+	      if (has[name] !== undef) {
+	        // Return cached feature test result.
+	        return has[name];
+	      }
+	      var isSupported;
+	      if (name == "bug-string-char-index") {
+	        // IE <= 7 doesn't support accessing string characters using square
+	        // bracket notation. IE 8 only supports this for primitives.
+	        isSupported = "a"[0] != "a";
+	      } else if (name == "json") {
+	        // Indicates whether both `JSON.stringify` and `JSON.parse` are
+	        // supported.
+	        isSupported = has("json-stringify") && has("json-parse");
+	      } else {
+	        var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
+	        // Test `JSON.stringify`.
+	        if (name == "json-stringify") {
+	          var stringify = exports.stringify, stringifySupported = typeof stringify == "function" && isExtended;
+	          if (stringifySupported) {
+	            // A test function object with a custom `toJSON` method.
+	            (value = function () {
+	              return 1;
+	            }).toJSON = value;
+	            try {
+	              stringifySupported =
+	                // Firefox 3.1b1 and b2 serialize string, number, and boolean
+	                // primitives as object literals.
+	                stringify(0) === "0" &&
+	                // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+	                // literals.
+	                stringify(new Number()) === "0" &&
+	                stringify(new String()) == '""' &&
+	                // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+	                // does not define a canonical JSON representation (this applies to
+	                // objects with `toJSON` properties as well, *unless* they are nested
+	                // within an object or array).
+	                stringify(getClass) === undef &&
+	                // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+	                // FF 3.1b3 pass this test.
+	                stringify(undef) === undef &&
+	                // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+	                // respectively, if the value is omitted entirely.
+	                stringify() === undef &&
+	                // FF 3.1b1, 2 throw an error if the given value is not a number,
+	                // string, array, object, Boolean, or `null` literal. This applies to
+	                // objects with custom `toJSON` methods as well, unless they are nested
+	                // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+	                // methods entirely.
+	                stringify(value) === "1" &&
+	                stringify([value]) == "[1]" &&
+	                // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+	                // `"[null]"`.
+	                stringify([undef]) == "[null]" &&
+	                // YUI 3.0.0b1 fails to serialize `null` literals.
+	                stringify(null) == "null" &&
+	                // FF 3.1b1, 2 halts serialization if an array contains a function:
+	                // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+	                // elides non-JSON values from objects and arrays, unless they
+	                // define custom `toJSON` methods.
+	                stringify([undef, getClass, null]) == "[null,null,null]" &&
+	                // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+	                // where character escape codes are expected (e.g., `\b` => `\u0008`).
+	                stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
+	                // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+	                stringify(null, value) === "1" &&
+	                stringify([1, 2], null, 1) == "[\n 1,\n 2\n]" &&
+	                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+	                // serialize extended years.
+	                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
+	                // The milliseconds are optional in ES 5, but required in 5.1.
+	                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
+	                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+	                // four-digit years instead of six-digit years. Credits: @Yaffle.
+	                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
+	                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+	                // values less than 1000. Credits: @Yaffle.
+	                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+	            } catch (exception) {
+	              stringifySupported = false;
+	            }
+	          }
+	          isSupported = stringifySupported;
+	        }
+	        // Test `JSON.parse`.
+	        if (name == "json-parse") {
+	          var parse = exports.parse;
+	          if (typeof parse == "function") {
+	            try {
+	              // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+	              // Conforming implementations should also coerce the initial argument to
+	              // a string prior to parsing.
+	              if (parse("0") === 0 && !parse(false)) {
+	                // Simple parsing test.
+	                value = parse(serialized);
+	                var parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+	                if (parseSupported) {
+	                  try {
+	                    // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+	                    parseSupported = !parse('"\t"');
+	                  } catch (exception) {}
+	                  if (parseSupported) {
+	                    try {
+	                      // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+	                      // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+	                      // certain octal literals.
+	                      parseSupported = parse("01") !== 1;
+	                    } catch (exception) {}
+	                  }
+	                  if (parseSupported) {
+	                    try {
+	                      // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+	                      // points. These environments, along with FF 3.1b1 and 2,
+	                      // also allow trailing commas in JSON objects and arrays.
+	                      parseSupported = parse("1.") !== 1;
+	                    } catch (exception) {}
+	                  }
+	                }
+	              }
+	            } catch (exception) {
+	              parseSupported = false;
+	            }
+	          }
+	          isSupported = parseSupported;
+	        }
+	      }
+	      return has[name] = !!isSupported;
+	    }
+
+	    if (!has("json")) {
+	      // Common `[[Class]]` name aliases.
+	      var functionClass = "[object Function]",
+	          dateClass = "[object Date]",
+	          numberClass = "[object Number]",
+	          stringClass = "[object String]",
+	          arrayClass = "[object Array]",
+	          booleanClass = "[object Boolean]";
+
+	      // Detect incomplete support for accessing string characters by index.
+	      var charIndexBuggy = has("bug-string-char-index");
+
+	      // Define additional utility methods if the `Date` methods are buggy.
+	      if (!isExtended) {
+	        var floor = Math.floor;
+	        // A mapping between the months of the year and the number of days between
+	        // January 1st and the first of the respective month.
+	        var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+	        // Internal: Calculates the number of days between the Unix epoch and the
+	        // first day of the given month.
+	        var getDay = function (year, month) {
+	          return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
+	        };
+	      }
+
+	      // Internal: Determines if a property is a direct property of the given
+	      // object. Delegates to the native `Object#hasOwnProperty` method.
+	      if (!(isProperty = objectProto.hasOwnProperty)) {
+	        isProperty = function (property) {
+	          var members = {}, constructor;
+	          if ((members.__proto__ = null, members.__proto__ = {
+	            // The *proto* property cannot be set multiple times in recent
+	            // versions of Firefox and SeaMonkey.
+	            "toString": 1
+	          }, members).toString != getClass) {
+	            // Safari <= 2.0.3 doesn't implement `Object#hasOwnProperty`, but
+	            // supports the mutable *proto* property.
+	            isProperty = function (property) {
+	              // Capture and break the object's prototype chain (see section 8.6.2
+	              // of the ES 5.1 spec). The parenthesized expression prevents an
+	              // unsafe transformation by the Closure Compiler.
+	              var original = this.__proto__, result = property in (this.__proto__ = null, this);
+	              // Restore the original prototype chain.
+	              this.__proto__ = original;
+	              return result;
+	            };
+	          } else {
+	            // Capture a reference to the top-level `Object` constructor.
+	            constructor = members.constructor;
+	            // Use the `constructor` property to simulate `Object#hasOwnProperty` in
+	            // other environments.
+	            isProperty = function (property) {
+	              var parent = (this.constructor || constructor).prototype;
+	              return property in this && !(property in parent && this[property] === parent[property]);
+	            };
+	          }
+	          members = null;
+	          return isProperty.call(this, property);
+	        };
+	      }
+
+	      // Internal: Normalizes the `for...in` iteration algorithm across
+	      // environments. Each enumerated key is yielded to a `callback` function.
+	      forEach = function (object, callback) {
+	        var size = 0, Properties, members, property;
+
+	        // Tests for bugs in the current environment's `for...in` algorithm. The
+	        // `valueOf` property inherits the non-enumerable flag from
+	        // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+	        (Properties = function () {
+	          this.valueOf = 0;
+	        }).prototype.valueOf = 0;
+
+	        // Iterate over a new instance of the `Properties` class.
+	        members = new Properties();
+	        for (property in members) {
+	          // Ignore all properties inherited from `Object.prototype`.
+	          if (isProperty.call(members, property)) {
+	            size++;
+	          }
+	        }
+	        Properties = members = null;
+
+	        // Normalize the iteration algorithm.
+	        if (!size) {
+	          // A list of non-enumerable properties inherited from `Object.prototype`.
+	          members = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
+	          // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+	          // properties.
+	          forEach = function (object, callback) {
+	            var isFunction = getClass.call(object) == functionClass, property, length;
+	            var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
+	            for (property in object) {
+	              // Gecko <= 1.0 enumerates the `prototype` property of functions under
+	              // certain conditions; IE does not.
+	              if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+	                callback(property);
+	              }
+	            }
+	            // Manually invoke the callback for each non-enumerable property.
+	            for (length = members.length; property = members[--length]; hasProperty.call(object, property) && callback(property));
+	          };
+	        } else if (size == 2) {
+	          // Safari <= 2.0.4 enumerates shadowed properties twice.
+	          forEach = function (object, callback) {
+	            // Create a set of iterated properties.
+	            var members = {}, isFunction = getClass.call(object) == functionClass, property;
+	            for (property in object) {
+	              // Store each property name to prevent double enumeration. The
+	              // `prototype` property of functions is not enumerated due to cross-
+	              // environment inconsistencies.
+	              if (!(isFunction && property == "prototype") && !isProperty.call(members, property) && (members[property] = 1) && isProperty.call(object, property)) {
+	                callback(property);
+	              }
+	            }
+	          };
+	        } else {
+	          // No bugs detected; use the standard `for...in` algorithm.
+	          forEach = function (object, callback) {
+	            var isFunction = getClass.call(object) == functionClass, property, isConstructor;
+	            for (property in object) {
+	              if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
+	                callback(property);
+	              }
+	            }
+	            // Manually invoke the callback for the `constructor` property due to
+	            // cross-environment inconsistencies.
+	            if (isConstructor || isProperty.call(object, (property = "constructor"))) {
+	              callback(property);
+	            }
+	          };
+	        }
+	        return forEach(object, callback);
+	      };
+
+	      // Public: Serializes a JavaScript `value` as a JSON string. The optional
+	      // `filter` argument may specify either a function that alters how object and
+	      // array members are serialized, or an array of strings and numbers that
+	      // indicates which properties should be serialized. The optional `width`
+	      // argument may be either a string or number that specifies the indentation
+	      // level of the output.
+	      if (!has("json-stringify")) {
+	        // Internal: A map of control characters and their escaped equivalents.
+	        var Escapes = {
+	          92: "\\\\",
+	          34: '\\"',
+	          8: "\\b",
+	          12: "\\f",
+	          10: "\\n",
+	          13: "\\r",
+	          9: "\\t"
+	        };
+
+	        // Internal: Converts `value` into a zero-padded string such that its
+	        // length is at least equal to `width`. The `width` must be <= 6.
+	        var leadingZeroes = "000000";
+	        var toPaddedString = function (width, value) {
+	          // The `|| 0` expression is necessary to work around a bug in
+	          // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
+	          return (leadingZeroes + (value || 0)).slice(-width);
+	        };
+
+	        // Internal: Double-quotes a string `value`, replacing all ASCII control
+	        // characters (characters with code unit values between 0 and 31) with
+	        // their escaped equivalents. This is an implementation of the
+	        // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
+	        var unicodePrefix = "\\u00";
+	        var quote = function (value) {
+	          var result = '"', index = 0, length = value.length, useCharIndex = !charIndexBuggy || length > 10;
+	          var symbols = useCharIndex && (charIndexBuggy ? value.split("") : value);
+	          for (; index < length; index++) {
+	            var charCode = value.charCodeAt(index);
+	            // If the character is a control character, append its Unicode or
+	            // shorthand escape sequence; otherwise, append the character as-is.
+	            switch (charCode) {
+	              case 8: case 9: case 10: case 12: case 13: case 34: case 92:
+	                result += Escapes[charCode];
+	                break;
+	              default:
+	                if (charCode < 32) {
+	                  result += unicodePrefix + toPaddedString(2, charCode.toString(16));
+	                  break;
+	                }
+	                result += useCharIndex ? symbols[index] : value.charAt(index);
+	            }
+	          }
+	          return result + '"';
+	        };
+
+	        // Internal: Recursively serializes an object. Implements the
+	        // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
+	        var serialize = function (property, object, callback, properties, whitespace, indentation, stack) {
+	          var value, className, year, month, date, time, hours, minutes, seconds, milliseconds, results, element, index, length, prefix, result;
+	          try {
+	            // Necessary for host object support.
+	            value = object[property];
+	          } catch (exception) {}
+	          if (typeof value == "object" && value) {
+	            className = getClass.call(value);
+	            if (className == dateClass && !isProperty.call(value, "toJSON")) {
+	              if (value > -1 / 0 && value < 1 / 0) {
+	                // Dates are serialized according to the `Date#toJSON` method
+	                // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
+	                // for the ISO 8601 date time string format.
+	                if (getDay) {
+	                  // Manually compute the year, month, date, hours, minutes,
+	                  // seconds, and milliseconds if the `getUTC*` methods are
+	                  // buggy. Adapted from @Yaffle's `date-shim` project.
+	                  date = floor(value / 864e5);
+	                  for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++);
+	                  for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++);
+	                  date = 1 + date - getDay(year, month);
+	                  // The `time` value specifies the time within the day (see ES
+	                  // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
+	                  // to compute `A modulo B`, as the `%` operator does not
+	                  // correspond to the `modulo` operation for negative numbers.
+	                  time = (value % 864e5 + 864e5) % 864e5;
+	                  // The hours, minutes, seconds, and milliseconds are obtained by
+	                  // decomposing the time within the day. See section 15.9.1.10.
+	                  hours = floor(time / 36e5) % 24;
+	                  minutes = floor(time / 6e4) % 60;
+	                  seconds = floor(time / 1e3) % 60;
+	                  milliseconds = time % 1e3;
+	                } else {
+	                  year = value.getUTCFullYear();
+	                  month = value.getUTCMonth();
+	                  date = value.getUTCDate();
+	                  hours = value.getUTCHours();
+	                  minutes = value.getUTCMinutes();
+	                  seconds = value.getUTCSeconds();
+	                  milliseconds = value.getUTCMilliseconds();
+	                }
+	                // Serialize extended years correctly.
+	                value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) +
+	                  "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) +
+	                  // Months, dates, hours, minutes, and seconds should have two
+	                  // digits; milliseconds should have three.
+	                  "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) +
+	                  // Milliseconds are optional in ES 5.0, but required in 5.1.
+	                  "." + toPaddedString(3, milliseconds) + "Z";
+	              } else {
+	                value = null;
+	              }
+	            } else if (typeof value.toJSON == "function" && ((className != numberClass && className != stringClass && className != arrayClass) || isProperty.call(value, "toJSON"))) {
+	              // Prototype <= 1.6.1 adds non-standard `toJSON` methods to the
+	              // `Number`, `String`, `Date`, and `Array` prototypes. JSON 3
+	              // ignores all `toJSON` methods on these objects unless they are
+	              // defined directly on an instance.
+	              value = value.toJSON(property);
+	            }
+	          }
+	          if (callback) {
+	            // If a replacement function was provided, call it to obtain the value
+	            // for serialization.
+	            value = callback.call(object, property, value);
+	          }
+	          if (value === null) {
+	            return "null";
+	          }
+	          className = getClass.call(value);
+	          if (className == booleanClass) {
+	            // Booleans are represented literally.
+	            return "" + value;
+	          } else if (className == numberClass) {
+	            // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
+	            // `"null"`.
+	            return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
+	          } else if (className == stringClass) {
+	            // Strings are double-quoted and escaped.
+	            return quote("" + value);
+	          }
+	          // Recursively serialize objects and arrays.
+	          if (typeof value == "object") {
+	            // Check for cyclic structures. This is a linear search; performance
+	            // is inversely proportional to the number of unique nested objects.
+	            for (length = stack.length; length--;) {
+	              if (stack[length] === value) {
+	                // Cyclic structures cannot be serialized by `JSON.stringify`.
+	                throw TypeError();
+	              }
+	            }
+	            // Add the object to the stack of traversed objects.
+	            stack.push(value);
+	            results = [];
+	            // Save the current indentation level and indent one additional level.
+	            prefix = indentation;
+	            indentation += whitespace;
+	            if (className == arrayClass) {
+	              // Recursively serialize array elements.
+	              for (index = 0, length = value.length; index < length; index++) {
+	                element = serialize(index, value, callback, properties, whitespace, indentation, stack);
+	                results.push(element === undef ? "null" : element);
+	              }
+	              result = results.length ? (whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : ("[" + results.join(",") + "]")) : "[]";
+	            } else {
+	              // Recursively serialize object members. Members are selected from
+	              // either a user-specified list of property names, or the object
+	              // itself.
+	              forEach(properties || value, function (property) {
+	                var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
+	                if (element !== undef) {
+	                  // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
+	                  // is not the empty string, let `member` {quote(property) + ":"}
+	                  // be the concatenation of `member` and the `space` character."
+	                  // The "`space` character" refers to the literal space
+	                  // character, not the `space` {width} argument provided to
+	                  // `JSON.stringify`.
+	                  results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
+	                }
+	              });
+	              result = results.length ? (whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : ("{" + results.join(",") + "}")) : "{}";
+	            }
+	            // Remove the object from the traversed object stack.
+	            stack.pop();
+	            return result;
+	          }
+	        };
+
+	        // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+	        exports.stringify = function (source, filter, width) {
+	          var whitespace, callback, properties, className;
+	          if (objectTypes[typeof filter] && filter) {
+	            if ((className = getClass.call(filter)) == functionClass) {
+	              callback = filter;
+	            } else if (className == arrayClass) {
+	              // Convert the property names array into a makeshift set.
+	              properties = {};
+	              for (var index = 0, length = filter.length, value; index < length; value = filter[index++], ((className = getClass.call(value)), className == stringClass || className == numberClass) && (properties[value] = 1));
+	            }
+	          }
+	          if (width) {
+	            if ((className = getClass.call(width)) == numberClass) {
+	              // Convert the `width` to an integer and create a string containing
+	              // `width` number of space characters.
+	              if ((width -= width % 1) > 0) {
+	                for (whitespace = "", width > 10 && (width = 10); whitespace.length < width; whitespace += " ");
+	              }
+	            } else if (className == stringClass) {
+	              whitespace = width.length <= 10 ? width : width.slice(0, 10);
+	            }
+	          }
+	          // Opera <= 7.54u2 discards the values associated with empty string keys
+	          // (`""`) only if they are used directly within an object member list
+	          // (e.g., `!("" in { "": 1})`).
+	          return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
+	        };
+	      }
+
+	      // Public: Parses a JSON source string.
+	      if (!has("json-parse")) {
+	        var fromCharCode = String.fromCharCode;
+
+	        // Internal: A map of escaped control characters and their unescaped
+	        // equivalents.
+	        var Unescapes = {
+	          92: "\\",
+	          34: '"',
+	          47: "/",
+	          98: "\b",
+	          116: "\t",
+	          110: "\n",
+	          102: "\f",
+	          114: "\r"
+	        };
+
+	        // Internal: Stores the parser state.
+	        var Index, Source;
+
+	        // Internal: Resets the parser state and throws a `SyntaxError`.
+	        var abort = function () {
+	          Index = Source = null;
+	          throw SyntaxError();
+	        };
+
+	        // Internal: Returns the next token, or `"$"` if the parser has reached
+	        // the end of the source string. A token may be a string, number, `null`
+	        // literal, or Boolean literal.
+	        var lex = function () {
+	          var source = Source, length = source.length, value, begin, position, isSigned, charCode;
+	          while (Index < length) {
+	            charCode = source.charCodeAt(Index);
+	            switch (charCode) {
+	              case 9: case 10: case 13: case 32:
+	                // Skip whitespace tokens, including tabs, carriage returns, line
+	                // feeds, and space characters.
+	                Index++;
+	                break;
+	              case 123: case 125: case 91: case 93: case 58: case 44:
+	                // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
+	                // the current position.
+	                value = charIndexBuggy ? source.charAt(Index) : source[Index];
+	                Index++;
+	                return value;
+	              case 34:
+	                // `"` delimits a JSON string; advance to the next character and
+	                // begin parsing the string. String tokens are prefixed with the
+	                // sentinel `@` character to distinguish them from punctuators and
+	                // end-of-string tokens.
+	                for (value = "@", Index++; Index < length;) {
+	                  charCode = source.charCodeAt(Index);
+	                  if (charCode < 32) {
+	                    // Unescaped ASCII control characters (those with a code unit
+	                    // less than the space character) are not permitted.
+	                    abort();
+	                  } else if (charCode == 92) {
+	                    // A reverse solidus (`\`) marks the beginning of an escaped
+	                    // control character (including `"`, `\`, and `/`) or Unicode
+	                    // escape sequence.
+	                    charCode = source.charCodeAt(++Index);
+	                    switch (charCode) {
+	                      case 92: case 34: case 47: case 98: case 116: case 110: case 102: case 114:
+	                        // Revive escaped control characters.
+	                        value += Unescapes[charCode];
+	                        Index++;
+	                        break;
+	                      case 117:
+	                        // `\u` marks the beginning of a Unicode escape sequence.
+	                        // Advance to the first character and validate the
+	                        // four-digit code point.
+	                        begin = ++Index;
+	                        for (position = Index + 4; Index < position; Index++) {
+	                          charCode = source.charCodeAt(Index);
+	                          // A valid sequence comprises four hexdigits (case-
+	                          // insensitive) that form a single hexadecimal value.
+	                          if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
+	                            // Invalid Unicode escape sequence.
+	                            abort();
+	                          }
+	                        }
+	                        // Revive the escaped character.
+	                        value += fromCharCode("0x" + source.slice(begin, Index));
+	                        break;
+	                      default:
+	                        // Invalid escape sequence.
+	                        abort();
+	                    }
+	                  } else {
+	                    if (charCode == 34) {
+	                      // An unescaped double-quote character marks the end of the
+	                      // string.
+	                      break;
+	                    }
+	                    charCode = source.charCodeAt(Index);
+	                    begin = Index;
+	                    // Optimize for the common case where a string is valid.
+	                    while (charCode >= 32 && charCode != 92 && charCode != 34) {
+	                      charCode = source.charCodeAt(++Index);
+	                    }
+	                    // Append the string as-is.
+	                    value += source.slice(begin, Index);
+	                  }
+	                }
+	                if (source.charCodeAt(Index) == 34) {
+	                  // Advance to the next character and return the revived string.
+	                  Index++;
+	                  return value;
+	                }
+	                // Unterminated string.
+	                abort();
+	              default:
+	                // Parse numbers and literals.
+	                begin = Index;
+	                // Advance past the negative sign, if one is specified.
+	                if (charCode == 45) {
+	                  isSigned = true;
+	                  charCode = source.charCodeAt(++Index);
+	                }
+	                // Parse an integer or floating-point value.
+	                if (charCode >= 48 && charCode <= 57) {
+	                  // Leading zeroes are interpreted as octal literals.
+	                  if (charCode == 48 && ((charCode = source.charCodeAt(Index + 1)), charCode >= 48 && charCode <= 57)) {
+	                    // Illegal octal literal.
+	                    abort();
+	                  }
+	                  isSigned = false;
+	                  // Parse the integer component.
+	                  for (; Index < length && ((charCode = source.charCodeAt(Index)), charCode >= 48 && charCode <= 57); Index++);
+	                  // Floats cannot contain a leading decimal point; however, this
+	                  // case is already accounted for by the parser.
+	                  if (source.charCodeAt(Index) == 46) {
+	                    position = ++Index;
+	                    // Parse the decimal component.
+	                    for (; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
+	                    if (position == Index) {
+	                      // Illegal trailing decimal.
+	                      abort();
+	                    }
+	                    Index = position;
+	                  }
+	                  // Parse exponents. The `e` denoting the exponent is
+	                  // case-insensitive.
+	                  charCode = source.charCodeAt(Index);
+	                  if (charCode == 101 || charCode == 69) {
+	                    charCode = source.charCodeAt(++Index);
+	                    // Skip past the sign following the exponent, if one is
+	                    // specified.
+	                    if (charCode == 43 || charCode == 45) {
+	                      Index++;
+	                    }
+	                    // Parse the exponential component.
+	                    for (position = Index; position < length && ((charCode = source.charCodeAt(position)), charCode >= 48 && charCode <= 57); position++);
+	                    if (position == Index) {
+	                      // Illegal empty exponent.
+	                      abort();
+	                    }
+	                    Index = position;
+	                  }
+	                  // Coerce the parsed value to a JavaScript number.
+	                  return +source.slice(begin, Index);
+	                }
+	                // A negative sign may only precede numbers.
+	                if (isSigned) {
+	                  abort();
+	                }
+	                // `true`, `false`, and `null` literals.
+	                if (source.slice(Index, Index + 4) == "true") {
+	                  Index += 4;
+	                  return true;
+	                } else if (source.slice(Index, Index + 5) == "false") {
+	                  Index += 5;
+	                  return false;
+	                } else if (source.slice(Index, Index + 4) == "null") {
+	                  Index += 4;
+	                  return null;
+	                }
+	                // Unrecognized token.
+	                abort();
+	            }
+	          }
+	          // Return the sentinel `$` character if the parser has reached the end
+	          // of the source string.
+	          return "$";
+	        };
+
+	        // Internal: Parses a JSON `value` token.
+	        var get = function (value) {
+	          var results, hasMembers;
+	          if (value == "$") {
+	            // Unexpected end of input.
+	            abort();
+	          }
+	          if (typeof value == "string") {
+	            if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
+	              // Remove the sentinel `@` character.
+	              return value.slice(1);
+	            }
+	            // Parse object and array literals.
+	            if (value == "[") {
+	              // Parses a JSON array, returning a new JavaScript array.
+	              results = [];
+	              for (;; hasMembers || (hasMembers = true)) {
+	                value = lex();
+	                // A closing square bracket marks the end of the array literal.
+	                if (value == "]") {
+	                  break;
+	                }
+	                // If the array literal contains elements, the current token
+	                // should be a comma separating the previous element from the
+	                // next.
+	                if (hasMembers) {
+	                  if (value == ",") {
+	                    value = lex();
+	                    if (value == "]") {
+	                      // Unexpected trailing `,` in array literal.
+	                      abort();
+	                    }
+	                  } else {
+	                    // A `,` must separate each array element.
+	                    abort();
+	                  }
+	                }
+	                // Elisions and leading commas are not permitted.
+	                if (value == ",") {
+	                  abort();
+	                }
+	                results.push(get(value));
+	              }
+	              return results;
+	            } else if (value == "{") {
+	              // Parses a JSON object, returning a new JavaScript object.
+	              results = {};
+	              for (;; hasMembers || (hasMembers = true)) {
+	                value = lex();
+	                // A closing curly brace marks the end of the object literal.
+	                if (value == "}") {
+	                  break;
+	                }
+	                // If the object literal contains members, the current token
+	                // should be a comma separator.
+	                if (hasMembers) {
+	                  if (value == ",") {
+	                    value = lex();
+	                    if (value == "}") {
+	                      // Unexpected trailing `,` in object literal.
+	                      abort();
+	                    }
+	                  } else {
+	                    // A `,` must separate each object member.
+	                    abort();
+	                  }
+	                }
+	                // Leading commas are not permitted, object property names must be
+	                // double-quoted strings, and a `:` must separate each property
+	                // name and value.
+	                if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
+	                  abort();
+	                }
+	                results[value.slice(1)] = get(lex());
+	              }
+	              return results;
+	            }
+	            // Unexpected token encountered.
+	            abort();
+	          }
+	          return value;
+	        };
+
+	        // Internal: Updates a traversed object member.
+	        var update = function (source, property, callback) {
+	          var element = walk(source, property, callback);
+	          if (element === undef) {
+	            delete source[property];
+	          } else {
+	            source[property] = element;
+	          }
+	        };
+
+	        // Internal: Recursively traverses a parsed JSON object, invoking the
+	        // `callback` function for each value. This is an implementation of the
+	        // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
+	        var walk = function (source, property, callback) {
+	          var value = source[property], length;
+	          if (typeof value == "object" && value) {
+	            // `forEach` can't be used to traverse an array in Opera <= 8.54
+	            // because its `Object#hasOwnProperty` implementation returns `false`
+	            // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
+	            if (getClass.call(value) == arrayClass) {
+	              for (length = value.length; length--;) {
+	                update(value, length, callback);
+	              }
+	            } else {
+	              forEach(value, function (property) {
+	                update(value, property, callback);
+	              });
+	            }
+	          }
+	          return callback.call(source, property, value);
+	        };
+
+	        // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
+	        exports.parse = function (source, callback) {
+	          var result, value;
+	          Index = 0;
+	          Source = "" + source;
+	          result = get(lex());
+	          // If a JSON string contains multiple tokens, it is invalid.
+	          if (lex() != "$") {
+	            abort();
+	          }
+	          // Reset the parser state.
+	          Index = Source = null;
+	          return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
+	        };
+	      }
+	    }
+
+	    exports["runInContext"] = runInContext;
+	    return exports;
+	  }
+
+	  if (freeExports && !isLoader) {
+	    // Export for CommonJS environments.
+	    runInContext(root, freeExports);
+	  } else {
+	    // Export for web browsers and JavaScript engines.
+	    var nativeJSON = root.JSON,
+	        previousJSON = root["JSON3"],
+	        isRestored = false;
+
+	    var JSON3 = runInContext(root, (root["JSON3"] = {
+	      // Public: Restores the original value of the global `JSON` object and
+	      // returns a reference to the `JSON3` object.
+	      "noConflict": function () {
+	        if (!isRestored) {
+	          isRestored = true;
+	          root.JSON = nativeJSON;
+	          root["JSON3"] = previousJSON;
+	          nativeJSON = previousJSON = null;
+	        }
+	        return JSON3;
+	      }
+	    }));
+
+	    root.JSON = {
+	      "parse": JSON3.parse,
+	      "stringify": JSON3.stringify
+	    };
+	  }
+
+	  // Export for asynchronous module loaders.
+	  if (isLoader) {
+	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	      return JSON3;
+	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  }
+	}).call(this);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)(module), (function() { return this; }())))
+
+/***/ },
+/* 81 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ },
+/* 82 */
+/***/ function(module, exports) {
+
+	module.exports = '1.0.3';
+
+/***/ },
+/* 83 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var eventUtils = __webpack_require__(48)
+	  , JSON3 = __webpack_require__(80)
+	  , browser = __webpack_require__(72)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:utils:iframe');
+	}
+
+	module.exports = {
+	  WPrefix: '_jp'
+	, currentWindowId: null
+
+	, polluteGlobalNamespace: function() {
+	    if (!(module.exports.WPrefix in global)) {
+	      global[module.exports.WPrefix] = {};
+	    }
+	  }
+
+	, postMessage: function(type, data) {
+	    if (global.parent !== global) {
+	      global.parent.postMessage(JSON3.stringify({
+	        windowId: module.exports.currentWindowId
+	      , type: type
+	      , data: data || ''
+	      }), '*');
+	    } else {
+	      debug('Cannot postMessage, no parent window.', type, data);
+	    }
+	  }
+
+	, createIframe: function(iframeUrl, errorCallback) {
+	    var iframe = global.document.createElement('iframe');
+	    var tref, unloadRef;
+	    var unattach = function() {
+	      debug('unattach');
+	      clearTimeout(tref);
+	      // Explorer had problems with that.
+	      try {
+	        iframe.onload = null;
+	      } catch (x) {}
+	      iframe.onerror = null;
+	    };
+	    var cleanup = function() {
+	      debug('cleanup');
+	      if (iframe) {
+	        unattach();
+	        // This timeout makes chrome fire onbeforeunload event
+	        // within iframe. Without the timeout it goes straight to
+	        // onunload.
+	        setTimeout(function() {
+	          if (iframe) {
+	            iframe.parentNode.removeChild(iframe);
+	          }
+	          iframe = null;
+	        }, 0);
+	        eventUtils.unloadDel(unloadRef);
+	      }
+	    };
+	    var onerror = function(err) {
+	      debug('onerror', err);
+	      if (iframe) {
+	        cleanup();
+	        errorCallback(err);
+	      }
+	    };
+	    var post = function(msg, origin) {
+	      debug('post', msg, origin);
+	      try {
+	        // When the iframe is not loaded, IE raises an exception
+	        // on 'contentWindow'.
+	        setTimeout(function() {
+	          if (iframe && iframe.contentWindow) {
+	            iframe.contentWindow.postMessage(msg, origin);
+	          }
+	        }, 0);
+	      } catch (x) {}
+	    };
+
+	    iframe.src = iframeUrl;
+	    iframe.style.display = 'none';
+	    iframe.style.position = 'absolute';
+	    iframe.onerror = function() {
+	      onerror('onerror');
+	    };
+	    iframe.onload = function() {
+	      debug('onload');
+	      // `onload` is triggered before scripts on the iframe are
+	      // executed. Give it few seconds to actually load stuff.
+	      clearTimeout(tref);
+	      tref = setTimeout(function() {
+	        onerror('onload timeout');
+	      }, 2000);
+	    };
+	    global.document.body.appendChild(iframe);
+	    tref = setTimeout(function() {
+	      onerror('timeout');
+	    }, 15000);
+	    unloadRef = eventUtils.unloadAdd(cleanup);
+	    return {
+	      post: post
+	    , cleanup: cleanup
+	    , loaded: unattach
+	    };
+	  }
+
+	/* jshint undef: false, newcap: false */
+	/* eslint no-undef: 0, new-cap: 0 */
+	, createHtmlfile: function(iframeUrl, errorCallback) {
+	    var axo = ['Active'].concat('Object').join('X');
+	    var doc = new global[axo]('htmlfile');
+	    var tref, unloadRef;
+	    var iframe;
+	    var unattach = function() {
+	      clearTimeout(tref);
+	      iframe.onerror = null;
+	    };
+	    var cleanup = function() {
+	      if (doc) {
+	        unattach();
+	        eventUtils.unloadDel(unloadRef);
+	        iframe.parentNode.removeChild(iframe);
+	        iframe = doc = null;
+	        CollectGarbage();
+	      }
+	    };
+	    var onerror = function(r)  {
+	      debug('onerror', r);
+	      if (doc) {
+	        cleanup();
+	        errorCallback(r);
+	      }
+	    };
+	    var post = function(msg, origin) {
+	      try {
+	        // When the iframe is not loaded, IE raises an exception
+	        // on 'contentWindow'.
+	        setTimeout(function() {
+	          if (iframe && iframe.contentWindow) {
+	              iframe.contentWindow.postMessage(msg, origin);
+	          }
+	        }, 0);
+	      } catch (x) {}
+	    };
+
+	    doc.open();
+	    doc.write('<html><s' + 'cript>' +
+	              'document.domain="' + global.document.domain + '";' +
+	              '</s' + 'cript></html>');
+	    doc.close();
+	    doc.parentWindow[module.exports.WPrefix] = global[module.exports.WPrefix];
+	    var c = doc.createElement('div');
+	    doc.body.appendChild(c);
+	    iframe = doc.createElement('iframe');
+	    c.appendChild(iframe);
+	    iframe.src = iframeUrl;
+	    iframe.onerror = function() {
+	      onerror('onerror');
+	    };
+	    tref = setTimeout(function() {
+	      onerror('timeout');
+	    }, 15000);
+	    unloadRef = eventUtils.unloadAdd(cleanup);
+	    return {
+	      post: post
+	    , cleanup: cleanup
+	    , loaded: unattach
+	    };
+	  }
+	};
+
+	module.exports.iframeEnabled = false;
+	if (global.document) {
+	  // postMessage misbehaves in konqueror 4.6.5 - the messages are delivered with
+	  // huge delay, or not at all.
+	  module.exports.iframeEnabled = (typeof global.postMessage === 'function' ||
+	    typeof global.postMessage === 'object') && (!browser.isKonqueror());
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 84 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = {
+	  isObject: function(obj) {
+	    var type = typeof obj;
+	    return type === 'function' || type === 'object' && !!obj;
+	  }
+
+	, extend: function(obj) {
+	    if (!this.isObject(obj)) {
+	      return obj;
+	    }
+	    var source, prop;
+	    for (var i = 1, length = arguments.length; i < length; i++) {
+	      source = arguments[i];
+	      for (prop in source) {
+	        if (Object.prototype.hasOwnProperty.call(source, prop)) {
+	          obj[prop] = source[prop];
+	        }
+	      }
+	    }
+	    return obj;
+	  }
+	};
+
+
+/***/ },
+/* 85 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , HtmlfileReceiver = __webpack_require__(86)
+	  , XHRLocalObject = __webpack_require__(71)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  ;
+
+	function HtmlFileTransport(transUrl) {
+	  if (!HtmlfileReceiver.enabled) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  AjaxBasedTransport.call(this, transUrl, '/htmlfile', HtmlfileReceiver, XHRLocalObject);
+	}
+
+	inherits(HtmlFileTransport, AjaxBasedTransport);
+
+	HtmlFileTransport.enabled = function(info) {
+	  return HtmlfileReceiver.enabled && info.sameOrigin;
+	};
+
+	HtmlFileTransport.transportName = 'htmlfile';
+	HtmlFileTransport.roundTrips = 2;
+
+	module.exports = HtmlFileTransport;
+
+
+/***/ },
+/* 86 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , iframeUtils = __webpack_require__(83)
+	  , urlUtils = __webpack_require__(51)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  , random = __webpack_require__(49)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:receiver:htmlfile');
+	}
+
+	function HtmlfileReceiver(url) {
+	  debug(url);
+	  EventEmitter.call(this);
+	  var self = this;
+	  iframeUtils.polluteGlobalNamespace();
+
+	  this.id = 'a' + random.string(6);
+	  url = urlUtils.addQuery(url, 'c=' + decodeURIComponent(iframeUtils.WPrefix + '.' + this.id));
+
+	  debug('using htmlfile', HtmlfileReceiver.htmlfileEnabled);
+	  var constructFunc = HtmlfileReceiver.htmlfileEnabled ?
+	      iframeUtils.createHtmlfile : iframeUtils.createIframe;
+
+	  global[iframeUtils.WPrefix][this.id] = {
+	    start: function() {
+	      debug('start');
+	      self.iframeObj.loaded();
+	    }
+	  , message: function(data) {
+	      debug('message', data);
+	      self.emit('message', data);
+	    }
+	  , stop: function() {
+	      debug('stop');
+	      self._cleanup();
+	      self._close('network');
+	    }
+	  };
+	  this.iframeObj = constructFunc(url, function() {
+	    debug('callback');
+	    self._cleanup();
+	    self._close('permanent');
+	  });
+	}
+
+	inherits(HtmlfileReceiver, EventEmitter);
+
+	HtmlfileReceiver.prototype.abort = function() {
+	  debug('abort');
+	  this._cleanup();
+	  this._close('user');
+	};
+
+	HtmlfileReceiver.prototype._cleanup = function() {
+	  debug('_cleanup');
+	  if (this.iframeObj) {
+	    this.iframeObj.cleanup();
+	    this.iframeObj = null;
+	  }
+	  delete global[iframeUtils.WPrefix][this.id];
+	};
+
+	HtmlfileReceiver.prototype._close = function(reason) {
+	  debug('_close', reason);
+	  this.emit('close', null, reason);
+	  this.removeAllListeners();
+	};
+
+	HtmlfileReceiver.htmlfileEnabled = false;
+
+	// obfuscate to avoid firewalls
+	var axo = ['Active'].concat('Object').join('X');
+	if (axo in global) {
+	  try {
+	    HtmlfileReceiver.htmlfileEnabled = !!new global[axo]('htmlfile');
+	  } catch (x) {}
+	}
+
+	HtmlfileReceiver.enabled = HtmlfileReceiver.htmlfileEnabled || iframeUtils.iframeEnabled;
+
+	module.exports = HtmlfileReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 87 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  , XhrReceiver = __webpack_require__(68)
+	  , XHRCorsObject = __webpack_require__(69)
+	  , XHRLocalObject = __webpack_require__(71)
+	  ;
+
+	function XhrPollingTransport(transUrl) {
+	  if (!XHRLocalObject.enabled && !XHRCorsObject.enabled) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  AjaxBasedTransport.call(this, transUrl, '/xhr', XhrReceiver, XHRCorsObject);
+	}
+
+	inherits(XhrPollingTransport, AjaxBasedTransport);
+
+	XhrPollingTransport.enabled = function(info) {
+	  if (info.nullOrigin) {
+	    return false;
+	  }
+
+	  if (XHRLocalObject.enabled && info.sameOrigin) {
+	    return true;
+	  }
+	  return XHRCorsObject.enabled;
+	};
+
+	XhrPollingTransport.transportName = 'xhr-polling';
+	XhrPollingTransport.roundTrips = 2; // preflight, ajax
+
+	module.exports = XhrPollingTransport;
+
+
+/***/ },
+/* 88 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , AjaxBasedTransport = __webpack_require__(64)
+	  , XdrStreamingTransport = __webpack_require__(73)
+	  , XhrReceiver = __webpack_require__(68)
+	  , XDRObject = __webpack_require__(74)
+	  ;
+
+	function XdrPollingTransport(transUrl) {
+	  if (!XDRObject.enabled) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  AjaxBasedTransport.call(this, transUrl, '/xhr', XhrReceiver, XDRObject);
+	}
+
+	inherits(XdrPollingTransport, AjaxBasedTransport);
+
+	XdrPollingTransport.enabled = XdrStreamingTransport.enabled;
+	XdrPollingTransport.transportName = 'xdr-polling';
+	XdrPollingTransport.roundTrips = 2; // preflight, ajax
+
+	module.exports = XdrPollingTransport;
+
+
+/***/ },
+/* 89 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	// The simplest and most robust transport, using the well-know cross
+	// domain hack - JSONP. This transport is quite inefficient - one
+	// message could use up to one http request. But at least it works almost
+	// everywhere.
+	// Known limitations:
+	//   o you will get a spinning cursor
+	//   o for Konqueror a dumb timer is needed to detect errors
+
+	var inherits = __webpack_require__(59)
+	  , SenderReceiver = __webpack_require__(65)
+	  , JsonpReceiver = __webpack_require__(90)
+	  , jsonpSender = __webpack_require__(91)
+	  ;
+
+	function JsonPTransport(transUrl) {
+	  if (!JsonPTransport.enabled()) {
+	    throw new Error('Transport created when disabled');
+	  }
+	  SenderReceiver.call(this, transUrl, '/jsonp', jsonpSender, JsonpReceiver);
+	}
+
+	inherits(JsonPTransport, SenderReceiver);
+
+	JsonPTransport.enabled = function() {
+	  return !!global.document;
+	};
+
+	JsonPTransport.transportName = 'jsonp-polling';
+	JsonPTransport.roundTrips = 1;
+	JsonPTransport.needBody = true;
+
+	module.exports = JsonPTransport;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 90 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var utils = __webpack_require__(83)
+	  , random = __webpack_require__(49)
+	  , browser = __webpack_require__(72)
+	  , urlUtils = __webpack_require__(51)
+	  , inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:receiver:jsonp');
+	}
+
+	function JsonpReceiver(url) {
+	  debug(url);
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  utils.polluteGlobalNamespace();
+
+	  this.id = 'a' + random.string(6);
+	  var urlWithId = urlUtils.addQuery(url, 'c=' + encodeURIComponent(utils.WPrefix + '.' + this.id));
+
+	  global[utils.WPrefix][this.id] = this._callback.bind(this);
+	  this._createScript(urlWithId);
+
+	  // Fallback mostly for Konqueror - stupid timer, 35 seconds shall be plenty.
+	  this.timeoutId = setTimeout(function() {
+	    debug('timeout');
+	    self._abort(new Error('JSONP script loaded abnormally (timeout)'));
+	  }, JsonpReceiver.timeout);
+	}
+
+	inherits(JsonpReceiver, EventEmitter);
+
+	JsonpReceiver.prototype.abort = function() {
+	  debug('abort');
+	  if (global[utils.WPrefix][this.id]) {
+	    var err = new Error('JSONP user aborted read');
+	    err.code = 1000;
+	    this._abort(err);
+	  }
+	};
+
+	JsonpReceiver.timeout = 35000;
+	JsonpReceiver.scriptErrorTimeout = 1000;
+
+	JsonpReceiver.prototype._callback = function(data) {
+	  debug('_callback', data);
+	  this._cleanup();
+
+	  if (this.aborting) {
+	    return;
+	  }
+
+	  if (data) {
+	    debug('message', data);
+	    this.emit('message', data);
+	  }
+	  this.emit('close', null, 'network');
+	  this.removeAllListeners();
+	};
+
+	JsonpReceiver.prototype._abort = function(err) {
+	  debug('_abort', err);
+	  this._cleanup();
+	  this.aborting = true;
+	  this.emit('close', err.code, err.message);
+	  this.removeAllListeners();
+	};
+
+	JsonpReceiver.prototype._cleanup = function() {
+	  debug('_cleanup');
+	  clearTimeout(this.timeoutId);
+	  if (this.script2) {
+	    this.script2.parentNode.removeChild(this.script2);
+	    this.script2 = null;
+	  }
+	  if (this.script) {
+	    var script = this.script;
+	    // Unfortunately, you can't really abort script loading of
+	    // the script.
+	    script.parentNode.removeChild(script);
+	    script.onreadystatechange = script.onerror =
+	        script.onload = script.onclick = null;
+	    this.script = null;
+	  }
+	  delete global[utils.WPrefix][this.id];
+	};
+
+	JsonpReceiver.prototype._scriptError = function() {
+	  debug('_scriptError');
+	  var self = this;
+	  if (this.errorTimer) {
+	    return;
+	  }
+
+	  this.errorTimer = setTimeout(function() {
+	    if (!self.loadedOkay) {
+	      self._abort(new Error('JSONP script loaded abnormally (onerror)'));
+	    }
+	  }, JsonpReceiver.scriptErrorTimeout);
+	};
+
+	JsonpReceiver.prototype._createScript = function(url) {
+	  debug('_createScript', url);
+	  var self = this;
+	  var script = this.script = global.document.createElement('script');
+	  var script2;  // Opera synchronous load trick.
+
+	  script.id = 'a' + random.string(8);
+	  script.src = url;
+	  script.type = 'text/javascript';
+	  script.charset = 'UTF-8';
+	  script.onerror = this._scriptError.bind(this);
+	  script.onload = function() {
+	    debug('onload');
+	    self._abort(new Error('JSONP script loaded abnormally (onload)'));
+	  };
+
+	  // IE9 fires 'error' event after onreadystatechange or before, in random order.
+	  // Use loadedOkay to determine if actually errored
+	  script.onreadystatechange = function() {
+	    debug('onreadystatechange', script.readyState);
+	    if (/loaded|closed/.test(script.readyState)) {
+	      if (script && script.htmlFor && script.onclick) {
+	        self.loadedOkay = true;
+	        try {
+	          // In IE, actually execute the script.
+	          script.onclick();
+	        } catch (x) {}
+	      }
+	      if (script) {
+	        self._abort(new Error('JSONP script loaded abnormally (onreadystatechange)'));
+	      }
+	    }
+	  };
+	  // IE: event/htmlFor/onclick trick.
+	  // One can't rely on proper order for onreadystatechange. In order to
+	  // make sure, set a 'htmlFor' and 'event' properties, so that
+	  // script code will be installed as 'onclick' handler for the
+	  // script object. Later, onreadystatechange, manually execute this
+	  // code. FF and Chrome doesn't work with 'event' and 'htmlFor'
+	  // set. For reference see:
+	  //   http://jaubourg.net/2010/07/loading-script-as-onclick-handler-of.html
+	  // Also, read on that about script ordering:
+	  //   http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
+	  if (typeof script.async === 'undefined' && global.document.attachEvent) {
+	    // According to mozilla docs, in recent browsers script.async defaults
+	    // to 'true', so we may use it to detect a good browser:
+	    // https://developer.mozilla.org/en/HTML/Element/script
+	    if (!browser.isOpera()) {
+	      // Naively assume we're in IE
+	      try {
+	        script.htmlFor = script.id;
+	        script.event = 'onclick';
+	      } catch (x) {}
+	      script.async = true;
+	    } else {
+	      // Opera, second sync script hack
+	      script2 = this.script2 = global.document.createElement('script');
+	      script2.text = "try{var a = document.getElementById('" + script.id + "'); if(a)a.onerror();}catch(x){};";
+	      script.async = script2.async = false;
+	    }
+	  }
+	  if (typeof script.async !== 'undefined') {
+	    script.async = true;
+	  }
+
+	  var head = global.document.getElementsByTagName('head')[0];
+	  head.insertBefore(script, head.firstChild);
+	  if (script2) {
+	    head.insertBefore(script2, head.firstChild);
+	  }
+	};
+
+	module.exports = JsonpReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 91 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var random = __webpack_require__(49)
+	  , urlUtils = __webpack_require__(51)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:sender:jsonp');
+	}
+
+	var form, area;
+
+	function createIframe(id) {
+	  debug('createIframe', id);
+	  try {
+	    // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
+	    return global.document.createElement('<iframe name="' + id + '">');
+	  } catch (x) {
+	    var iframe = global.document.createElement('iframe');
+	    iframe.name = id;
+	    return iframe;
+	  }
+	}
+
+	function createForm() {
+	  debug('createForm');
+	  form = global.document.createElement('form');
+	  form.style.display = 'none';
+	  form.style.position = 'absolute';
+	  form.method = 'POST';
+	  form.enctype = 'application/x-www-form-urlencoded';
+	  form.acceptCharset = 'UTF-8';
+
+	  area = global.document.createElement('textarea');
+	  area.name = 'd';
+	  form.appendChild(area);
+
+	  global.document.body.appendChild(form);
+	}
+
+	module.exports = function(url, payload, callback) {
+	  debug(url, payload);
+	  if (!form) {
+	    createForm();
+	  }
+	  var id = 'a' + random.string(8);
+	  form.target = id;
+	  form.action = urlUtils.addQuery(urlUtils.addPath(url, '/jsonp_send'), 'i=' + id);
+
+	  var iframe = createIframe(id);
+	  iframe.id = id;
+	  iframe.style.display = 'none';
+	  form.appendChild(iframe);
+
+	  try {
+	    area.value = payload;
+	  } catch (e) {
+	    // seriously broken browsers get here
+	  }
+	  form.submit();
+
+	  var completed = function(err) {
+	    debug('completed', id, err);
+	    if (!iframe.onerror) {
+	      return;
+	    }
+	    iframe.onreadystatechange = iframe.onerror = iframe.onload = null;
+	    // Opera mini doesn't like if we GC iframe
+	    // immediately, thus this timeout.
+	    setTimeout(function() {
+	      debug('cleaning up', id);
+	      iframe.parentNode.removeChild(iframe);
+	      iframe = null;
+	    }, 500);
+	    area.value = '';
+	    // It is not possible to detect if the iframe succeeded or
+	    // failed to submit our form.
+	    callback(err);
+	  };
+	  iframe.onerror = function() {
+	    debug('onerror', id);
+	    completed();
+	  };
+	  iframe.onload = function() {
+	    debug('onload', id);
+	    completed();
+	  };
+	  iframe.onreadystatechange = function(e) {
+	    debug('onreadystatechange', id, iframe.readyState, e);
+	    if (iframe.readyState === 'complete') {
+	      completed();
+	    }
+	  };
+	  return function() {
+	    debug('aborted', id);
+	    completed(new Error('Aborted'));
+	  };
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 92 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	__webpack_require__(93);
+
+	var URL = __webpack_require__(52)
+	  , inherits = __webpack_require__(59)
+	  , JSON3 = __webpack_require__(80)
+	  , random = __webpack_require__(49)
+	  , escape = __webpack_require__(94)
+	  , urlUtils = __webpack_require__(51)
+	  , eventUtils = __webpack_require__(48)
+	  , transport = __webpack_require__(95)
+	  , objectUtils = __webpack_require__(84)
+	  , browser = __webpack_require__(72)
+	  , log = __webpack_require__(96)
+	  , Event = __webpack_require__(97)
+	  , EventTarget = __webpack_require__(61)
+	  , loc = __webpack_require__(98)
+	  , CloseEvent = __webpack_require__(99)
+	  , TransportMessageEvent = __webpack_require__(100)
+	  , InfoReceiver = __webpack_require__(101)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  // Make debug module available globally so you can enable via the console easily
+	  global.dbg = __webpack_require__(56);
+	  debug = global.dbg('sockjs-client:main');
+	}
+
+	var transports;
+
+	// follow constructor steps defined at http://dev.w3.org/html5/websockets/#the-websocket-interface
+	function SockJS(url, protocols, options) {
+	  if (!(this instanceof SockJS)) {
+	    return new SockJS(url, protocols, options);
+	  }
+	  if (arguments.length < 1) {
+	    throw new TypeError("Failed to construct 'SockJS: 1 argument required, but only 0 present");
+	  }
+	  EventTarget.call(this);
+
+	  this.readyState = SockJS.CONNECTING;
+	  this.extensions = '';
+	  this.protocol = '';
+
+	  // non-standard extension
+	  options = options || {};
+	  if (options.protocols_whitelist) {
+	    log.warn("'protocols_whitelist' is DEPRECATED. Use 'transports' instead.");
+	  }
+	  this._transportsWhitelist = options.transports;
+
+	  var sessionId = options.sessionId || 8;
+	  if (typeof sessionId === 'function') {
+	    this._generateSessionId = sessionId;
+	  } else if (typeof sessionId === 'number') {
+	    this._generateSessionId = function() {
+	      return random.string(sessionId);
+	    };
+	  } else {
+	    throw new TypeError("If sessionId is used in the options, it needs to be a number or a function.");
+	  }
+
+	  this._server = options.server || random.numberString(1000);
+
+	  // Step 1 of WS spec - parse and validate the url. Issue #8
+	  var parsedUrl = new URL(url);
+	  if (!parsedUrl.host || !parsedUrl.protocol) {
+	    throw new SyntaxError("The URL '" + url + "' is invalid");
+	  } else if (parsedUrl.hash) {
+	    throw new SyntaxError('The URL must not contain a fragment');
+	  } else if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+	    throw new SyntaxError("The URL's scheme must be either 'http:' or 'https:'. '" + parsedUrl.protocol + "' is not allowed.");
+	  }
+
+	  var secure = parsedUrl.protocol === 'https:';
+	  // Step 2 - don't allow secure origin with an insecure protocol
+	  if (loc.protocol === 'https' && !secure) {
+	    throw new Error('SecurityError: An insecure SockJS connection may not be initiated from a page loaded over HTTPS');
+	  }
+
+	  // Step 3 - check port access - no need here
+	  // Step 4 - parse protocols argument
+	  if (!protocols) {
+	    protocols = [];
+	  } else if (!Array.isArray(protocols)) {
+	    protocols = [protocols];
+	  }
+
+	  // Step 5 - check protocols argument
+	  var sortedProtocols = protocols.sort();
+	  sortedProtocols.forEach(function(proto, i) {
+	    if (!proto) {
+	      throw new SyntaxError("The protocols entry '" + proto + "' is invalid.");
+	    }
+	    if (i < (sortedProtocols.length - 1) && proto === sortedProtocols[i + 1]) {
+	      throw new SyntaxError("The protocols entry '" + proto + "' is duplicated.");
+	    }
+	  });
+
+	  // Step 6 - convert origin
+	  var o = urlUtils.getOrigin(loc.href);
+	  this._origin = o ? o.toLowerCase() : null;
+
+	  // remove the trailing slash
+	  parsedUrl.set('pathname', parsedUrl.pathname.replace(/\/+$/, ''));
+
+	  // store the sanitized url
+	  this.url = parsedUrl.href;
+	  debug('using url', this.url);
+
+	  // Step 7 - start connection in background
+	  // obtain server info
+	  // http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html#section-26
+	  this._urlInfo = {
+	    nullOrigin: !browser.hasDomain()
+	  , sameOrigin: urlUtils.isOriginEqual(this.url, loc.href)
+	  , sameScheme: urlUtils.isSchemeEqual(this.url, loc.href)
+	  };
+
+	  this._ir = new InfoReceiver(this.url, this._urlInfo);
+	  this._ir.once('finish', this._receiveInfo.bind(this));
+	}
+
+	inherits(SockJS, EventTarget);
+
+	function userSetCode(code) {
+	  return code === 1000 || (code >= 3000 && code <= 4999);
+	}
+
+	SockJS.prototype.close = function(code, reason) {
+	  // Step 1
+	  if (code && !userSetCode(code)) {
+	    throw new Error('InvalidAccessError: Invalid code');
+	  }
+	  // Step 2.4 states the max is 123 bytes, but we are just checking length
+	  if (reason && reason.length > 123) {
+	    throw new SyntaxError('reason argument has an invalid length');
+	  }
+
+	  // Step 3.1
+	  if (this.readyState === SockJS.CLOSING || this.readyState === SockJS.CLOSED) {
+	    return;
+	  }
+
+	  // TODO look at docs to determine how to set this
+	  var wasClean = true;
+	  this._close(code || 1000, reason || 'Normal closure', wasClean);
+	};
+
+	SockJS.prototype.send = function(data) {
+	  // #13 - convert anything non-string to string
+	  // TODO this currently turns objects into [object Object]
+	  if (typeof data !== 'string') {
+	    data = '' + data;
+	  }
+	  if (this.readyState === SockJS.CONNECTING) {
+	    throw new Error('InvalidStateError: The connection has not been established yet');
+	  }
+	  if (this.readyState !== SockJS.OPEN) {
+	    return;
+	  }
+	  this._transport.send(escape.quote(data));
+	};
+
+	SockJS.version = __webpack_require__(82);
+
+	SockJS.CONNECTING = 0;
+	SockJS.OPEN = 1;
+	SockJS.CLOSING = 2;
+	SockJS.CLOSED = 3;
+
+	SockJS.prototype._receiveInfo = function(info, rtt) {
+	  debug('_receiveInfo', rtt);
+	  this._ir = null;
+	  if (!info) {
+	    this._close(1002, 'Cannot connect to server');
+	    return;
+	  }
+
+	  // establish a round-trip timeout (RTO) based on the
+	  // round-trip time (RTT)
+	  this._rto = this.countRTO(rtt);
+	  // allow server to override url used for the actual transport
+	  this._transUrl = info.base_url ? info.base_url : this.url;
+	  info = objectUtils.extend(info, this._urlInfo);
+	  debug('info', info);
+	  // determine list of desired and supported transports
+	  var enabledTransports = transports.filterToEnabled(this._transportsWhitelist, info);
+	  this._transports = enabledTransports.main;
+	  debug(this._transports.length + ' enabled transports');
+
+	  this._connect();
+	};
+
+	SockJS.prototype._connect = function() {
+	  for (var Transport = this._transports.shift(); Transport; Transport = this._transports.shift()) {
+	    debug('attempt', Transport.transportName);
+	    if (Transport.needBody) {
+	      if (!global.document.body ||
+	          (typeof global.document.readyState !== 'undefined' &&
+	            global.document.readyState !== 'complete' &&
+	            global.document.readyState !== 'interactive')) {
+	        debug('waiting for body');
+	        this._transports.unshift(Transport);
+	        eventUtils.attachEvent('load', this._connect.bind(this));
+	        return;
+	      }
+	    }
+
+	    // calculate timeout based on RTO and round trips. Default to 5s
+	    var timeoutMs = (this._rto * Transport.roundTrips) || 5000;
+	    this._transportTimeoutId = setTimeout(this._transportTimeout.bind(this), timeoutMs);
+	    debug('using timeout', timeoutMs);
+
+	    var transportUrl = urlUtils.addPath(this._transUrl, '/' + this._server + '/' + this._generateSessionId());
+	    debug('transport url', transportUrl);
+	    var transportObj = new Transport(transportUrl, this._transUrl);
+	    transportObj.on('message', this._transportMessage.bind(this));
+	    transportObj.once('close', this._transportClose.bind(this));
+	    transportObj.transportName = Transport.transportName;
+	    this._transport = transportObj;
+
+	    return;
+	  }
+	  this._close(2000, 'All transports failed', false);
+	};
+
+	SockJS.prototype._transportTimeout = function() {
+	  debug('_transportTimeout');
+	  if (this.readyState === SockJS.CONNECTING) {
+	    this._transportClose(2007, 'Transport timed out');
+	  }
+	};
+
+	SockJS.prototype._transportMessage = function(msg) {
+	  debug('_transportMessage', msg);
+	  var self = this
+	    , type = msg.slice(0, 1)
+	    , content = msg.slice(1)
+	    , payload
+	    ;
+
+	  // first check for messages that don't need a payload
+	  switch (type) {
+	    case 'o':
+	      this._open();
+	      return;
+	    case 'h':
+	      this.dispatchEvent(new Event('heartbeat'));
+	      debug('heartbeat', this.transport);
+	      return;
+	  }
+
+	  if (content) {
+	    try {
+	      payload = JSON3.parse(content);
+	    } catch (e) {
+	      debug('bad json', content);
+	    }
+	  }
+
+	  if (typeof payload === 'undefined') {
+	    debug('empty payload', content);
+	    return;
+	  }
+
+	  switch (type) {
+	    case 'a':
+	      if (Array.isArray(payload)) {
+	        payload.forEach(function(p) {
+	          debug('message', self.transport, p);
+	          self.dispatchEvent(new TransportMessageEvent(p));
+	        });
+	      }
+	      break;
+	    case 'm':
+	      debug('message', this.transport, payload);
+	      this.dispatchEvent(new TransportMessageEvent(payload));
+	      break;
+	    case 'c':
+	      if (Array.isArray(payload) && payload.length === 2) {
+	        this._close(payload[0], payload[1], true);
+	      }
+	      break;
+	  }
+	};
+
+	SockJS.prototype._transportClose = function(code, reason) {
+	  debug('_transportClose', this.transport, code, reason);
+	  if (this._transport) {
+	    this._transport.removeAllListeners();
+	    this._transport = null;
+	    this.transport = null;
+	  }
+
+	  if (!userSetCode(code) && code !== 2000 && this.readyState === SockJS.CONNECTING) {
+	    this._connect();
+	    return;
+	  }
+
+	  this._close(code, reason);
+	};
+
+	SockJS.prototype._open = function() {
+	  debug('_open', this._transport.transportName, this.readyState);
+	  if (this.readyState === SockJS.CONNECTING) {
+	    if (this._transportTimeoutId) {
+	      clearTimeout(this._transportTimeoutId);
+	      this._transportTimeoutId = null;
+	    }
+	    this.readyState = SockJS.OPEN;
+	    this.transport = this._transport.transportName;
+	    this.dispatchEvent(new Event('open'));
+	    debug('connected', this.transport);
+	  } else {
+	    // The server might have been restarted, and lost track of our
+	    // connection.
+	    this._close(1006, 'Server lost session');
+	  }
+	};
+
+	SockJS.prototype._close = function(code, reason, wasClean) {
+	  debug('_close', this.transport, code, reason, wasClean, this.readyState);
+	  var forceFail = false;
+
+	  if (this._ir) {
+	    forceFail = true;
+	    this._ir.close();
+	    this._ir = null;
+	  }
+	  if (this._transport) {
+	    this._transport.close();
+	    this._transport = null;
+	    this.transport = null;
+	  }
+
+	  if (this.readyState === SockJS.CLOSED) {
+	    throw new Error('InvalidStateError: SockJS has already been closed');
+	  }
+
+	  this.readyState = SockJS.CLOSING;
+	  setTimeout(function() {
+	    this.readyState = SockJS.CLOSED;
+
+	    if (forceFail) {
+	      this.dispatchEvent(new Event('error'));
+	    }
+
+	    var e = new CloseEvent('close');
+	    e.wasClean = wasClean || false;
+	    e.code = code || 1000;
+	    e.reason = reason;
+
+	    this.dispatchEvent(e);
+	    this.onmessage = this.onclose = this.onerror = null;
+	    debug('disconnected');
+	  }.bind(this), 0);
+	};
+
+	// See: http://www.erg.abdn.ac.uk/~gerrit/dccp/notes/ccid2/rto_estimator/
+	// and RFC 2988.
+	SockJS.prototype.countRTO = function(rtt) {
+	  // In a local environment, when using IE8/9 and the `jsonp-polling`
+	  // transport the time needed to establish a connection (the time that pass
+	  // from the opening of the transport to the call of `_dispatchOpen`) is
+	  // around 200msec (the lower bound used in the article above) and this
+	  // causes spurious timeouts. For this reason we calculate a value slightly
+	  // larger than that used in the article.
+	  if (rtt > 100) {
+	    return 4 * rtt; // rto > 400msec
+	  }
+	  return 300 + rtt; // 300msec < rto <= 400msec
+	};
+
+	module.exports = function(availableTransports) {
+	  transports = transport(availableTransports);
+	  __webpack_require__(106)(SockJS, availableTransports);
+	  return SockJS;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 93 */
+/***/ function(module, exports) {
+
+	/* eslint-disable */
+	/* jscs: disable */
+	'use strict';
+
+	// pulled specific shims from https://github.com/es-shims/es5-shim
+
+	var ArrayPrototype = Array.prototype;
+	var ObjectPrototype = Object.prototype;
+	var FunctionPrototype = Function.prototype;
+	var StringPrototype = String.prototype;
+	var array_slice = ArrayPrototype.slice;
+
+	var _toString = ObjectPrototype.toString;
+	var isFunction = function (val) {
+	    return ObjectPrototype.toString.call(val) === '[object Function]';
+	};
+	var isArray = function isArray(obj) {
+	    return _toString.call(obj) === '[object Array]';
+	};
+	var isString = function isString(obj) {
+	    return _toString.call(obj) === '[object String]';
+	};
+
+	var supportsDescriptors = Object.defineProperty && (function () {
+	    try {
+	        Object.defineProperty({}, 'x', {});
+	        return true;
+	    } catch (e) { /* this is ES3 */
+	        return false;
+	    }
+	}());
+
+	// Define configurable, writable and non-enumerable props
+	// if they don't exist.
+	var defineProperty;
+	if (supportsDescriptors) {
+	    defineProperty = function (object, name, method, forceAssign) {
+	        if (!forceAssign && (name in object)) { return; }
+	        Object.defineProperty(object, name, {
+	            configurable: true,
+	            enumerable: false,
+	            writable: true,
+	            value: method
+	        });
+	    };
+	} else {
+	    defineProperty = function (object, name, method, forceAssign) {
+	        if (!forceAssign && (name in object)) { return; }
+	        object[name] = method;
+	    };
+	}
+	var defineProperties = function (object, map, forceAssign) {
+	    for (var name in map) {
+	        if (ObjectPrototype.hasOwnProperty.call(map, name)) {
+	          defineProperty(object, name, map[name], forceAssign);
+	        }
+	    }
+	};
+
+	var toObject = function (o) {
+	    if (o == null) { // this matches both null and undefined
+	        throw new TypeError("can't convert " + o + ' to object');
+	    }
+	    return Object(o);
+	};
+
+	//
+	// Util
+	// ======
+	//
+
+	// ES5 9.4
+	// http://es5.github.com/#x9.4
+	// http://jsperf.com/to-integer
+
+	function toInteger(num) {
+	    var n = +num;
+	    if (n !== n) { // isNaN
+	        n = 0;
+	    } else if (n !== 0 && n !== (1 / 0) && n !== -(1 / 0)) {
+	        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+	    }
+	    return n;
+	}
+
+	function ToUint32(x) {
+	    return x >>> 0;
+	}
+
+	//
+	// Function
+	// ========
+	//
+
+	// ES-5 15.3.4.5
+	// http://es5.github.com/#x15.3.4.5
+
+	function Empty() {}
+
+	defineProperties(FunctionPrototype, {
+	    bind: function bind(that) { // .length is 1
+	        // 1. Let Target be the this value.
+	        var target = this;
+	        // 2. If IsCallable(Target) is false, throw a TypeError exception.
+	        if (!isFunction(target)) {
+	            throw new TypeError('Function.prototype.bind called on incompatible ' + target);
+	        }
+	        // 3. Let A be a new (possibly empty) internal list of all of the
+	        //   argument values provided after thisArg (arg1, arg2 etc), in order.
+	        // XXX slicedArgs will stand in for "A" if used
+	        var args = array_slice.call(arguments, 1); // for normal call
+	        // 4. Let F be a new native ECMAScript object.
+	        // 11. Set the [[Prototype]] internal property of F to the standard
+	        //   built-in Function prototype object as specified in 15.3.3.1.
+	        // 12. Set the [[Call]] internal property of F as described in
+	        //   15.3.4.5.1.
+	        // 13. Set the [[Construct]] internal property of F as described in
+	        //   15.3.4.5.2.
+	        // 14. Set the [[HasInstance]] internal property of F as described in
+	        //   15.3.4.5.3.
+	        var binder = function () {
+
+	            if (this instanceof bound) {
+	                // 15.3.4.5.2 [[Construct]]
+	                // When the [[Construct]] internal method of a function object,
+	                // F that was created using the bind function is called with a
+	                // list of arguments ExtraArgs, the following steps are taken:
+	                // 1. Let target be the value of F's [[TargetFunction]]
+	                //   internal property.
+	                // 2. If target has no [[Construct]] internal method, a
+	                //   TypeError exception is thrown.
+	                // 3. Let boundArgs be the value of F's [[BoundArgs]] internal
+	                //   property.
+	                // 4. Let args be a new list containing the same values as the
+	                //   list boundArgs in the same order followed by the same
+	                //   values as the list ExtraArgs in the same order.
+	                // 5. Return the result of calling the [[Construct]] internal
+	                //   method of target providing args as the arguments.
+
+	                var result = target.apply(
+	                    this,
+	                    args.concat(array_slice.call(arguments))
+	                );
+	                if (Object(result) === result) {
+	                    return result;
+	                }
+	                return this;
+
+	            } else {
+	                // 15.3.4.5.1 [[Call]]
+	                // When the [[Call]] internal method of a function object, F,
+	                // which was created using the bind function is called with a
+	                // this value and a list of arguments ExtraArgs, the following
+	                // steps are taken:
+	                // 1. Let boundArgs be the value of F's [[BoundArgs]] internal
+	                //   property.
+	                // 2. Let boundThis be the value of F's [[BoundThis]] internal
+	                //   property.
+	                // 3. Let target be the value of F's [[TargetFunction]] internal
+	                //   property.
+	                // 4. Let args be a new list containing the same values as the
+	                //   list boundArgs in the same order followed by the same
+	                //   values as the list ExtraArgs in the same order.
+	                // 5. Return the result of calling the [[Call]] internal method
+	                //   of target providing boundThis as the this value and
+	                //   providing args as the arguments.
+
+	                // equiv: target.call(this, ...boundArgs, ...args)
+	                return target.apply(
+	                    that,
+	                    args.concat(array_slice.call(arguments))
+	                );
+
+	            }
+
+	        };
+
+	        // 15. If the [[Class]] internal property of Target is "Function", then
+	        //     a. Let L be the length property of Target minus the length of A.
+	        //     b. Set the length own property of F to either 0 or L, whichever is
+	        //       larger.
+	        // 16. Else set the length own property of F to 0.
+
+	        var boundLength = Math.max(0, target.length - args.length);
+
+	        // 17. Set the attributes of the length own property of F to the values
+	        //   specified in 15.3.5.1.
+	        var boundArgs = [];
+	        for (var i = 0; i < boundLength; i++) {
+	            boundArgs.push('$' + i);
+	        }
+
+	        // XXX Build a dynamic function with desired amount of arguments is the only
+	        // way to set the length property of a function.
+	        // In environments where Content Security Policies enabled (Chrome extensions,
+	        // for ex.) all use of eval or Function costructor throws an exception.
+	        // However in all of these environments Function.prototype.bind exists
+	        // and so this code will never be executed.
+	        var bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this, arguments); }')(binder);
+
+	        if (target.prototype) {
+	            Empty.prototype = target.prototype;
+	            bound.prototype = new Empty();
+	            // Clean up dangling references.
+	            Empty.prototype = null;
+	        }
+
+	        // TODO
+	        // 18. Set the [[Extensible]] internal property of F to true.
+
+	        // TODO
+	        // 19. Let thrower be the [[ThrowTypeError]] function Object (13.2.3).
+	        // 20. Call the [[DefineOwnProperty]] internal method of F with
+	        //   arguments "caller", PropertyDescriptor {[[Get]]: thrower, [[Set]]:
+	        //   thrower, [[Enumerable]]: false, [[Configurable]]: false}, and
+	        //   false.
+	        // 21. Call the [[DefineOwnProperty]] internal method of F with
+	        //   arguments "arguments", PropertyDescriptor {[[Get]]: thrower,
+	        //   [[Set]]: thrower, [[Enumerable]]: false, [[Configurable]]: false},
+	        //   and false.
+
+	        // TODO
+	        // NOTE Function objects created using Function.prototype.bind do not
+	        // have a prototype property or the [[Code]], [[FormalParameters]], and
+	        // [[Scope]] internal properties.
+	        // XXX can't delete prototype in pure-js.
+
+	        // 22. Return F.
+	        return bound;
+	    }
+	});
+
+	//
+	// Array
+	// =====
+	//
+
+	// ES5 15.4.3.2
+	// http://es5.github.com/#x15.4.3.2
+	// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+	defineProperties(Array, { isArray: isArray });
+
+
+	var boxedString = Object('a');
+	var splitString = boxedString[0] !== 'a' || !(0 in boxedString);
+
+	var properlyBoxesContext = function properlyBoxed(method) {
+	    // Check node 0.6.21 bug where third parameter is not boxed
+	    var properlyBoxesNonStrict = true;
+	    var properlyBoxesStrict = true;
+	    if (method) {
+	        method.call('foo', function (_, __, context) {
+	            if (typeof context !== 'object') { properlyBoxesNonStrict = false; }
+	        });
+
+	        method.call([1], function () {
+	            'use strict';
+	            properlyBoxesStrict = typeof this === 'string';
+	        }, 'x');
+	    }
+	    return !!method && properlyBoxesNonStrict && properlyBoxesStrict;
+	};
+
+	defineProperties(ArrayPrototype, {
+	    forEach: function forEach(fun /*, thisp*/) {
+	        var object = toObject(this),
+	            self = splitString && isString(this) ? this.split('') : object,
+	            thisp = arguments[1],
+	            i = -1,
+	            length = self.length >>> 0;
+
+	        // If no callback function or if callback is not a callable function
+	        if (!isFunction(fun)) {
+	            throw new TypeError(); // TODO message
+	        }
+
+	        while (++i < length) {
+	            if (i in self) {
+	                // Invoke the callback function with call, passing arguments:
+	                // context, property value, property key, thisArg object
+	                // context
+	                fun.call(thisp, self[i], i, object);
+	            }
+	        }
+	    }
+	}, !properlyBoxesContext(ArrayPrototype.forEach));
+
+	// ES5 15.4.4.14
+	// http://es5.github.com/#x15.4.4.14
+	// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+	var hasFirefox2IndexOfBug = Array.prototype.indexOf && [0, 1].indexOf(1, 2) !== -1;
+	defineProperties(ArrayPrototype, {
+	    indexOf: function indexOf(sought /*, fromIndex */ ) {
+	        var self = splitString && isString(this) ? this.split('') : toObject(this),
+	            length = self.length >>> 0;
+
+	        if (!length) {
+	            return -1;
+	        }
+
+	        var i = 0;
+	        if (arguments.length > 1) {
+	            i = toInteger(arguments[1]);
+	        }
+
+	        // handle negative indices
+	        i = i >= 0 ? i : Math.max(0, length + i);
+	        for (; i < length; i++) {
+	            if (i in self && self[i] === sought) {
+	                return i;
+	            }
+	        }
+	        return -1;
+	    }
+	}, hasFirefox2IndexOfBug);
+
+	//
+	// String
+	// ======
+	//
+
+	// ES5 15.5.4.14
+	// http://es5.github.com/#x15.5.4.14
+
+	// [bugfix, IE lt 9, firefox 4, Konqueror, Opera, obscure browsers]
+	// Many browsers do not split properly with regular expressions or they
+	// do not perform the split correctly under obscure conditions.
+	// See http://blog.stevenlevithan.com/archives/cross-browser-split
+	// I've tested in many browsers and this seems to cover the deviant ones:
+	//    'ab'.split(/(?:ab)*/) should be ["", ""], not [""]
+	//    '.'.split(/(.?)(.?)/) should be ["", ".", "", ""], not ["", ""]
+	//    'tesst'.split(/(s)*/) should be ["t", undefined, "e", "s", "t"], not
+	//       [undefined, "t", undefined, "e", ...]
+	//    ''.split(/.?/) should be [], not [""]
+	//    '.'.split(/()()/) should be ["."], not ["", "", "."]
+
+	var string_split = StringPrototype.split;
+	if (
+	    'ab'.split(/(?:ab)*/).length !== 2 ||
+	    '.'.split(/(.?)(.?)/).length !== 4 ||
+	    'tesst'.split(/(s)*/)[1] === 't' ||
+	    'test'.split(/(?:)/, -1).length !== 4 ||
+	    ''.split(/.?/).length ||
+	    '.'.split(/()()/).length > 1
+	) {
+	    (function () {
+	        var compliantExecNpcg = /()??/.exec('')[1] === void 0; // NPCG: nonparticipating capturing group
+
+	        StringPrototype.split = function (separator, limit) {
+	            var string = this;
+	            if (separator === void 0 && limit === 0) {
+	                return [];
+	            }
+
+	            // If `separator` is not a regex, use native split
+	            if (_toString.call(separator) !== '[object RegExp]') {
+	                return string_split.call(this, separator, limit);
+	            }
+
+	            var output = [],
+	                flags = (separator.ignoreCase ? 'i' : '') +
+	                        (separator.multiline  ? 'm' : '') +
+	                        (separator.extended   ? 'x' : '') + // Proposed for ES6
+	                        (separator.sticky     ? 'y' : ''), // Firefox 3+
+	                lastLastIndex = 0,
+	                // Make `global` and avoid `lastIndex` issues by working with a copy
+	                separator2, match, lastIndex, lastLength;
+	            separator = new RegExp(separator.source, flags + 'g');
+	            string += ''; // Type-convert
+	            if (!compliantExecNpcg) {
+	                // Doesn't need flags gy, but they don't hurt
+	                separator2 = new RegExp('^' + separator.source + '$(?!\\s)', flags);
+	            }
+	            /* Values for `limit`, per the spec:
+	             * If undefined: 4294967295 // Math.pow(2, 32) - 1
+	             * If 0, Infinity, or NaN: 0
+	             * If positive number: limit = Math.floor(limit); if (limit > 4294967295) limit -= 4294967296;
+	             * If negative number: 4294967296 - Math.floor(Math.abs(limit))
+	             * If other: Type-convert, then use the above rules
+	             */
+	            limit = limit === void 0 ?
+	                -1 >>> 0 : // Math.pow(2, 32) - 1
+	                ToUint32(limit);
+	            while (match = separator.exec(string)) {
+	                // `separator.lastIndex` is not reliable cross-browser
+	                lastIndex = match.index + match[0].length;
+	                if (lastIndex > lastLastIndex) {
+	                    output.push(string.slice(lastLastIndex, match.index));
+	                    // Fix browsers whose `exec` methods don't consistently return `undefined` for
+	                    // nonparticipating capturing groups
+	                    if (!compliantExecNpcg && match.length > 1) {
+	                        match[0].replace(separator2, function () {
+	                            for (var i = 1; i < arguments.length - 2; i++) {
+	                                if (arguments[i] === void 0) {
+	                                    match[i] = void 0;
+	                                }
+	                            }
+	                        });
+	                    }
+	                    if (match.length > 1 && match.index < string.length) {
+	                        ArrayPrototype.push.apply(output, match.slice(1));
+	                    }
+	                    lastLength = match[0].length;
+	                    lastLastIndex = lastIndex;
+	                    if (output.length >= limit) {
+	                        break;
+	                    }
+	                }
+	                if (separator.lastIndex === match.index) {
+	                    separator.lastIndex++; // Avoid an infinite loop
+	                }
+	            }
+	            if (lastLastIndex === string.length) {
+	                if (lastLength || !separator.test('')) {
+	                    output.push('');
+	                }
+	            } else {
+	                output.push(string.slice(lastLastIndex));
+	            }
+	            return output.length > limit ? output.slice(0, limit) : output;
+	        };
+	    }());
+
+	// [bugfix, chrome]
+	// If separator is undefined, then the result array contains just one String,
+	// which is the this value (converted to a String). If limit is not undefined,
+	// then the output array is truncated so that it contains no more than limit
+	// elements.
+	// "0".split(undefined, 0) -> []
+	} else if ('0'.split(void 0, 0).length) {
+	    StringPrototype.split = function split(separator, limit) {
+	        if (separator === void 0 && limit === 0) { return []; }
+	        return string_split.call(this, separator, limit);
+	    };
+	}
+
+	// ES5 15.5.4.20
+	// whitespace from: http://es5.github.io/#x15.5.4.20
+	var ws = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003' +
+	    '\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028' +
+	    '\u2029\uFEFF';
+	var zeroWidth = '\u200b';
+	var wsRegexChars = '[' + ws + ']';
+	var trimBeginRegexp = new RegExp('^' + wsRegexChars + wsRegexChars + '*');
+	var trimEndRegexp = new RegExp(wsRegexChars + wsRegexChars + '*$');
+	var hasTrimWhitespaceBug = StringPrototype.trim && (ws.trim() || !zeroWidth.trim());
+	defineProperties(StringPrototype, {
+	    // http://blog.stevenlevithan.com/archives/faster-trim-javascript
+	    // http://perfectionkills.com/whitespace-deviations/
+	    trim: function trim() {
+	        if (this === void 0 || this === null) {
+	            throw new TypeError("can't convert " + this + ' to object');
+	        }
+	        return String(this).replace(trimBeginRegexp, '').replace(trimEndRegexp, '');
+	    }
+	}, hasTrimWhitespaceBug);
+
+	// ECMA-262, 3rd B.2.3
+	// Not an ECMAScript standard, although ECMAScript 3rd Edition has a
+	// non-normative section suggesting uniform semantics and it should be
+	// normalized across all browsers
+	// [bugfix, IE lt 9] IE < 9 substr() with negative value not working in IE
+	var string_substr = StringPrototype.substr;
+	var hasNegativeSubstrBug = ''.substr && '0b'.substr(-1) !== 'b';
+	defineProperties(StringPrototype, {
+	    substr: function substr(start, length) {
+	        return string_substr.call(
+	            this,
+	            start < 0 ? ((start = this.length + start) < 0 ? 0 : start) : start,
+	            length
+	        );
+	    }
+	}, hasNegativeSubstrBug);
+
+
+/***/ },
+/* 94 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var JSON3 = __webpack_require__(80);
+
+	// Some extra characters that Chrome gets wrong, and substitutes with
+	// something else on the wire.
+	var extraEscapable = /[\x00-\x1f\ud800-\udfff\ufffe\uffff\u0300-\u0333\u033d-\u0346\u034a-\u034c\u0350-\u0352\u0357-\u0358\u035c-\u0362\u0374\u037e\u0387\u0591-\u05af\u05c4\u0610-\u0617\u0653-\u0654\u0657-\u065b\u065d-\u065e\u06df-\u06e2\u06eb-\u06ec\u0730\u0732-\u0733\u0735-\u0736\u073a\u073d\u073f-\u0741\u0743\u0745\u0747\u07eb-\u07f1\u0951\u0958-\u095f\u09dc-\u09dd\u09df\u0a33\u0a36\u0a59-\u0a5b\u0a5e\u0b5c-\u0b5d\u0e38-\u0e39\u0f43\u0f4d\u0f52\u0f57\u0f5c\u0f69\u0f72-\u0f76\u0f78\u0f80-\u0f83\u0f93\u0f9d\u0fa2\u0fa7\u0fac\u0fb9\u1939-\u193a\u1a17\u1b6b\u1cda-\u1cdb\u1dc0-\u1dcf\u1dfc\u1dfe\u1f71\u1f73\u1f75\u1f77\u1f79\u1f7b\u1f7d\u1fbb\u1fbe\u1fc9\u1fcb\u1fd3\u1fdb\u1fe3\u1feb\u1fee-\u1fef\u1ff9\u1ffb\u1ffd\u2000-\u2001\u20d0-\u20d1\u20d4-\u20d7\u20e7-\u20e9\u2126\u212a-\u212b\u2329-\u232a\u2adc\u302b-\u302c\uaab2-\uaab3\uf900-\ufa0d\ufa10\ufa12\ufa15-\ufa1e\ufa20\ufa22\ufa25-\ufa26\ufa2a-\ufa2d\ufa30-\ufa6d\ufa70-\ufad9\ufb1d\ufb1f\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufb4e\ufff0-\uffff]/g
+	  , extraLookup;
+
+	// This may be quite slow, so let's delay until user actually uses bad
+	// characters.
+	var unrollLookup = function(escapable) {
+	  var i;
+	  var unrolled = {};
+	  var c = [];
+	  for (i = 0; i < 65536; i++) {
+	    c.push( String.fromCharCode(i) );
+	  }
+	  escapable.lastIndex = 0;
+	  c.join('').replace(escapable, function(a) {
+	    unrolled[ a ] = '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+	    return '';
+	  });
+	  escapable.lastIndex = 0;
+	  return unrolled;
+	};
+
+	// Quote string, also taking care of unicode characters that browsers
+	// often break. Especially, take care of unicode surrogates:
+	// http://en.wikipedia.org/wiki/Mapping_of_Unicode_characters#Surrogates
+	module.exports = {
+	  quote: function(string) {
+	    var quoted = JSON3.stringify(string);
+
+	    // In most cases this should be very fast and good enough.
+	    extraEscapable.lastIndex = 0;
+	    if (!extraEscapable.test(quoted)) {
+	      return quoted;
+	    }
+
+	    if (!extraLookup) {
+	      extraLookup = unrollLookup(extraEscapable);
+	    }
+
+	    return quoted.replace(extraEscapable, function(a) {
+	      return extraLookup[a];
+	    });
+	  }
+	};
+
+
+/***/ },
+/* 95 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:utils:transport');
+	}
+
+	module.exports = function(availableTransports) {
+	  return {
+	    filterToEnabled: function(transportsWhitelist, info) {
+	      var transports = {
+	        main: []
+	      , facade: []
+	      };
+	      if (!transportsWhitelist) {
+	        transportsWhitelist = [];
+	      } else if (typeof transportsWhitelist === 'string') {
+	        transportsWhitelist = [transportsWhitelist];
+	      }
+
+	      availableTransports.forEach(function(trans) {
+	        if (!trans) {
+	          return;
+	        }
+
+	        if (trans.transportName === 'websocket' && info.websocket === false) {
+	          debug('disabled from server', 'websocket');
+	          return;
+	        }
+
+	        if (transportsWhitelist.length &&
+	            transportsWhitelist.indexOf(trans.transportName) === -1) {
+	          debug('not in whitelist', trans.transportName);
+	          return;
+	        }
+
+	        if (trans.enabled(info)) {
+	          debug('enabled', trans.transportName);
+	          transports.main.push(trans);
+	          if (trans.facadeTransport) {
+	            transports.facade.push(trans.facadeTransport);
+	          }
+	        } else {
+	          debug('disabled', trans.transportName);
+	        }
+	      });
+	      return transports;
+	    }
+	  };
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 96 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var logObject = {};
+	['log', 'debug', 'warn'].forEach(function (level) {
+	  var levelExists = global.console && global.console[level] && global.console[level].apply;
+	  logObject[level] = levelExists ? function () {
+	    return global.console[level].apply(global.console, arguments);
+	  } : (level === 'log' ? function () {} : logObject.log);
+	});
+
+	module.exports = logObject;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 97 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function Event(eventType) {
+	  this.type = eventType;
+	}
+
+	Event.prototype.initEvent = function(eventType, canBubble, cancelable) {
+	  this.type = eventType;
+	  this.bubbles = canBubble;
+	  this.cancelable = cancelable;
+	  this.timeStamp = +new Date();
+	  return this;
+	};
+
+	Event.prototype.stopPropagation = function() {};
+	Event.prototype.preventDefault  = function() {};
+
+	Event.CAPTURING_PHASE = 1;
+	Event.AT_TARGET       = 2;
+	Event.BUBBLING_PHASE  = 3;
+
+	module.exports = Event;
+
+
+/***/ },
+/* 98 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	module.exports = global.location || {
+	  origin: 'http://localhost:80'
+	, protocol: 'http'
+	, host: 'localhost'
+	, port: 80
+	, href: 'http://localhost/'
+	, hash: ''
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 99 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , Event = __webpack_require__(97)
+	  ;
+
+	function CloseEvent() {
+	  Event.call(this);
+	  this.initEvent('close', false, false);
+	  this.wasClean = false;
+	  this.code = 0;
+	  this.reason = '';
+	}
+
+	inherits(CloseEvent, Event);
+
+	module.exports = CloseEvent;
+
+
+/***/ },
+/* 100 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , Event = __webpack_require__(97)
+	  ;
+
+	function TransportMessageEvent(data) {
+	  Event.call(this);
+	  this.initEvent('message', false, false);
+	  this.data = data;
+	}
+
+	inherits(TransportMessageEvent, Event);
+
+	module.exports = TransportMessageEvent;
+
+
+/***/ },
+/* 101 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  , urlUtils = __webpack_require__(51)
+	  , XDR = __webpack_require__(74)
+	  , XHRCors = __webpack_require__(69)
+	  , XHRLocal = __webpack_require__(71)
+	  , XHRFake = __webpack_require__(102)
+	  , InfoIframe = __webpack_require__(103)
+	  , InfoAjax = __webpack_require__(105)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:info-receiver');
+	}
+
+	function InfoReceiver(baseUrl, urlInfo) {
+	  debug(baseUrl);
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  setTimeout(function() {
+	    self.doXhr(baseUrl, urlInfo);
+	  }, 0);
+	}
+
+	inherits(InfoReceiver, EventEmitter);
+
+	// TODO this is currently ignoring the list of available transports and the whitelist
+
+	InfoReceiver._getReceiver = function(baseUrl, url, urlInfo) {
+	  // determine method of CORS support (if needed)
+	  if (urlInfo.sameOrigin) {
+	    return new InfoAjax(url, XHRLocal);
+	  }
+	  if (XHRCors.enabled) {
+	    return new InfoAjax(url, XHRCors);
+	  }
+	  if (XDR.enabled && urlInfo.sameScheme) {
+	    return new InfoAjax(url, XDR);
+	  }
+	  if (InfoIframe.enabled()) {
+	    return new InfoIframe(baseUrl, url);
+	  }
+	  return new InfoAjax(url, XHRFake);
+	};
+
+	InfoReceiver.prototype.doXhr = function(baseUrl, urlInfo) {
+	  var self = this
+	    , url = urlUtils.addPath(baseUrl, '/info')
+	    ;
+	  debug('doXhr', url);
+
+	  this.xo = InfoReceiver._getReceiver(baseUrl, url, urlInfo);
+
+	  this.timeoutRef = setTimeout(function() {
+	    debug('timeout');
+	    self._cleanup(false);
+	    self.emit('finish');
+	  }, InfoReceiver.timeout);
+
+	  this.xo.once('finish', function(info, rtt) {
+	    debug('finish', info, rtt);
+	    self._cleanup(true);
+	    self.emit('finish', info, rtt);
+	  });
+	};
+
+	InfoReceiver.prototype._cleanup = function(wasClean) {
+	  debug('_cleanup');
+	  clearTimeout(this.timeoutRef);
+	  this.timeoutRef = null;
+	  if (!wasClean && this.xo) {
+	    this.xo.close();
+	  }
+	  this.xo = null;
+	};
+
+	InfoReceiver.prototype.close = function() {
+	  debug('close');
+	  this.removeAllListeners();
+	  this._cleanup(false);
+	};
+
+	InfoReceiver.timeout = 8000;
+
+	module.exports = InfoReceiver;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 102 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  ;
+
+	function XHRFake(/* method, url, payload, opts */) {
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  this.to = setTimeout(function() {
+	    self.emit('finish', 200, '{}');
+	  }, XHRFake.timeout);
+	}
+
+	inherits(XHRFake, EventEmitter);
+
+	XHRFake.prototype.close = function() {
+	  clearTimeout(this.to);
+	};
+
+	XHRFake.timeout = 2000;
+
+	module.exports = XHRFake;
+
+
+/***/ },
+/* 103 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  , JSON3 = __webpack_require__(80)
+	  , utils = __webpack_require__(48)
+	  , IframeTransport = __webpack_require__(79)
+	  , InfoReceiverIframe = __webpack_require__(104)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:info-iframe');
+	}
+
+	function InfoIframe(baseUrl, url) {
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  var go = function() {
+	    var ifr = self.ifr = new IframeTransport(InfoReceiverIframe.transportName, url, baseUrl);
+
+	    ifr.once('message', function(msg) {
+	      if (msg) {
+	        var d;
+	        try {
+	          d = JSON3.parse(msg);
+	        } catch (e) {
+	          debug('bad json', msg);
+	          self.emit('finish');
+	          self.close();
+	          return;
+	        }
+
+	        var info = d[0], rtt = d[1];
+	        self.emit('finish', info, rtt);
+	      }
+	      self.close();
+	    });
+
+	    ifr.once('close', function() {
+	      self.emit('finish');
+	      self.close();
+	    });
+	  };
+
+	  // TODO this seems the same as the 'needBody' from transports
+	  if (!global.document.body) {
+	    utils.attachEvent('load', go);
+	  } else {
+	    go();
+	  }
+	}
+
+	inherits(InfoIframe, EventEmitter);
+
+	InfoIframe.enabled = function() {
+	  return IframeTransport.enabled();
+	};
+
+	InfoIframe.prototype.close = function() {
+	  if (this.ifr) {
+	    this.ifr.close();
+	  }
+	  this.removeAllListeners();
+	  this.ifr = null;
+	};
+
+	module.exports = InfoIframe;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47), (function() { return this; }())))
+
+/***/ },
+/* 104 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var inherits = __webpack_require__(59)
+	  , EventEmitter = __webpack_require__(60).EventEmitter
+	  , JSON3 = __webpack_require__(80)
+	  , XHRLocalObject = __webpack_require__(71)
+	  , InfoAjax = __webpack_require__(105)
+	  ;
+
+	function InfoReceiverIframe(transUrl) {
+	  var self = this;
+	  EventEmitter.call(this);
+
+	  this.ir = new InfoAjax(transUrl, XHRLocalObject);
+	  this.ir.once('finish', function(info, rtt) {
+	    self.ir = null;
+	    self.emit('message', JSON3.stringify([info, rtt]));
+	  });
+	}
+
+	inherits(InfoReceiverIframe, EventEmitter);
+
+	InfoReceiverIframe.transportName = 'iframe-info-receiver';
+
+	InfoReceiverIframe.prototype.close = function() {
+	  if (this.ir) {
+	    this.ir.close();
+	    this.ir = null;
+	  }
+	  this.removeAllListeners();
+	};
+
+	module.exports = InfoReceiverIframe;
+
+
+/***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var EventEmitter = __webpack_require__(60).EventEmitter
+	  , inherits = __webpack_require__(59)
+	  , JSON3 = __webpack_require__(80)
+	  , objectUtils = __webpack_require__(84)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:info-ajax');
+	}
+
+	function InfoAjax(url, AjaxObject) {
+	  EventEmitter.call(this);
+
+	  var self = this;
+	  var t0 = +new Date();
+	  this.xo = new AjaxObject('GET', url);
+
+	  this.xo.once('finish', function(status, text) {
+	    var info, rtt;
+	    if (status === 200) {
+	      rtt = (+new Date()) - t0;
+	      if (text) {
+	        try {
+	          info = JSON3.parse(text);
+	        } catch (e) {
+	          debug('bad json', text);
+	        }
+	      }
+
+	      if (!objectUtils.isObject(info)) {
+	        info = {};
+	      }
+	    }
+	    self.emit('finish', info, rtt);
+	    self.removeAllListeners();
+	  });
+	}
+
+	inherits(InfoAjax, EventEmitter);
+
+	InfoAjax.prototype.close = function() {
+	  this.removeAllListeners();
+	  this.xo.close();
+	};
+
+	module.exports = InfoAjax;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 106 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	var urlUtils = __webpack_require__(51)
+	  , eventUtils = __webpack_require__(48)
+	  , JSON3 = __webpack_require__(80)
+	  , FacadeJS = __webpack_require__(107)
+	  , InfoIframeReceiver = __webpack_require__(104)
+	  , iframeUtils = __webpack_require__(83)
+	  , loc = __webpack_require__(98)
+	  ;
+
+	var debug = function() {};
+	if (process.env.NODE_ENV !== 'production') {
+	  debug = __webpack_require__(56)('sockjs-client:iframe-bootstrap');
+	}
+
+	module.exports = function(SockJS, availableTransports) {
+	  var transportMap = {};
+	  availableTransports.forEach(function(at) {
+	    if (at.facadeTransport) {
+	      transportMap[at.facadeTransport.transportName] = at.facadeTransport;
+	    }
+	  });
+
+	  // hard-coded for the info iframe
+	  // TODO see if we can make this more dynamic
+	  transportMap[InfoIframeReceiver.transportName] = InfoIframeReceiver;
+	  var parentOrigin;
+
+	  /* eslint-disable camelcase */
+	  SockJS.bootstrap_iframe = function() {
+	    /* eslint-enable camelcase */
+	    var facade;
+	    iframeUtils.currentWindowId = loc.hash.slice(1);
+	    var onMessage = function(e) {
+	      if (e.source !== parent) {
+	        return;
+	      }
+	      if (typeof parentOrigin === 'undefined') {
+	        parentOrigin = e.origin;
+	      }
+	      if (e.origin !== parentOrigin) {
+	        return;
+	      }
+
+	      var iframeMessage;
+	      try {
+	        iframeMessage = JSON3.parse(e.data);
+	      } catch (ignored) {
+	        debug('bad json', e.data);
+	        return;
+	      }
+
+	      if (iframeMessage.windowId !== iframeUtils.currentWindowId) {
+	        return;
+	      }
+	      switch (iframeMessage.type) {
+	      case 's':
+	        var p;
+	        try {
+	          p = JSON3.parse(iframeMessage.data);
+	        } catch (ignored) {
+	          debug('bad json', iframeMessage.data);
+	          break;
+	        }
+	        var version = p[0];
+	        var transport = p[1];
+	        var transUrl = p[2];
+	        var baseUrl = p[3];
+	        debug(version, transport, transUrl, baseUrl);
+	        // change this to semver logic
+	        if (version !== SockJS.version) {
+	          throw new Error('Incompatibile SockJS! Main site uses:' +
+	                    ' "' + version + '", the iframe:' +
+	                    ' "' + SockJS.version + '".');
+	        }
+
+	        if (!urlUtils.isOriginEqual(transUrl, loc.href) ||
+	            !urlUtils.isOriginEqual(baseUrl, loc.href)) {
+	          throw new Error('Can\'t connect to different domain from within an ' +
+	                    'iframe. (' + loc.href + ', ' + transUrl + ', ' + baseUrl + ')');
+	        }
+	        facade = new FacadeJS(new transportMap[transport](transUrl, baseUrl));
+	        break;
+	      case 'm':
+	        facade._send(iframeMessage.data);
+	        break;
+	      case 'c':
+	        if (facade) {
+	          facade._close();
+	        }
+	        facade = null;
+	        break;
+	      }
+	    };
+
+	    eventUtils.attachEvent('message', onMessage);
+
+	    // Start
+	    iframeUtils.postMessage('s');
+	  };
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+
+/***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var JSON3 = __webpack_require__(80)
+	  , iframeUtils = __webpack_require__(83)
+	  ;
+
+	function FacadeJS(transport) {
+	  this._transport = transport;
+	  transport.on('message', this._transportMessage.bind(this));
+	  transport.on('close', this._transportClose.bind(this));
+	}
+
+	FacadeJS.prototype._transportClose = function(code, reason) {
+	  iframeUtils.postMessage('c', JSON3.stringify([code, reason]));
+	};
+	FacadeJS.prototype._transportMessage = function(frame) {
+	  iframeUtils.postMessage('t', frame);
+	};
+	FacadeJS.prototype._send = function(data) {
+	  this._transport.send(data);
+	};
+	FacadeJS.prototype._close = function() {
+	  this._transport.close();
+	  this._transport.removeAllListeners();
+	};
+
+	module.exports = FacadeJS;
+
+
+/***/ },
+/* 108 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var ansiRegex = __webpack_require__(109)();
+
+	module.exports = function (str) {
+		return typeof str === 'string' ? str.replace(ansiRegex, '') : str;
+	};
+
+
+/***/ },
+/* 109 */
+/***/ function(module, exports) {
+
+	'use strict';
+	module.exports = function () {
+		return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+	};
+
+
 /***/ }
-/******/ ])
+/******/ ]);

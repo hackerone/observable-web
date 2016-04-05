@@ -1,6 +1,5 @@
 "use strict";
 require('./css/reveal.css');
-require('./scss/default.scss');
 require('./lib/css/zenburn.css');
 
 require('script!./lib/js/head.min.js');
@@ -22,4 +21,5 @@ require.ensure([], function() {
     require('script!./plugin/highlight/highlight.js');
     window.hljs.initHighlightingOnLoad();
     require('script!./plugin/zoom-js/zoom.js');
+    require('script!./plugin/print-pdf/print-pdf.js');
 });

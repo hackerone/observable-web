@@ -4,7 +4,6 @@ section
         div.fragment completely
 
     p.author-name Ganesh Shanmugasundaram
-    p.author-handle @hackerone
 
 section
    img.center.logo(src=require('./img/logo.png'))
@@ -202,13 +201,13 @@ section
 section
     h1 Subscribe vs then
     pre
-        code.javascript const ob = new Observable();
+        code.javascript const ob = new Observable({});
             | ob.subscribe(onNext, onError);
 
 section
     h1 onComplete
     pre
-        code.javascript const ob = new Observable();
+        code.javascript const ob = new Observable({});
             | const subscription = ob.subscribe(onNext, 
             |                                    onComplete,
             |                                    onError);
@@ -216,12 +215,28 @@ section
  section 
     h1 Unsubscribe
     pre
-        code.javascript const ob = new Observable();
+        code.javascript const ob = new Observable({});
             | const subscription = ob.subscribe(onNext, 
             |                                    onComplete,
             |                                    onError);
             | subscription.unsubscribe();
-            
+
+section
+    h1 Creating an Observable
+    pre
+        code.javascript $clickObs = new Observable(observer => {
+           |     const element = docuement.getElementById('btn');
+           |     let handler =  (evt) => {
+           |         observer.next(evt);
+           |     };
+           |     
+           |     element.addEventListener('click', handler, true);
+           |     
+           |     return _ =>  {
+           |         element.removeEventListener('click', handler, true);
+           |     }
+           |     
+           | }); 
 
  section
     h1 What can be Observables?
@@ -265,13 +280,122 @@ section
         code.javascript [1,2,3].map(x => x*x)
             | .reduce((x, sum) => sum+x, 0);
             | // 14
-    pre.fragment
-        code.javascript $clickObs.map(x => 1)
-            | .reduce((x, sum) => sum+x, 0);
+section
+    h1 Subscribing to the Click Counter
+    pre
+        code.javascript $clickObs.subscribe(onNext, onComplete, onError);
+            | // event [Object]
+            | // event [Object]
+            | // event [Object]
+            
+section
+    h1 Map Click Counter
+    pre
+        code.javascript $clickObs
+            | .map(x => 1)
+            | .subscribe(onNext, onComplete, onError);
+            | // 1
+            | // 1
+            | // 1
+
+section
+    h1 Scan (reduce) Click Counter
+    pre
+        code.javascript $clickObs
+            | .map(x => 1)
+            | .scan((x, y) => x+y)
+            | .subscribe(onNext, onComplete, onError);
             | // 1
             | // 2
             | // 3
-    
+
 section
-    h1 Click counter
-    
+    h1  Browser support?
+    ul
+        li.fragment well...
+        li.fragment still in tc39 proposal
+        li.fragment stage 1
+        li.fragment not for ES2016 / ES7
+        li.fragment but...
+
+section
+    h1 Projects
+    ul
+        li.fragment rxJS
+        li.fragment baconJS
+        li.fragment Angular 2 (http)
+        li.fragment more...
+        
+section
+    h1 AutoSuggest
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp');
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [evt Object]
+            | // [evt Object] 
+            | // [evt Object] 
+            | // [evt Object] 
+            | // [evt Object] 
+
+section
+    h1 AutoSuggest
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |           .map(e => e.target.value);
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // h
+            | // ha
+            | // har
+            | // harr
+            | // harr <-- the user has pressed down key
+            | // harry
+
+
+section
+    h1 AutoSuggest
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |            .map(e => e.target.value)
+            |           .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [Result Object]
+            | // [Result Object]
+            | // [Result Object]
+            | // [Result Object]
+            | // [Result Object]
+            | // [Result Object]
+
+section
+    h1 AutoSuggest Improved
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |            .map(e => e.target.value)
+            |            .debounce(100)
+            |           .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [Result Object]
+            | // [Result Object]
+
+section
+    h1 AutoSuggest Improved
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |            .map(e => e.target.value)
+            |            .debounce(100)
+            |            .distinctUntilChanged()
+            |            .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [Result Object]
+
+section
+    h1 td;dr
+    ul
+        li.fragment embrace Observables
+        li.fragment start using it today
+        li.fragment push for the standards
+        li.fragment write clean code
+        li.fragment future You will thank You
+
+
+section
+    h1 Q/A
