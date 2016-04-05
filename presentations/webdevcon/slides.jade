@@ -81,11 +81,11 @@ section
     img.center(src=require('./img/website-never-done.jpg'))
 
 section
-    p.left Love the new auto suggest feature you guys have launched. 
+    blockquote.left Love the new auto suggest feature you guys have launched. 
         | But it acts a bit weird sometimes.
     p
     
-    p.left.fragment I was on the tube this morning, i was trying to search for a book, 
+    blockquote.left.fragment I was on the tube this morning, i was trying to search for a book, 
         | i typed 5 letters and it showed me the exact book i wanted, but when i tried to click on it, 
         | the results changed quickly, which wasn't that relevent. 
         | I had to press backspace and the same letter again to get to the book, but it worked the second time. 
@@ -140,6 +140,10 @@ section
         
 section
     img(src=require('./img/brace.jpg'))
+
+section
+    blockquote &ldquo; Always code as if the person who ends up maintaining your code is a violent psychopath who knows where you live. &rdquo;
+   
     
 section
     h1 Promises may be?
@@ -176,11 +180,13 @@ section
 section
     h1 Simple feature?
     img(src=require('./img/grind-gear.jpg'))
+    p.fragment.disapprove ಠ_ಠ
 
 section
     h1 Observable
     ul
         li.fragment Modelling async data
+        li.fragment Steam of events
         li.fragment Emits 0 -> n values
 
 section
@@ -224,7 +230,7 @@ section
 
 section
     h1 Creating an Observable
-    pre
+    pre.fragment
         code.javascript $clickObs = new Observable(observer => {
            |     const element = docuement.getElementById('btn');
            |     let handler =  (evt) => {
@@ -253,8 +259,9 @@ section
 section
     h1 Event emitter?
     ul
+        li.fragment Observer pattern
         li.fragment Both emit 0 - n values
-        li.fragment  Can be subscribed on
+        li.fragment Subscription
         li.fragment Lazy ( or cold by default)
         li.fragment Operation happens on subscription 
         li.fragment Each subscriber will get different values
@@ -273,7 +280,7 @@ section
         li.fragment Unified protocol
         li.fragment Transformable
         li.fragment Composable
-        li.fragment using Array#Operators like map, forEach, reduce.
+        li.fragment Using Array#Operators like map, forEach, reduce.
         
 section
     h1 Treat them like iterators
@@ -314,10 +321,10 @@ section
     h1  Browser support?
     ul
         li.fragment well...
-        li.fragment still in tc39 proposal
-        li.fragment stage 1
-        li.fragment not for ES2016 / ES7
-        li.fragment but...
+        li.fragment Still in tc39 proposal
+        li.fragment Stage 1
+        li.fragment Not for ES2016 / ES7
+        li.fragment But...
 
 section
     h1 Projects
@@ -357,7 +364,7 @@ section
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
             |            .map(e => e.target.value)
-            |           .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            |            .flatMap( term => fetch('/search?term='+term).then(resp => resp.json() ) );
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
             | // [Result Object]
@@ -372,7 +379,7 @@ section
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
             |            .map(e => e.target.value)
             |            .debounce(100)
-            |           .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            |           .flatMap( term => fetch('/search?term='+term).then(resp => resp.json() ) );
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
             | // [Result Object]
@@ -384,7 +391,18 @@ section
             |            .map(e => e.target.value)
             |            .debounce(100)
             |            .distinctUntilChanged()
-            |            .map( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            |            .flatMap( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [Result Object]
+
+section
+    h1 AutoSuggest Improved
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |            .map(e => e.target.value)
+            |            .debounce(100)
+            |            .distinctUntilChanged()
+            |            .flatMapLatest( term => fetch('/search?term='+term).then(resp => resp.json() ) );
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
 
@@ -393,7 +411,7 @@ section
     ul
         li.fragment embrace Observables
         li.fragment start using it today
-        li.fragment push for the standards
+        li.fragment libraries for now
         li.fragment write clean code
         li.fragment future You will thank You
 
