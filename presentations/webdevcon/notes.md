@@ -1,26 +1,33 @@
 # Observable Web
 Welcome to Observable web
 
-Untangling async, when i came up with the tagline "Untangling async", i thought i should Google to see if there are any blog posts on it.  
+Untangling async, when i came up with the tagline "Untangling async", 
+i searched the internet to see if there are any blog posts on it.  
 
-Interestingly i found another presentation last year with exactly the same tagline. But that presentation was for JS promises, which were hot back then. 
+Interestingly i found another presentation last year with exactly the same tagline.
+But that presentation was for JS promises, which were hot back then. 
 
 So, had modify the tagline slightly to "untangling async completely".
 
 ## introduction
 Hello all, I'm Ganesh Shanmugasundaram.
 
-I'm a Web Development Engineer at the Bookdepository, an Amazon subsidiary based in London, UK.
+I'm a Web Development Engineer at the Bookdepository, 
+an Amazon subsidiary based in London, UK.
 
-We an an online book seller. We sell through our own website and through Amazon Marketplace. 
+We an an online book seller.
+We sell through our own website and through Amazon Marketplace. 
 
-And we deliver worldwide for free, a service not offered by many retailers.
+And we deliver worldwide for free,
+a service not offered by many retailers.
 
-Without further ado, let's get started.
+Without further ado,
+let's get started.
 
 ## a problem
 
-Before i get into the presentation, i'd like to ask a couple of questions
+Before i get into the presentation,
+i'd like to ask a couple of questions
 
 - how many of you use javascript everyday? could be work or fun?
 could be working on a simple UI interaction or a full blown single page app. anything..  
@@ -30,7 +37,8 @@ could be working on a simple UI interaction or a full blown single page app. any
 I know we all write good code, no one wants to write bad code,
 except for that guy who left you to maintain his code.
 
-In this talk, i'd like to discuss one major problem i've been or we've been dealing with in our day to day webdev life,
+In this talk, i'd like to discuss one major problem i've been 
+or we've been dealing with in our day to day webdev life,
 and the solutions we've come up with over the course of the internet.
 
 ## building a feature
@@ -53,22 +61,18 @@ a pseudo code for that feature would look something like this
 - get input from user
 - query server and get suggestions
 - display results
-
 repeat till the user has found his result
-
-sounds quite simple isn't it? That's how i feel when i start building a new feature.
+sounds quite simple isn't it?
+That's how i feel when i start building a new feature.
 
 however, when i go about implementing it, 
 I get to deal with keyboard events, network requests etc. 
 which are asynchronous in nature. 
-
 which makes it not so simple anymore.
 
 ## handling async behaviour
 so, how have been handling the async events.
-
 traditionally the protocol for dealing with such events is via callbacks.
-
 let's try implementing this the callbacks way.
 
 ### Step 1 [get what the user is typing]
@@ -116,7 +120,6 @@ searchBox.addEventListener('keyup', (e) => {
 and that would complete our feature. the code works, does what we wanted it to do.
 
 Ok, now, is that good code? would you be happy if you were left with that code to maintain?
-
 I wouldn't mind maintaining that actually. 
 That code is simple,
 easy to read.
@@ -141,7 +144,6 @@ A Simple one, but useful to the users.
 The next day i receive an email from one of my colleagues, 
 it read,  "Love the new auto suggest feature you guys have launched.
 But it acts a bit wierd sometimes. Could you please check?"
-
 It's great that he likes the feature,
 but it acts a bit weird some times.
 hmm, that wasn't very informative, is it?.
@@ -207,11 +209,12 @@ so let's improve our feature to accomodate this specific use case
 ### make it better
 how could we improve?
 - reduce the number of requests we make, that'll be quite useful especially in terms of bandwidth, and data costs.
-we can  add some debounce logic [100ms]
 in this case, let's say we query the server
 only when the user stops typing for about 100 milliseconds
+we can  add some debounce logic [100ms]
 - remove duplicate requests
-you don't want to make a duplicate request to the server.
+you don't want to make the same request to the server more than once.
+that'll save some cost
 - avoid race conditions, make sure we show the results for the latest value in the search box.
 this will address the issue we saw earlier.
 

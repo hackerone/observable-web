@@ -14,12 +14,25 @@ window.Reveal.initialize({
     history: true,
     center: false,
     theme: window.Reveal.getQueryHash().theme, // available themes are in /css/theme
-    transition: 'linear' // default/cube/page/concave/zoom/linear/fade/none
-});
+    transition: 'concave', // default/cube/page/concave/zoom/linear/fade/none
+    dependencies: [
+        // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
+        { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
 
-require.ensure([], function() {
-    require('script!./plugin/highlight/highlight.js');
-    window.hljs.initHighlightingOnLoad();
-    require('script!./plugin/zoom-js/zoom.js');
-    require('script!./plugin/print-pdf/print-pdf.js');
+        // Interpret Markdown in <section> elements
+        { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+
+        // Syntax highlight for <code> elements
+        { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+
+        // Zoom in and out with Alt+click
+        { src: 'plugin/zoom-js/zoom.js', async: true },
+
+        // Speaker notes
+        { src: 'plugin/notes/notes.js', async: true },
+
+        // MathJax
+        { src: 'plugin/math/math.js', async: true }
+    ]
 });

@@ -6,11 +6,22 @@ html {
     font-size: $mainFontSize;
 }
 
+body {
+    background-image: url(/icon.png);
+    background-repeat: no-repeat;
+    background-position: 2% 95%;
+    background-size: 50px 56px;
+}
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
     
     .disapprove {
         font-size: 2rem;
+    }
+    
+    blockquote {
+        font-size: 0.6rem;
+        line-height: 1.2rem; 
     }
     
     .left {
