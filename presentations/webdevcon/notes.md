@@ -1,10 +1,16 @@
 # Observable Web
 Welcome to Observable web
 
+Untangling async, when i came up with the tagline "Untangling async", i thought i should Google to see if there are any blog posts on it.  
+
+Interestingly i found another presentation last year with exactly the same tagline. But that presentation was for JS promises, which were hot back then. 
+
+So, had modify the tagline slightly to "untangling async completely".
+
 ## introduction
 Hello all, I'm Ganesh Shanmugasundaram.
 
-I'm a Web Development Engineer at the Bookdepository, an Amazon subsidiary based in London UK.
+I'm a Web Development Engineer at the Bookdepository, an Amazon subsidiary based in London, UK.
 
 We an an online book seller. We sell through our own website and through Amazon Marketplace. 
 
@@ -12,39 +18,51 @@ And we deliver worldwide for free, a service not offered by many retailers.
 
 Without further ado, let's get started.
 
-## time vs async
-
-Normal humans think in terms of time, Our brain attaches a timestamp to all our daily activities. We wake up at 6:30, we get to work at 8:30, we have meetings at 10:30 etc etc,
-So, everything relates to a time.
-
-However, Javascript Engineers think in terms of async. async everywhere. Asyncs 
-
 ## a problem
+
+Before i get into the presentation, i'd like to ask a couple of questions
+
+- how many of you use javascript everyday? could be work or fun?
+could be working on a simple UI interaction or a full blown single page app. anything..  
+- how many people maintain code that someone else has left behind?
+- what do you think is good code?
+
+I know we all write good code, no one wants to write bad code,
+except for that guy who left you to maintain his code.
+
 In this talk, i'd like to discuss one major problem i've been or we've been dealing with in our day to day webdev life,
 and the solutions we've come up with over the course of the internet.
 
 ## building a feature
-When i get asked to build a feature on the website, i usually try to think about it in a series of steps, i guess most of us do that.
+When i get asked to build a feature on the website,
+i usually try to think about it in a series of steps,
+i guess most of us do that.
 Let's look at how my thought process works for a simple feature.
 
 I usually start with a user story, 
 - when a user types something in the search box
 - display a list of search suggestions under search box
-- the search suggestions should update with more relevant suggestions, as i type further
+- the search suggestions should update with more relevant suggestions, 
+as the user types further
 
-the feature is a trivial search suggestion or search auto-complete that you can find in most websites today,
+the feature is a trivial search suggestion or search auto-complete 
+that you can find in most websites today,
 
 ## pseudo code
-a pseudo code for the feature would look something like this
+a pseudo code for that feature would look something like this
 - get input from user
 - query server and get suggestions
-- display result
+- display results
 
 repeat till the user has found his result
 
-quite simple eh? That's how i feel when i start building a new feature.
+sounds quite simple isn't it? That's how i feel when i start building a new feature.
 
-however, when i go about implementing it, I get to deal with keyboard events, network requests etc. which are asynchronous in nature. this complicates the code.
+however, when i go about implementing it, 
+I get to deal with keyboard events, network requests etc. 
+which are asynchronous in nature. 
+
+which makes it not so simple anymore.
 
 ## handling async behaviour
 so, how have been handling the async events.
@@ -54,8 +72,11 @@ traditionally the protocol for dealing with such events is via callbacks.
 let's try implementing this the callbacks way.
 
 ### Step 1 [get what the user is typing]
-the first step is to get what the user has typed. so, we attach an event listerner to the input field, listen for the keyup event 
-and get what the user has typed so far.  quite straight forward.
+the first step is to get what the user has typed.
+ we attach an event listerner to the input field, 
+ listen for the keyup event 
+and get what the user has typed so far.
+ quite straight forward.
 
 ``` javascript
 searchBox.addEventListener('keyup', (e) => {
@@ -64,7 +85,8 @@ searchBox.addEventListener('keyup', (e) => {
 ```
 
 ### Step 2 [make an xhr request]
-now that we got the text, let's query the server and get the suggestions, for simplicity let's assume performSearch does the ajax request to the server.
+now that we got the text, let's query the server and get the suggestions,
+for simplicity let's assume performSearch does the ajax request to the server.
 ``` javascript
 searchBox.addEventListener('keyup', (e) => {
     let term = e.target.value;
@@ -74,10 +96,14 @@ searchBox.addEventListener('keyup', (e) => {
 });
 ```
 
-we've got the result now. let's display it to the user.
+we've got the result now.
 
 ### Step 3 [display result]
-again for simplicity sake, let's assume we have a function displayResult which renders the result under the search box.
+let's display it to the user.
+
+again for simplicity sake, 
+let's assume we have a function displayResult
+which renders the result under the search box.
 ``` javascript
 const searchBox = document.getElementById('searchbox');
 searchBox.addEventListener('keyup', (e) => {
@@ -87,57 +113,107 @@ searchBox.addEventListener('keyup', (e) => {
     });
 });
 ```
-and that would complete our feature.
+and that would complete our feature. the code works, does what we wanted it to do.
+
+Ok, now, is that good code? would you be happy if you were left with that code to maintain?
+
+I wouldn't mind maintaining that actually. 
+That code is simple,
+easy to read.
 
 ### We're done
-let's get our code peer reviewed, do some refactoring, write some unit test, some functional test 
-and ship it to production! 
-and that feature is done!
+let's get our code peer reviewed,
+do some refactoring,
+write some tests. 
+Ship it to production! 
+That feature is done!
 
-we'll never ever have to go back to that code again forever.
+We'll never ever have to go back to that code again forever.
+
 I wish things were like that!
 
 ### Website is never done!
 But Wait! a website is never done!
 
-So, we launch this feature. A Simple one, but very useful to the users.
+We launched this feature. 
+A Simple one, but useful to the users.
 
-The next i receive an email from one of my colleagues, it read,  "Love the new auto suggest feature you guys have launched.
-But it acts a bit wierd sometimes. Could you please fix it?"
+The next day i receive an email from one of my colleagues, 
+it read,  "Love the new auto suggest feature you guys have launched.
+But it acts a bit wierd sometimes. Could you please check?"
 
-It's great that he likes the feature, but it acts a bit weird some times. hmm, that wasn't very informative.
+It's great that he likes the feature,
+but it acts a bit weird some times.
+hmm, that wasn't very informative, is it?.
 
 So, I thought before i get back to him asking for more information, 
-let me check it manually once, just to make sure there's isn't anything obvious that we missed or the automated tests missed.
-i opened up my shiny new mac, tested across different browser it worked on all the browsers, even the old ones using VMs, 
-but it was working fine
+let me do some sanity check,
+just to make sure there's isn't anything obvious that we missed 
+or the tests have missed.
+i opened up my shiny mac,
+tested across different browser it worked on all the browsers,
+it was working fine
+even in the old ones
 
-So i emailed him back saying, i tested it on most browsers and couldn't find any issue, 
-could you give me some more information on the issue? like what was happening, the browser version, some screenshots may be.
+So i emailed him back saying,
+i tested it on most browsers and couldn't find any issue, 
+could you give me some more information on the issue?
+like what was happening,
+the browser version,
+some screenshots may be.
 
 That's enough information for us to get started.
 
+And then i got a reply,
+
+I was on the tube this morning,
+i was trying to search for a book, 
+i typed 5 letters and it showed me the exact book i wanted,
+but when i tried to click on it, 
+the results changed quickly,
+which wasn't that relevent. 
+I had to press backspace and the same letter again to get to the book,
+but it worked the second time. 
+The same issue happened a few times during my journey 
+I'm on iphone 5S,
+not sure how to check the browser version. 
+I can't seem to reproduce the issue now though,
+seemed to have fixed itself!
+
+
+we all love the issue that fixes itself.
+
+That reply provided more information.
+
 ### user on mobile
 we have an extended use case
-a user who is on the tube as the Londoners call it or a Metro as the rest of the world call it. 
+a user who is on the tube as the Londoners call it or a Metro as the most of the world call it. 
 he's on mobile network connection,
-he's on his way to work, 
+trying to find a book,
+using the feature we just launched.
 
+### Consider
 
-What should we consider for this use case?
+What kind of issues should we consider for this use case?
 
-- network might be slow
-- network might be unstable, some network requests might fail
-- network cost
-- mobile phone  might be slow or low on memory
+- network might be slow, depending on the type of connection he's on. 
+- network might be unstable, since he's on a train and moving, some network requests might fail
+- network cost, there's going to be a network cost.
+- mobile phone  might be slow or low on memory 
 
-We would want to cater for that user as well, so let's improve our feature to accomodate this specific use case
+We would want to cater for that user as well,
+so let's improve our feature to accomodate this specific use case
 
 ### make it better
 how could we improve?
-- add some debounce logic [100ms]
-in this case, let's say we query the server only when the user stops typing for about 100 milliseconds, to save some bandwidth.
+- reduce the number of requests we make, that'll be quite useful especially in terms of bandwidth, and data costs.
+we can  add some debounce logic [100ms]
+in this case, let's say we query the server
+only when the user stops typing for about 100 milliseconds
+- remove duplicate requests
+you don't want to make a duplicate request to the server.
 - avoid race conditions, make sure we show the results for the latest value in the search box.
+this will address the issue my colleague faced.
 
 ### one at a time
 let's deal with the improvements one at a time. 
