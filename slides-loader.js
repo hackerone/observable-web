@@ -1,6 +1,6 @@
 "use strict";
 require('./css/reveal.css');
-require('./lib/css/zenburn.css');
+require('./lib/css/monokai.css');
 
 require('script!./lib/js/head.min.js');
 require('script!./lib/js/classList.js');
