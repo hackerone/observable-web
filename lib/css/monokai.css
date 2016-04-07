@@ -26,7 +26,7 @@ pre .tex .special {
 }
 
 pre code {
-  color: #DDD;
+  color: #FFF;
 }
 
 pre code .constant {
@@ -96,7 +96,7 @@ pre .deletion,
 pre .shebang,
 pre .apache .sqbracket,
 pre .tex .formula {
-  color: #75715E;
+  color: #A5A19E;
 }
 
 pre .keyword,

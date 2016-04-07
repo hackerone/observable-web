@@ -318,7 +318,7 @@ body {
 .reveal pre {
 	display: block;
 	position: relative;
-	width: 90%;
+	width: 100%;
 	margin: 15px auto;
 
 	text-align: left;
@@ -336,7 +336,7 @@ body {
 .reveal pre code {
 	padding: 5px;
 	overflow: auto;
-	max-height: 400px;
+	max-height: 650px;
 	word-wrap: normal;
 }
 .reveal pre.stretch code {
@@ -474,7 +474,7 @@ body {
 	height: 3px;
 	width: 100%;
 	bottom: 0;
-	left: 0;
+	top: 0;
 	z-index: 10;
 }
 	.reveal .progress:after {

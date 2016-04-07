@@ -12,6 +12,17 @@ body {
     background-position: 2% 95%;
     background-size: 50px 56px;
 }
+.progress span {
+    position: relative;
+    &:after {
+         content: "";
+        position: absolute;
+        right: 0;
+        width: 100px;
+        box-shadow: 0 0 10px 2px $linkColor;
+        transform: rotateZ(2.5deg);
+    }
+}
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
     
@@ -20,8 +31,13 @@ body {
     }
     
     blockquote {
-        font-size: 0.6rem;
-        line-height: 1.2rem; 
+        font-size: 1rem;
+        font-family: $headingFont;
+        font-style: normal;
+        line-height: 1.5;
+        border: none;
+        outline: none;
+        box-shadow: none;  
     }
     
     .left {
