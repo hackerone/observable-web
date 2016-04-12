@@ -7,14 +7,15 @@ require('script!./lib/js/classList.js');
 require('script!./lib/js/reveal.min.js');
 
 require('./presentations/' + PRESENTATION + '/entry.js');
+require('./plugin/highlight/highlight.js');
 
 window.Reveal.initialize({
-    controls: true,
     progress: true,
     history: true,
-    center: false,
+    center: true,
+    slideNumber: true,
     theme: window.Reveal.getQueryHash().theme, // available themes are in /css/theme
-    transition: 'zoom', // default/cube/page/concave/zoom/linear/fade/none
+    transition: 'fade', // default/cube/page/concave/zoom/linear/fade/none
     dependencies: [
         // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
         { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },

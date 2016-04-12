@@ -12,6 +12,14 @@ body {
     background-position: 2% 95%;
     background-size: 50px 56px;
 }
+
+.slide-number {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    font-size: 20px !important;
+    bottom: auto;
+}
 .progress span {
     position: relative;
     &:after {
@@ -31,7 +39,8 @@ body {
     }
     
     blockquote {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        width: 90%;
         font-family: $headingFont;
         font-style: normal;
         line-height: 1.5;
@@ -95,7 +104,32 @@ body {
         }
     }
 }
-
 @media print {
-    
+    html, body {
+        overflow: scroll !important;
+        width: auto;
+        height: auto;
+    }
+    .slides {
+        position: relative !important;
+        .fragment {
+            opacity: 1 !important;
+        }
+        width: 100%;
+        height: 100%;
+        top: 0; left: 0;
+        section {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            left: 0; top: 0;
+            width: 100% !important;
+            display: block !important;
+            opacity: 1 !important;
+            width: 960px !important;
+            height: 600px;
+            margin: 0 auto;
+            break-after: page !important;
+        }
+    }    
 }

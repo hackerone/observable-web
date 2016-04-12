@@ -736,3 +736,10 @@ thank you
 
 ## thanks
 
+
+
+
+---
+
+observables error handling
+observables boring
