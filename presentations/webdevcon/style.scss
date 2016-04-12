@@ -32,6 +32,10 @@ body {
 }
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
+    
+    code {
+        line-height: 1.5em !important;
+    }
 
     .disapprove {
         font-size: 2rem;
@@ -111,6 +115,7 @@ body {
         outline: none;
         background: transparent;
         box-shadow: none;
+        max-width: 50%;
     }
     p {
         padding-bottom: 1.5rem;

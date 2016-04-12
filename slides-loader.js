@@ -12,6 +12,8 @@ require('./plugin/highlight/highlight.js');
 window.Reveal.initialize({
     progress: true,
     history: true,
+    width: 1600,
+    height: 1000,
     center: true,
     slideNumber: true,
     theme: window.Reveal.getQueryHash().theme, // available themes are in /css/theme
