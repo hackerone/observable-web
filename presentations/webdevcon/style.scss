@@ -27,50 +27,73 @@ body {
         position: absolute;
         right: 0;
         width: 100px;
-        box-shadow: 0 0 10px 2px $linkColor;
         transform: rotateZ(2.5deg);
     }
 }
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
-    
+
     .disapprove {
         font-size: 2rem;
     }
-    
+
     blockquote {
+        &:before {
+          color: #ccc;
+          font-family: helvetica, arial;
+          content: open-quote;
+          font-size: 4em;
+          line-height: 0.1em;
+          position: absolute;
+          left: -.5em;
+          top: 0;
+          vertical-align: -0.4em;
+        }
+        &:after {
+          color: #ccc;
+          content: close-quote;
+          font-family: helvetica, arial;
+          font-size: 4em;
+          line-height: 0.1em;
+          margin-left: 0.25em;
+          position: absolute;
+          right: -.5em;
+          bottom: -.3em;
+          vertical-align: -0.7em;
+        }
+        quotes: "\201C""\201D""\2018""\2019";
         font-size: 1.1rem;
         width: 90%;
-        font-family: $headingFont;
+        font-family: $mainFont;
         font-style: normal;
+        font-weight: 400;
         line-height: 1.5;
-        border: none;
         outline: none;
-        box-shadow: none;  
+        box-shadow: none;
     }
-    
+
     .left {
         text-align: left;
     }
-    
+
     h1 {
         font-size: 2.4rem;
     }
-    
-    
+
+
     h2 {
         font-size: 2rem;
     }
-    
+
     h3 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
-    
+
     li, p {
         font-size: 1rem;
         padding-bottom: 1rem;
     }
-    
+
     ul, ol {
         display: inline-block;
         margin-top: 1.5rem;
@@ -80,7 +103,7 @@ body {
             list-style: circle;
         }
     }
-    
+
     img{
         border: none;
         margin: 0 auto;
@@ -92,7 +115,7 @@ body {
         padding-bottom: 1.5rem;
         margin-bottom: 0;
     }
-    
+
     img.center {
         margin: 2rem auto;
         display: block;
@@ -131,5 +154,5 @@ body {
             margin: 0 auto;
             break-after: page !important;
         }
-    }    
+    }
 }

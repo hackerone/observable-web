@@ -2,16 +2,16 @@
 // overridden by the super-theme
 
 // Background of the presentation
-$backgroundColor: #EEE;
+$backgroundColor: #fff;
 
 // Primary/body text
-$mainFont: "Tahoma", sans-serif;
+$mainFont: "Roboto", serif;
 $mainFontSize: 34px;
 $mainColor: #222;
 
 // Headings
 $headingMargin: 0 0 10px 0;
-$headingFont: "Cochin", serif;
+$headingFont: "Montserrat", serif;
 $headingColor: #5d2e8a;
 $headingLineHeight: 1em;
 $headingLetterSpacing: 0.02em;
@@ -21,7 +21,7 @@ $heading1TextShadow: $headingTextShadow;
 
 // Links and actions
 $linkColor: #5d2e8a;
-$linkColorHover: lighten( $linkColor, 20% );
+$linkColorHover: darken( $linkColor, 10% );
 
 // Text selection
 $selectionBackgroundColor: #FF5E99;
