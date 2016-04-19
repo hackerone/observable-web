@@ -17,7 +17,7 @@ window.Reveal.initialize({
     center: true,
     slideNumber: true,
     theme: window.Reveal.getQueryHash().theme, // available themes are in /css/theme
-    transition: 'dissolve', // default/cube/page/concave/zoom/linear/fade/none
+    transition: 'fade', // default/cube/page/concave/zoom/linear/fade/none
     dependencies: [
         // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
         { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },

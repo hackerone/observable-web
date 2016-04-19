@@ -8,21 +8,21 @@ section
         |    Untangling async, when i thought of using this tagline, 
         |    i searched the internet to see if anyone else has used anything similar already.  
         |    Interestingly i found another presentation last year with exactly the same tagline.
-        |    That presentation was presenting Javascript Promises to solve the async problem 
-        |    and here we are a year later, dealing with the same problem slightly differently. 
-        |    So, had to slightly modify the tagline to "untangling async completely".
+        |    That presentation was presenting Javascript Promises as a solution to the async problem 
+        |    and a year later, we're dealing with the same problem, slightly differently this time. 
+        |    So, had to change the tagline to "untangling async completely".
         |    Hope to solve it completely this time.
         |    Hello all, I'm Ganesh Shanmugasundaram.
 
 section
-   img.center.logo(src=require('./img/logo.png'))
-    
+   img.center.logo(src=require('./img/logo.png')) 
    img.fragment.center.london(src=require('./img/london.png'))
+   
    aside.notes I'm a Web Development Engineer at the Bookdepository, 
         | an Amazon subsidiary based in London.
         | We are an online book seller.
-        | We sell through our own website and through Amazon Marketplace.
-        | And we deliver worldwide for free,
+        | We sell through our own website bookdepository.com and through Amazon Marketplace.
+        | We deliver worldwide for free,
         | a service not offered by many retailers.
         | Without further ado,
         | let's get started.
@@ -36,10 +36,13 @@ section
    
     aside.notes Firstly,
         | i'd like to ask a couple of questions
-        | - how many of you use javascript everyday? could be work or fun?
-        | could be working on a simple UI interaction or a full blown single page app. anything..  
-        | - how many people maintain code that someone else has left behind?
-        | - what do you think is good code?
+        | ====== down =====
+        |  how many of you use javascript everyday? could be work or fun?
+        | could be working on a simple UI interaction or a full blown single page app. anything..
+        | ====== down =====  
+        | how many people maintain code that someone else has left behind?
+        | ====== down =====
+        | How many people have worked with good code and write good code?
         | I know we all write good code, no one wants to write bad code,
         | except for that guy who left you to maintain his code.
         | In this talk, i'd like to discuss one major problem i've been 
@@ -52,12 +55,16 @@ section
     ul
         li.fragment Thought process
         li.fragment Series of steps
+        li.fragment User story
     
     aside.notes Building a feature
         | When i get asked to build a feature big or small on the website,
+        | ====== down =====
         | this is how my thought process works
+        | ====== down =====
         | i try to break it down into smaller chunks and think about it in a series of smaller steps,
         | i guess most of us do that.
+        | ====== down =====
         | in addition, i like to create user stories and think about the pseudo code first 
         | before starting to code
         
@@ -69,11 +76,14 @@ section
         li.fragment Update suggestions
     
     aside.notes Let's talk about a user story here
+        | ====== down =====
         | - when a user types something in the search box
+        | ====== down =====
         | - display a list of search suggestions under search box
+        | ====== down =====
         | - the suggestions should update with more relevant ones  as the user types further
         | the feature is a trivial search auto-suggest 
-        | that you can find in most websites today,
+        | that you can find in most websites today.
 
 section
     h1 Pseudocode
@@ -461,7 +471,7 @@ section
 
 section
     h1 Syntax ~ Promise
-    pre.fragment
+    pre
         code.javascript const p = new Promise();
             | p.then(onResolve, onReject);
     
@@ -516,7 +526,7 @@ section
 
 section
     h1 Creating an Observable
-    pre.fragment
+    pre
         code.javascript $Obs = new Observable(observer => {
            |        observer.next(1);
            |        observer.complete();
@@ -550,9 +560,9 @@ section
                 
 section
     h1 Creating an Observable
-    pre.fragment
+    pre
         code.javascript $clickObs = new Observable(observer => {
-            |     const element = docuement.getElementById('btn');
+            |     const element = document.getElementById('btn');
             |     const handler =  (evt) => {
             |         observer.next(evt);
             |     };
@@ -637,27 +647,6 @@ section
         | and each subscriber will get different values.
         | which is quite different from event emitters.
 
-
-section
-    h1 What if i want to share values?
-    ul
-        li.fragment Make it hot
-        li.fragment Operation happens on first subscription
-        li.fragment Other subscribers just listen
-        li.fragment Not all the subscribers get all the values
-  
-    aside.notes Sometimes you want to share values between multiple subscribers, 
-        | like in the case of  the button click observable that we implemented, 
-        | we know that the values will be the same, 
-        | so sharing the values will save some memory and processing 
-        | This is called making the observable hot. 
-        | there are tools which can do this.
-        | The operation happens only on first subscription. 
-        | On subsequent subscriptions, 
-        | the subscribers just listen to what's getting emitted 
-        | because of the first subscription.
-        | The observable acts more like an event emitter, in this case. 
-        | And not all the subscribers get all the values. 
 
 section
     h1 What's so special?
@@ -930,7 +919,9 @@ section(data-transition="fade")
         | writing operators is not hard.  
 
 section
-    h1 tl;dr
+    h1 tl;dr 
+        .fragment.strike-through
+    h1.fragment tl;dl 
     ul
         li.fragment stop thinking in terms of callback
         li.fragment data + operation
