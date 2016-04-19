@@ -200,7 +200,7 @@ section
         | That'll hopefully give us enough information to get started.
 section
    blockquote.left I was on the tube this morning, I was trying to search for a book, 
-        | I typed 'fifty' and it showed me the exact book I wanted, but when I tried to click on it, 
+        | I typed 'harry' and it showed me the exact book I wanted, but when I tried to click on it, 
         | the results changed quickly, which wasn't that relevent.<br><br> 
         | I had to press backspace and the same letter again to get to the book, but it worked the second time. 
         | The same issue happened a few times during my journey 
@@ -405,9 +405,10 @@ section
     aside.notes we started out with a simple 3 step user story,
         | and we ended up in this mess 
         | and we haven't even completed our feature yet.
-        | it's quite annoying that we can't build a simple feature in a simple way.
+        | what's frustrating is that we can't build a simple feature in a simple way.
         | can we do better than this? 
         | can we make it more readable /  maintainable?
+        | more importantly extendable.
         | may be use a framework or library?        
         | everytime i tell that there's a new framework or library in javascript 
         | to nonJavascript devs i work with, i get a look of disapproval. 
@@ -428,7 +429,7 @@ section
     aside.notes Let's see observables can do here, but before that, let's see what observables are
         | Bluntly put, 
         | an observable is an object type for modelling async data.
-        | it represents a stream of values over a period of time.
+        | it represents a stream of values.
         | It pushes or emits zero to n values over a period of time.
 
 section
@@ -684,10 +685,10 @@ section
         | They can be treated like iterators.
         
 section
-    h1 Treat them like iterators
+    h1 Iterable
     pre
         code.javascript [1,2,3].map(x => x*x)
-            | .reduce((x, sum) => sum+x, 0);
+            |        .reduce((x, sum) => sum+x, 0);
             | // 14
             
     aside.notes Let's take the following example,
@@ -698,7 +699,7 @@ section
         | So we're transforming the array into a single number and in this case the value is 14.
 
 section
-    h1 Subscribing to the Click Event
+    h1 Subscribe
     pre
         code.javascript $clickObs.subscribe(onNext, onComplete, onError);
             | // event [Object]
@@ -710,11 +711,11 @@ section
         | We get a click eventInfoObject emitted everytime there's a mouse click.
             
 section
-    h1 Map Click Counter
+    h1 Map Clicks
     pre
         code.javascript $clickObs
-            | .map(x => 1)
-            | .subscribe(onNext, onComplete, onError);
+            |   .map(x => 1)
+            |   .subscribe(onNext, onComplete, onError);
             | // 1
             | // 1
             | // 1
@@ -796,7 +797,7 @@ section
         | So, there is a huge community behind this and this is a worthy contender.
         | definitely worth using it.
 
-section(data-transition="none")
+section
     h1 AutoSuggest
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp');
@@ -817,7 +818,7 @@ section(data-transition="none")
        |  if we subscribe to that observable, that'll emit event objects
 
 
-section(data-transition="none")
+section(data-transition="fade")
     h1 AutoSuggest
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -835,7 +836,7 @@ section(data-transition="none")
         | we've not got an observable that emits text now.
 
 
-section(data-transition="none")
+section(data-transition="fade")
     h1 AutoSuggest
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -859,7 +860,7 @@ section(data-transition="none")
         | that's our basic implementation, it wasn't too hard was it?
         | how about the enhancements, that's where the problem started last time.
 
-section(data-transition="none")
+section(data-transition="fade")
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -880,7 +881,7 @@ section(data-transition="none")
         | that'll block the flow till the data emission is stopped for 100 ms 
         | and then make the request
 
-section(data-transition="none")
+section(data-transition="fade")
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -898,7 +899,7 @@ section(data-transition="none")
         | so, the network request is made only when the text value changes.
 
 
-section(data-transition="none")
+section(data-transition="fade")
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')

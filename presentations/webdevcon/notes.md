@@ -16,7 +16,7 @@ I'm a Web Development Engineer at the Bookdepository,
 an Amazon subsidiary based in London, UK.
 
 We an an online book seller.
-We sell through our own website and through Amazon Marketplace. 
+We sell through our own website bookdepository.com  and through Amazon Marketplace. 
 
 And we deliver worldwide for free,
 a service not offered by many retailers.
@@ -30,7 +30,7 @@ Before i get into the presentation,
 i'd like to ask a couple of questions
 
 - how many of you use javascript everyday? could be work or fun?
-could be working on a simple UI interaction or a full blown single page app. anything..  
+could be working on a simple UI interaction or a full blown single page app. building anything actually.
 - how many people maintain code that someone else has left behind?
 - what do you think is good code?
 

@@ -33,6 +33,15 @@ body {
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
     
+    pre {
+        display: inline-block;
+        width: auto;
+        code {
+            margin: 0;
+            padding: 1em;
+        }
+    }
+    
     code {
         line-height: 1.5em !important;
     }

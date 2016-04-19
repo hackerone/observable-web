@@ -17,7 +17,7 @@ window.Reveal.initialize({
     center: true,
     slideNumber: true,
     theme: window.Reveal.getQueryHash().theme, // available themes are in /css/theme
-    transition: 'fade', // default/cube/page/concave/zoom/linear/fade/none
+    transition: 'dissolve', // default/cube/page/concave/zoom/linear/fade/none
     dependencies: [
         // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
         { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
@@ -33,9 +33,6 @@ window.Reveal.initialize({
         { src: 'plugin/zoom-js/zoom.js', async: true },
 
         // Speaker notes
-        { src: 'plugin/notes/notes.js', async: true },
-
-        // MathJax
-        { src: 'plugin/math/math.js', async: true }
+        { src: 'plugin/notes/notes.js', async: true }
     ]
 });
