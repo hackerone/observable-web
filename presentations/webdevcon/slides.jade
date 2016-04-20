@@ -9,7 +9,8 @@ section
         |    i searched the internet to see if anyone else has used anything similar already.  
         |    Interestingly i found another presentation last year with exactly the same tagline.
         |    That presentation was presenting Javascript Promises as a solution to the async problem 
-        |    and a year later, we're dealing with the same problem, slightly differently this time. 
+        |    and a year later, we're dealing with the same problem, slightly differently this time.
+        | ====== down =====
         |    So, had to change the tagline to "untangling async completely".
         |    Hope to solve it completely this time.
         |    Hello all, I'm Ganesh Shanmugasundaram.
@@ -18,7 +19,8 @@ section
    img.center.logo(src=require('./img/logo.png')) 
    img.fragment.center.london(src=require('./img/london.png'))
    
-   aside.notes I'm a Web Development Engineer at the Bookdepository, 
+   aside.notes I'm a Web Development Engineer at the Bookdepository,
+        | ====== down ===== 
         | an Amazon subsidiary based in London.
         | We are an online book seller.
         | We sell through our own website bookdepository.com and through Amazon Marketplace.
@@ -94,9 +96,13 @@ section
         li.fragment Repeat
     
     aside.notes a pseudo code for that feature would look something like this
+        | ====== down =====
         | - get input from user
+        | ====== down =====
         | - query server and get suggestions
+        | ====== down =====
         | - display results
+        | ====== down =====
         | repeat till the user has found his result
         | sounds quite simple isn't it?
         | That's what i think when i start building any new feature.
@@ -110,6 +116,7 @@ section
         | which are asynchronous in nature. 
         | which makes it not so simple anymore.
         | so, how have been handling the async events.
+        | ====== down =====
         | traditionally the protocol for dealing with such events is via callbacks.
         | let's try implementing this the callbacks way.
 
@@ -123,7 +130,7 @@ section
     aside.notes the first step is to get what the user has typed.
         | we attach an event listerner to the input field, 
         | listen for the keyup event 
-        | and get what the user has typed so far.
+        | and get what the user has typed so far
         
 section
     h1 Step 2: Suggestions
@@ -136,7 +143,7 @@ section
             | });
             
     aside.notes now that we got the text, let's query the server and get the suggestions,
-        | for simplicity let's assume performSearch does the ajax request to the server.
+        | for simplicity's sake let's assume performSearch does the ajax request to the server.
         | we've got the result now.
             
 section
@@ -158,6 +165,7 @@ section
         | which renders the result under the search box.
         | and that would complete our feature.
         | the code works, does what we wanted it to do.
+        | ====== down =====
         | Ok, now, is that good code? would you be happy if you were left with that code to maintain?
         | I wouldn't mind maintaining that code. 
         | That code is simple,
@@ -168,10 +176,10 @@ section
     h1 Done!
     img.center(src=require('./img/peter-happy.png'))
     aside.notes so we're done with the feature now
-        | let's get our code peer reviewed,
-        | do some refactoring,
+        | let's do some refactoring,
+        | get our code peer reviewed,
         | write some tests. 
-        | Ship it to production! 
+        | deploy it to production! 
         | That feature is done!
         | We'll never ever have to go back to that code again forever.
         | I wish things were like that!
@@ -182,7 +190,7 @@ section
     aside.notes But Wait! a website is never done!
         | We launched this feature. 
         | A Simple one, but useful to the users.
-        | The next day i receives an email from one of my co-workers
+        | The next day i received an email from one of my co-workers
 
 section
     blockquote.left Love the new auto suggest feature you guys have launched. 
@@ -192,46 +200,51 @@ section
         | But it acts a bit wierd sometimes. Could you please check?"
         | He was not a technical person and didn't provie any technical information.
         | It's great that he likes the feature,
-        | but it acts a bit weird some times.
-        | hmm, that wasn't very informative, is it?.
+        | but it's bad that the feature breaks at times.
         | So, I thought before i get back to him asking for more information, 
         | let me do some sanity check,
         | just to make sure there's isn't anything obvious that we missed 
         | or the tests have missed.
         | i opened up my dev box,
-        | tested it across different browser and it worked on all the browsers,
+        | tested it across different browser and devices
+        | and it worked on all the browsers,
         | even in the old ones
         | So i emailed him back saying,
-        | i tested it on most browsers and couldn't find any issue, 
+        | i wasn't able to find any issue, 
         | could you give me some more information on the issue?
         | like what was happening,
         | the browser version,
         | some screenshots may be.
         | That'll hopefully give us enough information to get started.
+        
 section
-   blockquote.left I was on the tube this morning, I was trying to search for a book, 
-        | I typed 'harry' and it showed me the exact book I wanted, but when I tried to click on it, 
-        | the results changed quickly, which wasn't that relevent.<br><br> 
-        | I had to press backspace and the same letter again to get to the book, but it worked the second time. 
-        | The same issue happened a few times during my journey 
-        | I'm on iphone 5S, not sure how to check the browser version. 
-        | I can't seem to reproduce the issue now though, seemed to have fixed itself!
+   blockquote.left 
+        span.fragment I was on the tube this morning, I was trying to search for a book, 
+            | typed "android" and it showed me android app development books,  
+        span.fragment but before i could click on it, the results changed quickly, to show "snail and the whale".<br><br> 
+        span.fragment I had to press backspace and type "android" again to get to the book, and it worked the second time. 
+            | The same issue happened a few times during my journey 
+        span.fragment  I'm on Nexus 6 with latest version of Chrome. 
+            | I can't seem to reproduce the issue now though, seemed to have fixed itself!
     aside.notes And then i got a reply, which read
-        | I was on the tube this morning,
-        | i was trying to search for a book, 
-        | i typed 'harry' and it showed me the exact book i wanted,
-        | but when i tried to click on it, 
-        | the results changed quickly,
-        | which wasn't that relevent. 
-        | I had to press backspace and the same letter again to get to the book,
-        | but it worked the second time. 
-        | The same issue happened a few times during my journey 
-        | I'm on iphone 5S,
-        | not sure how to check the browser version. 
-        | I can't seem to reproduce the issue now though,
-        | seemed to have fixed itself!
-        | we all love the issue that fixes itself.
+        | I was on the tube this morning, I was trying to search for a book, 
+        | typed "android" and it showed me android app development books,  
+        | ====== down =====
+        | but before i could click on it, the results changed quickly, to show "snail and the whale".<br><br> 
+        | I had to press backspace and type "android" again to get to the book, and it worked the second time. 
+        | The same issue happened a few times during my journey
+        | ====== down ===== 
+        | I'm on Nexus 6, on latest version of Chrome. 
+        | I can't seem to reproduce the issue now though, seemed to have fixed itself!
+        | We all love the issue that fixes itself.
         | That reply provided more information for us to get started.
+        | So where did we start, we checked the servers probably an issue with cache
+        | or one of the instance is running old code etc.
+        | But they were fine, so the issue was not 
+        | with the backend but was with the front-end itself.
+        | We figured out, There was a race condition happening
+        | in the network requests that was causing this issue
+        
 section
     h1 Extended scenario
     ul
@@ -241,7 +254,11 @@ section
         li.fragment Trying to find a book
         
     aside.notes we have an extended use case
-        | a user who is on the tube as the Londoners call it or a Metro as the most of the world call it. 
+        | ====== down ===== 
+        | a user who is on the tube as the Londoners call it 
+        | ====== down ===== 
+        | or a Metro as most of the world calls it.
+        | ====== down =====  
         | he's on mobile network connection,
         | trying to find a book,
         | using the feature we just launched.
@@ -258,11 +275,19 @@ section
         
     aside.notes 
         | What kind of environment issues should we consider for this use case?
-        | - network might be slow, depending on the type of connection he's on. 
-        | - network might be unstable, since he's on a train and moving, some network requests might fail
+        | ====== down ===== 
+        | - network might be slow, depending on the type of connection he's on.
+        | ====== down =====  
+        | - network might be unstable, since he's on a train and moving really fast,
+        |  some network requests might fail
+        |  the trains in europe are way faster than the ones here
+        | ====== down ===== 
         | - data cost, depending on the plan he is, there's going to be a network cost.
+        | ====== down ===== 
         | - the device might be slow or low on memory 
-        | We would want to cater for that user as well,
+        | We would want to cater for that user as well, 
+        | because he buys our books, 
+        | he's our potential customer
         | so let's improve our feature to accomodate this specific use case
 
 section
@@ -271,15 +296,18 @@ section
         li.fragment Reduce network requests
         li.fragment Remove duplicate requests
         li.fragment Handle race condition
-        
+            
     aside.notes how could we improve?
+        | ====== down ===== 
         | - reduce the number of requests we make, that'll be quite useful especially in terms of bandwidth, and data costs.
         | in this case, let's say we query the server
         | only when the user stops typing for about 100 milliseconds
         | we can  add some debounce logic to achieve that[100ms]
+        | ====== down ===== 
         | - remove duplicate requests
         | you don't want to make the same request to the server more than once.
         | that'll save some cost and time
+        | ====== down ===== 
         | - avoid race conditions, make sure we show the results for the latest value in the search box.
         | this will address the issue we saw earlier.
         | ok, so we've figured out what we want to do, 
@@ -304,8 +332,9 @@ section
         | implement some debounce logic 
         | so, how do we implement debounce logic,
         | let's use the age old method of adding a setTimeout,
-        | and cancel the request if we detect another keyup event within 100 milli seconds.
-        | that gets harder to read now,
+        | and move the timeout to 100 milli seconds, everytime we get a keyup event
+        | that's the code for that
+        | and it gets harder to read now,
         | ok, now how many of you think that's bad code? 
         | and how many of you will be happy to maintain it?
 
@@ -316,9 +345,12 @@ section
         li.fragment callback hell
         li.fragment one more problem...
         
-    aside.notes hmm, now we have 3 problems
+    aside.notes now we have more problems
+        | ====== down =====
         | - we've introduced a state for the timer which makes it harder to test
+        | ====== down =====
         | - we've gotten into the callback hell!
+        | ====== down =====
         | also, did anyone spot anything else that was wrong with the code?
               
 section
@@ -327,7 +359,8 @@ section
     aside.notes it was missing a curly brace
         | this is one of the symptoms of callback hell. 
         | you need an IDE or a linter to work with such code
-        | the code gets harder to maintain as we make more changes.
+        | the code gets harder to maintain as we add more changes.
+        | this code is not extendable either. 
 
 section
     blockquote Always code as if the person who ends up maintaining your code is a violent psychopath who knows where you live.
@@ -338,6 +371,8 @@ section
         | is a violent psychopath who knows where you live.
         | And i always fear that guy, 
         | so, let's see how we can refactor our code
+        | As usual, i go to google and asked how do i get out of the callback hell
+        | and it said Promises
     
 section
     h1 Promises may be?
@@ -347,13 +382,18 @@ section
         li.fragment browser support
         li.fragment handle error
     
-    aside.notes We've got promises to save us from the callback hell right?
-        | Promises are chainable. 
+    aside.notes May be promises will save us then?
+        | ====== down =====
+        | Promises are chainable.
+        | ====== down ===== 
         | they are more readable and comprehendable.
+        | ====== down =====
         | most modern browsers support promises, 
         | and there are polyfills for the older ones,
         | which is great.
-        | can handle exception better than callbacks
+        | ====== down =====
+        | they can handle exception, 
+        | atlease better than callbacks
 
 section
     h1 Promises in action!
@@ -362,22 +402,25 @@ section
         li.fragment no modify
         li.fragment no cancel
     
-    aside.notes let's looks at some features of promise.
+    aside.notes let's looks at some constraints of promise
         | before using them in our code.
+        | you don't want to regret later right?
+        | ====== down =====
         | - a promise must only resolve once. and it can have only one value
+        | ====== down =====
         | - when you create a promise 
         | it's on it's way to be resolved or rejected, 
-        | it can't be modified later.  
-        | - AJAX request are good candidates for promise.
-        | infact, there is the fetch api, 
-        | which returns a promise. 
-        | however you can't cancel a request that you've just made. 
-        | which is bad.
+        | it can't be modified later.
+        | ====== down =====  
+        | - Promises can't be cancelled, 
+        | you can discard the value the promise resolved, 
+        | but you can't cancel the operation.
         | promise doesn't look that promising.
-        | let's see how our code looks like if we rewrite it using promise.
+        | but let's see how our code looks like if we rewrite it using promise.
+        | even a small improvement is still an improvement
 
 section
-    h1 Promisify the code
+    h1 Promisified
     pre
         code.javascript const searchBox = document.getElementById('searchbox');
             | var requestTimer = null;
@@ -395,17 +438,18 @@ section
             | });
     
     aside.notes since a promise can resolve only once,
-        | the keyup event cannot be promised, 
+        | the keyup event can't be promised, 
         | as it'll emit multiple values
-        | the setTimeout can't be promised either,
-        | as we'll need a way to cancel timer.
-        | and promises can't be cancelled.
+        | the debounce step using setTimeout can't be promised either,
+        | as we'll need a way to modify the delay.
+        | and promises can't be modified.
         | the ajax call can be a perfect candidate for promises, 
-        | in fact there is a fetch API which provides
+        | in fact there is a fetch API available in most modern browsers which provides
         | a clean interface for making ajax request.
         | so, when we re-wrote our code using promise,
         | the ajax bit looks a bit cleaner and followable 
-        | but the rest remains the same. unmaintainable.
+        | but the rest remains the same. 
+        | it's still unmaintainable.
 
 section
     h1 Simple feature?
@@ -414,18 +458,18 @@ section
     
     aside.notes we started out with a simple 3 step user story,
         | and we ended up in this mess 
-        | and we haven't even completed our feature yet.
+        | and we haven't even completed our feature yet, 
+        | we've got 2 more enhancements left.
         | what's frustrating is that we can't build a simple feature in a simple way.
         | can we do better than this? 
         | can we make it more readable /  maintainable?
         | more importantly extendable.
         | may be use a framework or library?        
-        | everytime i tell that there's a new framework or library in javascript 
-        | to nonJavascript devs i work with, i get a look of disapproval. 
-        | Not another one again.
+        | everytime i tell that non-js dev friends a new framework or library in javascript 
+        | i get a look of disapproval.
         | Shouldn't this be a feature in the language rather than a library?
         | a language shouldn't force you to write bad code?
-        | especially a language used for all the websites
+        | especially a language that powers nearly all the websites.
         | so, let me introduce you to 
         | a new object type called Observables.
 
@@ -433,7 +477,7 @@ section
     h1 Observable
     ul
         li.fragment Modelling async data
-        li.fragment Steam of events
+        li.fragment Stream
         li.fragment Emits 0 -> n values
     
     aside.notes Let's see observables can do here, but before that, let's see what observables are
@@ -453,21 +497,26 @@ section
             span   async + multiple value
     
     aside.notes More clearly,
+        | ====== down =====  
         | If it's a synchronous operation, like generating a random number or any computation
         | and returns a single value, it can be represented by primitives like string, number etc.
+        | ====== down =====  
         | If it's synchronous operation and returns multiple values, 
-        | it can be modelled iterators. A JS array is a good example.
+        | it can be modelled iterators. A JS array or generators are good examples.
+        | ====== down =====  
         | If it's asynchronous operation and emits a ONLY a single value,
         | it can be modelled as a promise.
+        | ====== down =====  
         | And finally, this is where there is some hollow space 
         | as we don't have anything compelling at the moment
-        | to model something asynchronous and emits 0 - N values,
+        | to model something asynchronous and emits multiple values,
+        | ====== down =====  
         | and Observable fills in this space
         | Now that brings us to another question,
         | so do i have to learn another API?
         | new syntax again?
         | well, yes.. but it's easier than you think.
-        | The learning curve is quite flat actually
+        | The learning curve is quite flat actually if you're used to promises.
 
 section
     h1 Syntax ~ Promise
@@ -541,7 +590,7 @@ section
            | subs.unsubscribe()
            | // unsubscribed
            
-    aside.notes So, we saw how to subscribe to an observale,
+    aside.notes So, we saw how to subscribe to an observable,
         | let's see how to create an observable.
         | But before that, How many of you have used promises?
         | How many of you actually create promise from scratch?
@@ -557,7 +606,7 @@ section
         | that's a very simple obsevable which emits 1 when you subscribe.
         | calls oncomplete right after onNext
         | and prints unsubscribed on unsubscription
-                
+
 section
     h1 Creating an Observable
     pre
@@ -599,20 +648,27 @@ section
         | So, what about observables?
         | what can be modelled into observables. 
         | if you take a look at the browser events, we have
+        | ====== down =====  
         | - keyboard events like keyup / keydown etc.
         | they emit values everytime user types.
         | they can be observables.
         | except the oncomplete will never get called.
+        | ====== down =====  
         | - Mouse events like mouse click, mouse up / down etc can be observables
+        | ====== down =====  
         | - Animation events start, end, iteration can be observable.
         | they'll have an oncomplete event triggered.
+        | ====== down =====  
         | - lifecycle events settimeout, request animation frame,
         | they can be modelled to observable
+        | ====== down =====  
         | - ajax calls,
         | they emit just 1 event, a success or a failure.
         | most of use promises nowadays for this, but they can be observables
+        | ====== down =====  
         | - websocket events where data is pushed for every message,
         | they're good candidates for observables.
+        | ====== down =====  
         | - so, nearly all the events that we encounter while we build apps can be observables. 
         
 section
@@ -621,9 +677,9 @@ section
         li.fragment Observer pattern
         li.fragment Both emit 0 - n values
         li.fragment Subscription
-        li.fragment Lazy ( or cold by default)
+        li.fragment Lazy ( or cold )
         li.fragment Operation happens on subscription 
-        li.fragment Each subscriber will get different values
+        li.fragment One subscriber ( default )
     
     aside.notes How many of you work on nodeJS? 
         | If you've worked on a nodeJS system,
@@ -632,21 +688,26 @@ section
         | i thought they look quite similar to event emitters.
         | I even thought they were event emitters for the browser?
         | But they are different
-        | They both are different implementation of the observer pattern.
-        | They both emit  0 or more values.
+        | ====== down =====  
+        | They both implement the observer pattern.
+        | ====== down =====  
+        | They both emit  multiple values.
+        | ====== down =====  
         | And can be subscribed on.
+        | ====== down =====  
         | However, Observables are lazy in nature, 
         | they're Cold
         | nothing happens when you instantiate the observable.
+        | ====== down =====  
         | Actual operation like the ajax request happens only on subscription.
         | While in case of event emitter, 
         | the events are emitted no matter if you're listening or not
+        | ====== down =====  
         | An observable will have one subscriber by default. 
         | subscribing on observable multiple times 
         | will cause it to perform the operation on each subscription
         | and each subscriber will get different values.
         | which is quite different from event emitters.
-
 
 section
     h1 What's so special?
@@ -654,25 +715,30 @@ section
         li.fragment Unified protocol
         li.fragment Transformable
         li.fragment Composable
-        li.fragment Using Array#Operators like map, forEach, reduce.
+        li.fragment Array#Operators like map, forEach, reduce etc.
     
     aside.notes so, what's so special about observable?
         | Their syntax is similar to promise,
-        | but allows for multiple value to be emitted, ok that's fine.
-        | Not really compelling right?
+        | but allows for multiple value to be emitted, yea, yea that's fine.
+        | But that's not really compelling right?
         | So, what makes it special?
-        | A few things actually, it could act as a unified protocol for all the async events. 
+        | That we'll be happy to go through the pain of learning a new syntax.
+        | ====== down =====  
+        | A few things actually, it could act as a unified protocol for all the async events.
         | So, you want to represent something that emits just one value, you can use an observable
         | you want to represent something that emits a zillion values, you can use observables for that too. 
         | you can even wrap a synchrnous operation in an observable.
+        | ====== down =====  
         | They're transformable, 
-        | you can apply transformation so each value emitted will be transformed to a different value. 
+        | you can apply transformation so each value emitted will be transformed to a different value.
+        | ====== down =====   
         | Composable, you can combine 2 or more observable to make a third one.
-        | And all this using extended array operators like map, reduce, filter, forEach. 
+        | ====== down =====
+        | And you can make them behave like iterators  
+        | Using extended array operators like map, reduce, filter, forEach. 
         | And you can create your own operators as well if required.
         | That in my opinion is the best bit about Observables.
-        | They can be treated like iterators.
-        
+
 section
     h1 Iterable
     pre
@@ -713,7 +779,19 @@ section
         | the new transformed observable will now emit 1 rather than the event information.
 
 section
-    h1 Scan (reduce) Click Counter
+    h1 Transformable
+    pre
+        code.javascript Observable.prototype.map = (fn) => {
+            |     const newObs = new Observable;
+            |     this.subscribe((nextVal) => {
+            |          const newVal = fn(nextVal); 
+            |          newObs.next(newVal);  
+            |    }, newObs.complete, newObs.error);
+            |    return newObs;
+            | }
+
+section
+    h1 Reduce
     pre
         code.javascript $clickObs
             | .map(x => 1)
@@ -919,9 +997,7 @@ section(data-transition="fade")
         | writing operators is not hard.  
 
 section
-    h1 tl;dr 
-        .fragment.strike-through
-    h1.fragment tl;dl 
+    h1 tl;dr
     ul
         li.fragment stop thinking in terms of callback
         li.fragment data + operation
