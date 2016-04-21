@@ -1053,8 +1053,7 @@ section
             |            .debounce(100)
             |            .distinctUntilChanged()
             |            .flatMapLatest( term => {
-            |                return Observable
-            |                         .fromPromise(fetch('/search?term='+term))
+            |                return Request.get('/search?term='+term)
             |                         .retryWhen(errors => {
             |                              return Observable.fromEvent(window, 'online');
             |                         });
@@ -1067,6 +1066,7 @@ section
         | resubscribing to the same observable will retry the operation
         | and we have an operator in rxjs which 
         | subscribes to the observables before eventually erroring out
+        | 
         | And subscribing to the observable will make the requests.
         | In our case, we retry the request when the device is online.
         | in my opinion that's way better than the code we had earlier.  
