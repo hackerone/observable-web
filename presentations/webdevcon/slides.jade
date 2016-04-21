@@ -3,7 +3,8 @@ section
     h3 Untangling async 
         div.fragment completely
 
-    p.author-name Ganesh Shanmugasundaram
+    p.author-name Ganesh Shanmugasundaram <br>
+        @hackerone
     aside.notes   Welcome to Observable web
         |    Untangling async, when i thought of using this tagline, 
         |    i searched the internet to see if anyone else has used anything similar already.  
@@ -238,7 +239,8 @@ section
         | I was on the tube this morning, I was trying to search for a book, 
         | typed "android" and it showed me android app development books,  
         | ====== down =====
-        | but before i could click on it, the results changed quickly, to show "snail and the whale".<br><br> 
+        | but before i could click on it, the results changed quickly, to show "snail and the whale".
+        | ====== down ===== 
         | I had to press backspace and type "android" again to get to the book, and it worked the second time. 
         | The same issue happened a few times during my journey
         | ====== down ===== 
@@ -344,6 +346,8 @@ section
         | that's the code for that
         | and it gets harder to read now.
         | That in my opinion is not good code.
+        | things are couples
+        | we can't reuse any of the timer we implemented
 
 section
     h1 More problems
@@ -799,19 +803,20 @@ section
             
     aside.notes  We can map each of the event to a value of 1
         | the new transformed observable will now emit 1 rather than the event information.
-        | But that wouldn't work out of the box.
-        | Observable is not an Iterator, we can make it behave like an inverted iterator.
+        | When i saw that, i was like how did they do it?
+        | i thought map only works with Arrays
+        | so i dug deeper.
 
 section
     h1 Transformable
     pre
         code.javascript Observable.prototype.map = function (fn)  {
-            |       return new Observable((observer) => {
+            |       return new Observable((observer) => 
             |            this.subscribe((nextVal) => {
             |                const newVal = fn(nextVal); 
             |                observer.next(newVal);
             |            }, observer.complete, observer.error);
-            |       });
+            |       );
             | }
             
     aside.notes Let's implement a simple map function on the observable
@@ -1033,11 +1038,12 @@ section
         | as long there is a network connection,
         | the user will see what he's intended to see 
         | if there's a network issue which fails our network request
-        | we display an error message 
+        | we can display an error message 
         | and fail gracefully
         | but..
         | do we have to?
-        | will it not be better for the customer if we can retry the request?
+        | will it not be better for the customer 
+        | if we can retry the request when the user is online?
 
 section
     h1 Retry
@@ -1051,7 +1057,7 @@ section
             |                         .fromPromise(fetch('/search?term='+term))
             |                         .retryWhen(errors => {
             |                              return Observable.fromEvent(window, 'online');
-            |                         }); 
+            |                         });
             |            });
             | 
             | searchObs.subscribe(onNext, onComplete, onError);
