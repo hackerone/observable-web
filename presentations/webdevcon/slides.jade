@@ -43,6 +43,8 @@ section
         |  how many of you use javascript everyday? could be work or fun?
         | could be working on a simple UI interaction or a full blown single page app. anything..
         | [q]
+        | wow, that was the wrong question then. How many non js devs here?
+        | people who don't use javascript daily.
         | ====== down =====  
         | how many people maintain code that someone else has left behind?
         | [q]
@@ -54,7 +56,6 @@ section
         | In this talk, i'd like to discuss one major problem i've been 
         | or we've been dealing with in our day to day webdev life,
         | and the solutions we've come up with over the course of the internet.
-
 
 section
     h1 A feature
@@ -928,7 +929,7 @@ section
        |  if we subscribe to that observable, that'll emit event objects
 
 
-section(data-transition="fade")
+section
     h1 AutoSuggest
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -946,12 +947,12 @@ section(data-transition="fade")
         | we've not got an observable that emits text now.
 
 
-section(data-transition="fade")
+section
     h1 AutoSuggest
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
             |            .map(e => e.target.value)
-            |            .flatMap( term => fetch('/search?term='+term).then(resp => resp.json() ) );
+            |            .flatMap( term => fetch('/search?term='+term);
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
             | // [Result Object]
@@ -970,14 +971,14 @@ section(data-transition="fade")
         | that's our basic implementation, it wasn't too hard was it?
         | how about the enhancements, that's where the problem started last time.
 
-section(data-transition="fade")
+section
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
             |            .map(e => e.target.value)
             |            .debounce(100)
             |            .flatMapLatest( term => {
-            |                return fetch('/search?term='+term).then(resp => resp.json() ); 
+            |                return fetch('/search?term='+term); 
             |            });
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
@@ -991,7 +992,7 @@ section(data-transition="fade")
         | that'll block the flow till the data emission is stopped for 100 ms 
         | and then make the request
 
-section(data-transition="fade")
+section
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -999,7 +1000,7 @@ section(data-transition="fade")
             |            .debounce(100)
             |            .distinctUntilChanged()
             |            .flatMapLatest( term => {
-            |                return fetch('/search?term='+term).then(resp => resp.json() ); 
+            |                return fetch('/search?term='+term); 
             |            });
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
@@ -1008,7 +1009,7 @@ section(data-transition="fade")
         | we add distinctUntilChanged operator again from RxJS
         | so, the network request is made only when the text value changes.
 
-section(data-transition="fade")
+section
     h1 Enhancements
     pre
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
@@ -1016,7 +1017,7 @@ section(data-transition="fade")
             |            .debounce(100)
             |            .distinctUntilChanged()
             |            .flatMapLatest( term => {
-            |                return fetch('/search?term='+term).then(resp => resp.json() ); 
+            |                return fetch('/search?term='+term); 
             |            });
             | searchObs.subscribe(onNext, onComplete, onError);
             | // [Result Object]
@@ -1026,10 +1027,46 @@ section(data-transition="fade")
         | which will fix the bug our co-worker experienced on the train.
         | now, that's is readable code, 
         | it's easy to follow and extend.
+        | so, we've completed our improvements
+        | reduced the requests, which will make things faster
+        | we've tried our best to handle the environment changes
+        | as long there is a network connection,
+        | the user will see what he's intended to see 
+        | if there's a network issue which fails our network request
+        | we display an error message 
+        | and fail gracefully
+        | but..
+        | do we have to?
+        | will it not be better for the customer if we can retry the request?
+
+section
+    h1 Retry
+    pre
+        code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
+            |            .map(e => e.target.value)
+            |            .debounce(100)
+            |            .distinctUntilChanged()
+            |            .flatMapLatest( term => {
+            |                return Observable
+            |                         .fromPromise(fetch('/search?term='+term))
+            |                         .retryWhen(errors => {
+            |                              return Observable.fromEvent(window, 'online');
+            |                         }); 
+            |            });
+            | 
+            | searchObs.subscribe(onNext, onComplete, onError);
+            | // [Result Object]
+
+    aside.notes Since observables have this concept of operation on subscription
+        | resubscribing to the same observable will retry the operation
+        | and we have an operator in rxjs which 
+        | subscribes to the observables before eventually erroring out
+        | And subscribing to the observable will make the requests.
+        | In our case, we retry the request when the device is online.
         | in my opinion that's way better than the code we had earlier.  
-        | ok, so we've been using 3 non-standard operators here, 
+        | ok, so we've been using a bunch of non-standard operators here, 
         | the ones provided by RxJS
-        | what if we have an issue that an operator cannot solve?
+        | what if we have an issue that an rxjs operator cannot solve?
         | that's unlikely as they have more than 130 operators to address most of our needs,
         | also, thaks to es6 imports, 
         | you can just import the operator you need for your use case which will keep the package light weight
@@ -1039,7 +1076,8 @@ section(data-transition="fade")
         | but if we still need to,
         | we can write our operators.
         | like we did with map operator
-
+        | it wasn't that hard
+    
 section
     h1 tl;dr
     ul
@@ -1054,11 +1092,14 @@ section
     aside.notes stop thinking about callbacks
         | ====== down =====   
         | think reactive
+        | one of the advantages i found
+        | was now i think more about what to implement 
+        | rather than how to implement them.
         | ====== down =====
         | don't mix data and logic, keep them separate
         | start thinking in terms of data and operations,
         | use observable to model the data
-        | operators to performa the operations  
+        | operators to perform the operations on the data  
         | they make extending features simple
         | ====== down =====
         | they may not be part of standards yet,
@@ -1066,9 +1107,12 @@ section
         | when Observables make it into the standard, 
         | the libraries will just become a polyfill wrapper around  the standard implementation
         | ====== down =====
+        | Write clean code
+        | ====== down =====
         | think about that guy who is going to maintain your code
         | ====== down =====
         | most probably it might be yourself
 
 section
     h1 Q/A
+    aside.notes Thanks
