@@ -18,6 +18,7 @@ section
 section
    img.center.logo(src=require('./img/logo.png')) 
    img.fragment.center.london(src=require('./img/london.png'))
+   .source http://www.timmythetaxi.com/index_files/stacks_image_52_1.png
    
    aside.notes I'm a Web Development Engineer at the Bookdepository,
         | ====== down ===== 
@@ -109,7 +110,8 @@ section
  
 section
     h1 Handling async
-        img.fragment.center(src=require('./img/callbacks-everywhere.jpg'))
+    img.fragment.center(src=require('./img/callbacks-everywhere.jpg'))
+    .source https://memegenerator.net/instance/55965175    
     
     aside.notes however, when i go about implementing it, 
         | I get to deal with keyboard events, network requests etc. 
@@ -174,7 +176,8 @@ section
 
 section
     h1 Done!
-    img.center(src=require('./img/peter-happy.png'))
+    img.center(src=require('./img/peter-jumping.png'))
+    .source http://az616578.vo.msecnd.net/files/2016/03/13/635934353526140175-155829625_peter%20griffin%20midterms%20sb2k16%20article.jpg
     aside.notes so we're done with the feature now
         | let's do some refactoring,
         | get our code peer reviewed,
@@ -187,6 +190,7 @@ section
 section
     h1 Wait!
     img.center(src=require('./img/website-never-done.jpg'))
+    .source http://static1.squarespace.com/static/54610ebbe4b08eea0ace557c/t/5551f7fee4b08237a7879a4f/1431435264658/
     aside.notes But Wait! a website is never done!
         | We launched this feature. 
         | A Simple one, but useful to the users.
@@ -477,14 +481,19 @@ section
     h1 Observable
     ul
         li.fragment Modelling async data
-        li.fragment Stream
+        li.fragment Lazy Stream
         li.fragment Emits 0 -> n values
+        li.fragment May or may not finish
     
     aside.notes Let's see observables can do here, but before that, let's see what observables are
         | Bluntly put, 
         | an observable is an object type for modelling async data.
-        | it represents a stream of values.
+        | ====== down =====
+        | it's a lazy stream of events
+        | ====== down =====
         | It pushes or emits zero to n values over a period of time.
+        | ====== down =====
+        | May or may not finish
 
 section
     h1 Where does it fit?
@@ -734,8 +743,8 @@ section
         | ====== down =====   
         | Composable, you can combine 2 or more observable to make a third one.
         | ====== down =====
-        | And you can make them behave like iterators  
-        | Using extended array operators like map, reduce, filter, forEach. 
+        | And you can make them behave like inverted iterators  
+        | which means we can extended array operators like map, reduce, filter, forEach. 
         | And you can create your own operators as well if required.
         | That in my opinion is the best bit about Observables.
 
@@ -777,26 +786,37 @@ section
             
     aside.notes  We can map each of the event to a value of 1
         | the new transformed observable will now emit 1 rather than the event information.
+        | But that wouldn't work out of the box.
+        | Observable is not an Iterator, we can make it behave like an inverted iterator.
 
 section
     h1 Transformable
     pre
-        code.javascript Observable.prototype.map = (fn) => {
-            |     const newObs = new Observable;
-            |     this.subscribe((nextVal) => {
-            |          const newVal = fn(nextVal); 
-            |          newObs.next(newVal);  
-            |    }, newObs.complete, newObs.error);
-            |    return newObs;
+        code.javascript Observable.prototype.map = function (fn)  {
+            |       return new Observable((observer) => {
+            |            this.subscribe((nextVal) => {
+            |                const newVal = fn(nextVal); 
+            |                observer.next(newVal);
+            |            }, observer.complete, observer.error);
+            |       });
             | }
+            
+    aside.notes Let's implement a simple map function on the observable
+        | This is how it'll look like
+        | it creates a new observable
+        | what the new oberservable does is it subscribes to the parent observable
+        | and when the parent emits a value, 
+        | it applies the function we pass on the value
+        | and emits the new value. 
+        | This will make the map work 
 
 section
     h1 Reduce
     pre
         code.javascript $clickObs
-            | .map(x => 1)
-            | .scan((x, y) => x+y)
-            | .subscribe(onNext, onComplete, onError);
+            |       .map(x => 1)
+            |       .scan((x, y) => x+y)
+            |       .subscribe(onNext, onComplete, onError);
             | // 1
             | // 2
             | // 3
@@ -824,10 +844,15 @@ section
     
     aside.notes so, observables are great tool for modelling async,
         | how about the browser support
-        | Well, that's the tricky part. 
+        | ====== down =====   
+        | Well, that's the tricky part.
+        | ====== down =====    
         | It's not part of the standards yet and doesn't ship with any of the browsers
+        | ====== down =====   
         | It's at stage 1 for the tc39 process, which means it's proposed.
-        | It didn't make it into ES 2016, 
+        | ====== down =====   
+        | It didn't make it into ES 2016,
+        | ====== down =====    
         | but it should make it into the next release 
         | which is not that far away
         | But that said, 
@@ -841,7 +866,8 @@ section
         li.fragment Angular 2 (http)
         li.fragment more...
     
-    aside.notes as there are a lot of libraries supporting Observables 
+    aside.notes as there are a lot of libraries supporting Observables
+        | ====== down =====    
         | RxJS is one of the mature ones, 
         | it provides APIs for creating observables from events, 
         | promises, event streams, callbacks, virtually anything. 
@@ -850,6 +876,7 @@ section
         | It has a huge community, and good documentation. 
         | They're trying to make their implementation of Observable 
         | to align with the standards Observable.
+        | ====== down =====   
         | baconJS, a light weight functional reactive programming library.
         | They let you treat your events as stream, 
         | similar concept as observables.
@@ -858,10 +885,12 @@ section
         | How many angular users do we have here?
         | So, Angular 1, was filled with promises.
         | it used promise extensively, especially for the http provider.
+        | ====== down =====   
         | Angular 2.0 will be using Observable, currently supported by rxJS.
         | there are a few other projects which implement observables,
+        | ====== down =====   
         | cycle.js is another big one..
-        | So, there is a huge community behind this and this is a worthy contender.
+        | So, there is a huge community behind Observables and people have started thinking in terms of observables.
         | definitely worth using it.
 
 section
@@ -875,10 +904,11 @@ section
             | // [evt Object] 
             | // [evt Object] 
     
-    aside.notes And, coming to our auto-suggest box. 
+    aside.notes And, coming to our auto-suggest box problem. 
        |  Let's see how to implement that using Observable.
        |  I've done it using RxJS, 
        |  but the implemenation should be similar if you use other libraries too.
+       |  Or even if you create it from scratch.
        |  First thing we have to create an observable for the key-up event,
        |  we can do it from scratch like the way we did with the click event.
        |  I've done it using the Observable.fromEvent function provided by RxJS
@@ -891,12 +921,12 @@ section(data-transition="fade")
         code.javascript const searchObs  = Observable.fromEvent(searchBox, 'keyUp')
             |           .map(e => e.target.value);
             | searchObs.subscribe(onNext, onComplete, onError);
-            | // h
-            | // ha
-            | // har
-            | // harr
-            | // harr <-- the user has pressed down key
-            | // harry
+            | // a
+            | // an
+            | // and
+            | // andr
+            | // andr  <-- use has pressed a non char key
+            | // andro
     
     aside.notes we can then map those events to the target value, 
         | which is the text inside the search box 
@@ -965,7 +995,6 @@ section(data-transition="fade")
         | we add distinctUntilChanged operator again from RxJS
         | so, the network request is made only when the text value changes.
 
-
 section(data-transition="fade")
     h1 Enhancements
     pre
@@ -991,32 +1020,42 @@ section(data-transition="fade")
         | that's unlikely as they have more than 130 operators to address most of our needs,
         | also, thaks to es6 imports, 
         | you can just import the operator you need for your use case which will keep the package light weight
+        | but what if i don't want to use rxJS
+        | well, there are other libraries we listed earlier like baconJS, kefir etc.
+        | they implement similar operators
         | but if we still need to,
         | we can write our operators.
-        | we saw how easy it was to create an observable, 
-        | writing operators is not hard.  
+        | like we did with map operator
 
 section
     h1 tl;dr
     ul
-        li.fragment stop thinking in terms of callback
+        li.fragment think reactive
         li.fragment data + operation
         li.fragment start using observables today
         li.fragment libraries for now
         li.fragment write clean code
-        li.fragment future You will thank You
+        li.fragment think about that guy
+        li.fragment it might be you
         
     aside.notes stop thinking about callbacks
-        | start thinking in terms of data and operation, 
+        | ====== down =====   
+        | think reactive
+        | ====== down =====
+        | don't mix data and logic, keep them separate
+        | start thinking in terms of data and operations,
         | use observable to model the data
         | operators to performa the operations  
         | they make extending features simple
+        | ====== down =====
         | they may not be part of standards yet,
-        | but there are  the libraries today
+        | but there are  the libraries today to get started
         | when Observables make it into the standard, 
         | the libraries will just become a polyfill wrapper around  the standard implementation
-        | let's write clean code
-        | future you will thank the present you for that.
+        | ====== down =====
+        | think about that guy who is going to maintain your code
+        | ====== down =====
+        | most probably it might be yourself
 
 section
     h1 Q/A

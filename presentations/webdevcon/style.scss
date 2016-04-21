@@ -33,10 +33,14 @@ body {
 
 .reveal, .reveal section, .reveal .slides {
     text-align: center;
-    
+    .source {
+        font-size: 11px;
+        color: #CCC;
+    }
     pre {
         display: inline-block;
         width: auto;
+        min-width: 800px;
         code {
             margin: 0;
             padding: 1em;
@@ -133,7 +137,7 @@ body {
     }
 
     img.center {
-        margin: 2rem auto;
+        margin: 2rem auto 0 auto;
         display: block;
     }
     .wrap {
