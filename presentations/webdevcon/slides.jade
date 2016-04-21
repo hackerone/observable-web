@@ -4,14 +4,13 @@ section
         div.fragment completely
 
     p.author-name Ganesh Shanmugasundaram <br>
-        @hackerone
+        a{href=}@hackerone
     aside.notes   Welcome to Observable web
         |    Untangling async, when i thought of using this tagline, 
         |    i searched the internet to see if anyone else has used anything similar already.  
         |    Interestingly i found another presentation last year with exactly the same tagline.
         |    That presentation was presenting Javascript Promises as a solution to the async problem 
         |    and a year later, we're dealing with the same problem, slightly differently this time.
-        | ====== down =====
         |    So, had to change the tagline to "untangling async completely".
         |    Hope to solve it completely this time.
         |    Hello all, I'm Ganesh Shanmugasundaram.
@@ -21,8 +20,7 @@ section
    img.fragment.center.london(src=require('./img/london.png'))
    .source http://www.timmythetaxi.com/index_files/stacks_image_52_1.png
    
-   aside.notes I'm a Web Development Engineer at the Bookdepository,
-        | ====== down ===== 
+   aside.notes I'm a Web Development Engineer at the Bookdepository, 
         | an Amazon subsidiary based in London.
         | We are an online book seller.
         | We sell through our own website bookdepository.com and through Amazon Marketplace.
@@ -40,16 +38,13 @@ section
    
     aside.notes Firstly,
         | i'd like to ask a couple of questions
-        | ====== down =====
         |  how many of you use javascript everyday? could be work or fun?
         | could be working on a simple UI interaction or a full blown single page app. anything..
         | [q]
         | wow, that was the wrong question then. How many non js devs here?
-        | people who don't use javascript daily.
-        | ====== down =====  
+        | people who don't use javascript daily.  
         | how many people maintain code that someone else has left behind?
         | [q]
-        | ====== down =====
         | How many people have worked with good code and write good code?
         | [q]
         | I know we all write good code, no one wants to write bad code,
@@ -67,12 +62,9 @@ section
     
     aside.notes Building a feature
         | When i get asked to build a feature big or small on the website,
-        | ====== down =====
         | this is how my thought process works
-        | ====== down =====
         | i try to break it down into smaller chunks and think about it in a series of smaller steps,
         | i guess most of us do that.
-        | ====== down =====
         | in addition, i like to create user stories and think about the pseudo code first 
         | before starting to code
         
@@ -84,11 +76,8 @@ section
         li.fragment Update suggestions
     
     aside.notes Let's talk about a user story here
-        | ====== down =====
         | - when a user types something in the search box
-        | ====== down =====
         | - display a list of search suggestions under search box
-        | ====== down =====
         | - the suggestions should update with more relevant ones  as the user types further
         | the feature is a trivial search auto-suggest 
         | that you can find in most websites today.
@@ -102,13 +91,9 @@ section
         li.fragment Repeat
     
     aside.notes a pseudo code for that feature would look something like this
-        | ====== down =====
         | - get input from user
-        | ====== down =====
         | - query server and get suggestions
-        | ====== down =====
         | - display results
-        | ====== down =====
         | repeat till the user has found his result
         | sounds quite simple isn't it?
         | That's what i think when i start building any new feature.
@@ -123,7 +108,6 @@ section
         | which are asynchronous in nature. 
         | which makes it not so simple anymore.
         | so, how have been handling the async events.
-        | ====== down =====
         | traditionally the protocol for dealing with such events is via callbacks.
         | let's try implementing this the callbacks way.
 
@@ -172,7 +156,6 @@ section
         | which renders the result under the search box.
         | and that would complete our feature.
         | the code works, does what we wanted it to do.
-        | ====== down =====
         | Ok, now, is that good code? would you be happy if you were left with that code to maintain?
         | I wouldn't mind maintaining that code. 
         | That code is simple,
@@ -238,12 +221,9 @@ section
     aside.notes And then i got a reply, which read
         | I was on the tube this morning, I was trying to search for a book, 
         | typed "android" and it showed me android app development books,  
-        | ====== down =====
-        | but before i could click on it, the results changed quickly, to show "snail and the whale".
-        | ====== down ===== 
+        | but before i could click on it, the results changed quickly, to show "snail and the whale". 
         | I had to press backspace and type "android" again to get to the book, and it worked the second time. 
-        | The same issue happened a few times during my journey
-        | ====== down ===== 
+        | The same issue happened a few times during my journey 
         | I'm on Nexus 6, on latest version of Chrome. 
         | I can't seem to reproduce the issue now though, seemed to have fixed itself!
         | We all love the issue that fixes itself.
@@ -263,12 +243,9 @@ section
         li.fragment Mobile internet 
         li.fragment Trying to find a book
         
-    aside.notes we have an extended use case
-        | ====== down ===== 
-        | a user who is on the tube as the Londoners call it 
-        | ====== down ===== 
-        | or a Metro as most of the world calls it.
-        | ====== down =====  
+    aside.notes we have an extended use case 
+        | a user who is on the tube as the Londoners call it  
+        | or a Metro as most of the world calls it.  
         | he's on mobile network connection,
         | trying to find a book,
         | using the feature we just launched.
@@ -284,16 +261,12 @@ section
         li.fragment Device constraints
         
     aside.notes 
-        | What kind of environment issues should we consider for this use case?
-        | ====== down ===== 
-        | - network might be slow, depending on the type of connection he's on.
-        | ====== down =====  
+        | What kind of environment issues should we consider for this use case? 
+        | - network might be slow, depending on the type of connection he's on.  
         | - network might be unstable, since he's on a train and moving really fast,
         |  some network requests might fail
-        |  the trains in europe are way faster than the ones here
-        | ====== down ===== 
-        | - data cost, depending on the plan he is, there's going to be a network cost.
-        | ====== down ===== 
+        |  the trains in europe are way faster than the ones here 
+        | - data cost, depending on the plan he is, there's going to be a network cost. 
         | - the device might be slow or low on memory 
         | We would want to cater for that user as well, 
         | because he buys our books, 
@@ -307,17 +280,14 @@ section
         li.fragment Remove duplicate requests
         li.fragment Handle race condition
             
-    aside.notes how could we improve?
-        | ====== down ===== 
+    aside.notes how could we improve? 
         | - reduce the number of requests we make, that'll be quite useful especially in terms of bandwidth, and data costs.
         | in this case, let's say we query the server
         | only when the user stops typing for about 100 milliseconds
-        | we can  add some debounce logic to achieve that[100ms]
-        | ====== down ===== 
+        | we can  add some debounce logic to achieve that[100ms] 
         | - remove duplicate requests
         | you don't want to make the same request to the server more than once.
-        | that'll save some cost and time
-        | ====== down ===== 
+        | that'll save some cost and time 
         | - avoid race conditions, make sure we show the results for the latest value in the search box.
         | this will address the issue we saw earlier.
         | ok, so we've figured out what we want to do, 
@@ -357,11 +327,8 @@ section
         li.fragment one more problem...
         
     aside.notes now we have more problems
-        | ====== down =====
         | - we've introduced a state for the timer which makes it harder to test
-        | ====== down =====
         | - we've gotten into the callback hell!
-        | ====== down =====
         | also, did anyone spot anything else that was wrong with the code?
               
 section
@@ -394,15 +361,11 @@ section
         li.fragment handle error
     
     aside.notes May be promises will save us then?
-        | ====== down =====
-        | Promises are chainable.
-        | ====== down ===== 
+        | Promises are chainable. 
         | they are more readable and comprehendable.
-        | ====== down =====
         | most modern browsers support promises, 
         | and there are polyfills for the older ones,
         | which is great.
-        | ====== down =====
         | they can handle exception, 
         | atlease better than callbacks
 
@@ -416,13 +379,10 @@ section
     aside.notes let's looks at some constraints of promise
         | before using them in our code.
         | you don't want to regret later right?
-        | ====== down =====
         | - a promise must only resolve once. and it can have only one value
-        | ====== down =====
         | - when you create a promise 
         | it's on it's way to be resolved or rejected, 
-        | it can't be modified later.
-        | ====== down =====  
+        | it can't be modified later.  
         | - Promises can't be cancelled, 
         | you can discard the value the promise resolved, 
         | but you can't cancel the operation.
@@ -495,13 +455,9 @@ section
     
     aside.notes Let's see observables can do here, but before that, let's see what observables are
         | Bluntly put, 
-        | ====== down =====
         | an observable is an object type for modelling async data.
-        | ====== down =====
         | it's a lazy stream of events
-        | ====== down =====
         | It pushes or emits zero to n values over a period of time.
-        | ====== down =====
         | May or may not finish
 
 section
@@ -514,21 +470,16 @@ section
             span.fragment Observable: 
             span   async + multiple value
     
-    aside.notes More clearly,
-        | ====== down =====  
+    aside.notes More clearly,  
         | If it's a synchronous operation, like generating a random number or any computation
-        | and returns a single value, it can be represented by primitives like string, number etc.
-        | ====== down =====  
+        | and returns a single value, it can be represented by primitives like string, number etc.  
         | If it's synchronous operation and returns multiple values, 
-        | it can be modelled iterators. A JS array or generators are good examples.
-        | ====== down =====  
+        | it can be modelled iterators. A JS array or generators are good examples.  
         | If it's asynchronous operation and emits a ONLY a single value,
-        | it can be modelled as a promise.
-        | ====== down =====  
+        | it can be modelled as a promise.  
         | And finally, this is where there is some hollow space 
         | as we don't have anything compelling at the moment
-        | to model something asynchronous and emits multiple values,
-        | ====== down =====  
+        | to model something asynchronous and emits multiple values,  
         | and Observable fills in this space
         | Now that brings us to another question,
         | so do i have to learn another API?
@@ -672,28 +623,21 @@ section
         | only the ajax request is a good candidate for a promise. 
         | So, what about observables?
         | what can be modelled into observables. 
-        | if you take a look at the browser events, we have
-        | ====== down =====  
+        | if you take a look at the browser events, we have  
         | - keyboard events like keyup / keydown etc.
         | they emit values everytime user types.
         | they can be observables.
-        | except the oncomplete will never get called.
-        | ====== down =====  
-        | - Mouse events like mouse click, mouse up / down etc can be observables
-        | ====== down =====  
+        | except the oncomplete will never get called.  
+        | - Mouse events like mouse click, mouse up / down etc can be observables  
         | - Animation events start, end, iteration can be observable.
-        | they'll have an oncomplete event triggered.
-        | ====== down =====  
+        | they'll have an oncomplete event triggered.  
         | - lifecycle events settimeout, request animation frame,
-        | they can be modelled to observable
-        | ====== down =====  
+        | they can be modelled to observable  
         | - ajax calls,
         | they emit just 1 event, a success or a failure.
-        | most of use promises nowadays for this, but they can be observables
-        | ====== down =====  
+        | most of use promises nowadays for this, but they can be observables  
         | - websocket events where data is pushed for every message,
-        | they're good candidates for observables.
-        | ====== down =====  
+        | they're good candidates for observables.  
         | - so, nearly all the events that we encounter while we build apps can be observables. 
         
 section
@@ -713,22 +657,16 @@ section
         | When i first learnt about observables, 
         | i thought they look quite similar to event emitters.
         | I even thought they were event emitters for the browser?
-        | But they are different
-        | ====== down =====  
-        | They both implement the observer pattern.
-        | ====== down =====  
-        | They both emit  multiple values.
-        | ====== down =====  
-        | And can be subscribed on.
-        | ====== down =====  
+        | But they are different  
+        | They both implement the observer pattern.  
+        | They both emit  multiple values.  
+        | And can be subscribed on.  
         | However, Observables are lazy in nature, 
         | they're Cold
-        | nothing happens when you instantiate the observable.
-        | ====== down =====  
+        | nothing happens when you instantiate the observable.  
         | Actual operation like the ajax request happens only on subscription.
         | While in case of event emitter, 
-        | the events are emitted no matter if you're listening or not
-        | ====== down =====  
+        | the events are emitted no matter if you're listening or not  
         | An observable will have one subscriber by default. 
         | subscribing on observable multiple times 
         | will cause it to perform the operation on each subscription
@@ -748,18 +686,14 @@ section
         | but allows for multiple value to be emitted, yea, yea that's fine.
         | But that's not really compelling right?
         | So, what makes it special?
-        | That we'll be happy to go through the pain of learning a new syntax.
-        | ====== down =====  
+        | That we'll be happy to go through the pain of learning a new syntax.  
         | A few things actually, it could act as a unified protocol for all the async events.
         | So, you want to represent something that emits just one value, you can use an observable
         | you want to represent something that emits a zillion values, you can use observables for that too. 
-        | you can even wrap a synchrnous operation in an observable.
-        | ====== down =====  
+        | you can even wrap a synchrnous operation in an observable.  
         | They're transformable, 
-        | you can apply transformation so each value emitted will be transformed to a different value.
-        | ====== down =====   
+        | you can apply transformation so each value emitted will be transformed to a different value.   
         | Composable, you can combine 2 or more observable to make a third one.
-        | ====== down =====
         | And you can make them behave like inverted iterators  
         | which means we can extended array operators like map, reduce, filter, forEach. 
         | And you can create your own operators as well if required.
@@ -861,16 +795,11 @@ section
         li.fragment But...
     
     aside.notes so, observables are great tool for modelling async,
-        | how about the browser support
-        | ====== down =====   
-        | Well, that's the tricky part.
-        | ====== down =====    
-        | It's not part of the standards yet and doesn't ship with any of the browsers
-        | ====== down =====   
-        | It's at stage 1 for the tc39 process, which means it's proposed.
-        | ====== down =====   
-        | It didn't make it into ES 2016,
-        | ====== down =====    
+        | how about the browser support   
+        | Well, that's the tricky part.    
+        | It's not part of the standards yet and doesn't ship with any of the browsers   
+        | It's at stage 1 for the tc39 process, which means it's proposed.   
+        | It didn't make it into ES 2016,    
         | but it should make it into the next release 
         | which is not that far away
         | But that said, 
@@ -884,8 +813,7 @@ section
         li.fragment Angular 2 (http)
         li.fragment more...
     
-    aside.notes as there are a lot of libraries supporting Observables
-        | ====== down =====    
+    aside.notes as there are a lot of libraries supporting Observables    
         | RxJS is one of the mature ones, 
         | it provides APIs for creating observables from events, 
         | promises, event streams, callbacks, virtually anything. 
@@ -893,8 +821,7 @@ section
         | compose and transform observables. Scan is one of their operators. 
         | It has a huge community, and good documentation. 
         | They're trying to make their implementation of Observable 
-        | to align with the standards Observable.
-        | ====== down =====   
+        | to align with the standards Observable.   
         | baconJS, a light weight functional reactive programming library.
         | They let you treat your events as stream, 
         | similar concept as observables.
@@ -903,11 +830,9 @@ section
         | How many angular users do we have here?
         | [q]
         | So, Angular 1, was filled with promises.
-        | it used promise extensively, especially for the http provider.
-        | ====== down =====   
+        | it used promise extensively, especially for the http provider.   
         | Angular 2.0 will be using Observable, currently supported by rxJS.
-        | there are a few other projects which implement observables,
-        | ====== down =====   
+        | there are a few other projects which implement observables,   
         | cycle.js is another big one..
         | So, there is a huge community behind Observables and people have started thinking in terms of observables.
         | definitely worth using it.
@@ -1095,28 +1020,22 @@ section
         li.fragment think about that guy
         li.fragment it might be you
         
-    aside.notes stop thinking about callbacks
-        | ====== down =====   
+    aside.notes stop thinking about callbacks   
         | think reactive
         | one of the advantages i found
         | was now i think more about what to implement 
         | rather than how to implement them.
-        | ====== down =====
         | don't mix data and logic, keep them separate
         | start thinking in terms of data and operations,
         | use observable to model the data
         | operators to perform the operations on the data  
         | they make extending features simple
-        | ====== down =====
         | they may not be part of standards yet,
         | but there are  the libraries today to get started
         | when Observables make it into the standard, 
         | the libraries will just become a polyfill wrapper around  the standard implementation
-        | ====== down =====
         | Write clean code
-        | ====== down =====
         | think about that guy who is going to maintain your code
-        | ====== down =====
         | most probably it might be yourself
 
 section
