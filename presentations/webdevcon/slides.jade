@@ -42,10 +42,13 @@ section
         | ====== down =====
         |  how many of you use javascript everyday? could be work or fun?
         | could be working on a simple UI interaction or a full blown single page app. anything..
+        | [q]
         | ====== down =====  
         | how many people maintain code that someone else has left behind?
+        | [q]
         | ====== down =====
         | How many people have worked with good code and write good code?
+        | [q]
         | I know we all write good code, no one wants to write bad code,
         | except for that guy who left you to maintain his code.
         | In this talk, i'd like to discuss one major problem i've been 
@@ -223,7 +226,7 @@ section
         
 section
    blockquote.left 
-        span.fragment I was on the tube this morning, I was trying to search for a book, 
+        span I was on the tube this morning, I was trying to search for a book, 
             | typed "android" and it showed me android app development books,  
         span.fragment but before i could click on it, the results changed quickly, to show "snail and the whale".<br><br> 
         span.fragment I had to press backspace and type "android" again to get to the book, and it worked the second time. 
@@ -338,9 +341,8 @@ section
         | let's use the age old method of adding a setTimeout,
         | and move the timeout to 100 milli seconds, everytime we get a keyup event
         | that's the code for that
-        | and it gets harder to read now,
-        | ok, now how many of you think that's bad code? 
-        | and how many of you will be happy to maintain it?
+        | and it gets harder to read now.
+        | That in my opinion is not good code.
 
 section
     h1 More problems
@@ -468,9 +470,10 @@ section
         | can we do better than this? 
         | can we make it more readable /  maintainable?
         | more importantly extendable.
-        | may be use a framework or library?        
+        | may be use a framework or library?
         | everytime i tell that non-js dev friends a new framework or library in javascript 
         | i get a look of disapproval.
+        | Because there is a new library getting released out there every day
         | Shouldn't this be a feature in the language rather than a library?
         | a language shouldn't force you to write bad code?
         | especially a language that powers nearly all the websites.
@@ -487,6 +490,7 @@ section
     
     aside.notes Let's see observables can do here, but before that, let's see what observables are
         | Bluntly put, 
+        | ====== down =====
         | an observable is an object type for modelling async data.
         | ====== down =====
         | it's a lazy stream of events
@@ -554,6 +558,7 @@ section
         | We pass onNext and onError functions.
         | The onNext gets called every time 
         | the observable emits a value.
+        | The onError gets called when there is an error or an exception.
 
 section
     h1 onComplete
@@ -585,7 +590,7 @@ section
 section
     h1 Creating an Observable
     pre
-        code.javascript $Obs = new Observable(observer => {
+        code.javascript $obs = new Observable(observer => {
            |        observer.next(1);
            |        observer.complete();
            | 
@@ -593,7 +598,7 @@ section
            |            console.log('unsubscribed');
            |        }
            | }); 
-           | subs = $Obs.subscribe(onNext, onComplete, onError);
+           | subs = $obs.subscribe(onNext, onComplete, onError);
            | // 1 <-- onNext
            | // complete <-- onComplete
            | subs.unsubscribe()
@@ -605,16 +610,16 @@ section
         | How many of you actually create promise from scratch?
         | So, the Observable takes in a function which receives an observer.
         | observer will have 3 methods next, complete and error
-        | subscribing to an observable will call this function that we passed.
-        | onNext will be called everytime you call observer.next inside the observable
-        | and it'll receive the parameter you pass observer.next
-        | in our case, it'll be called once with 1 
-        | similarly, onComplete will be called when you call observer.complete()
-        | same for onError
-        | the returned function, will be called when you unsubscribe the subscription   
+        | We call the observer.next when we want to push or emit a value
+        | In this case we call with value 1
+        | we call observer.complete when we've done pushing all the values
+        | we call observer.error when there's an error 
+        | finally, this returns a function, this will be called on unsubscription   
         | that's a very simple obsevable which emits 1 when you subscribe.
-        | calls oncomplete right after onNext
+        | calls oncomplete right after the first value
         | and prints unsubscribed on unsubscription
+        | That's not a useful observable though, 
+        | it just emits one value.
 
 section
     h1 Creating an Observable
@@ -632,6 +637,11 @@ section
             |     }
             |     
             | });
+            | subs = $obs.subscribe(onNext, onComplete, onError);
+            | // click
+            | // [event info]
+            | // click
+            | // [event info]
             
     aside.notes let's see how we'll model an actual async event
         |  we attach an click event listener on a button, 
@@ -640,6 +650,7 @@ section
         |  we don't call observer.complete or observer.error here, so the onComplete or error will never be called.  
         |  And we return a clean up function which will remove the listener from the button.
         | So, unsubscription will remove the event listener from the button
+        | Not complicated, straight forward.
 
  section
     h1 What?
@@ -691,7 +702,8 @@ section
         li.fragment One subscriber ( default )
     
     aside.notes How many of you work on nodeJS? 
-        | If you've worked on a nodeJS system,
+        | If you've worked on a nodeJS system, 
+        | [q]
         | you'd be familiar with the concept of event emitters, they're everywhere in node.
         | When i first learnt about observables, 
         | i thought they look quite similar to event emitters.
@@ -883,6 +895,7 @@ section
         | And they provide bunch of operators to manipulate the streams. 
         | Not as extensive as rxJS, but supports most of the use cases.
         | How many angular users do we have here?
+        | [q]
         | So, Angular 1, was filled with promises.
         | it used promise extensively, especially for the http provider.
         | ====== down =====   
